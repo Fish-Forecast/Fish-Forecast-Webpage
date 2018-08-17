@@ -1,0 +1,47 @@
+---
+output:
+  xaringan::moon_reader:
+    css: "my-theme.css"
+    lib_dir: libs
+    nature:
+      highlightStyle: github
+      highlightLines: true
+---
+
+```{r setup, include=FALSE, message=FALSE}
+options(htmltools.dir.version = FALSE, servr.daemon = TRUE)
+library(huxtable)
+```
+
+class: center, middle, inverse
+# Forecasting Time Series
+## Measures of Forecast Accuracy
+
+.futnote[Eli Holmes, NOAA Fisheries]
+
+.citation[eli.holmes@noaa.gov]
+
+---
+
+```{r load_data, echo=FALSE}
+load("Data/landings.RData")
+landings$log.metric.tons = log(landings$metric.tons)
+landings = subset(landings, Year <= 1989)
+landings = subset(landings, Species %in% c("Anchovy","Sardine"))
+library(ggplot2)
+```
+
+## Basic idea
+
+Past values in the time series have information about the current state.
+
+.center[
+
+!(./figs/SpeciesPlot.jpeg)
+
+]
+
+
+---
+
+## Measures of Forecast Accuracy
