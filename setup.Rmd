@@ -1,0 +1,39 @@
+---
+title: "Set-up"
+---
+
+```{r knit, include=FALSE, echo=FALSE}
+file.copy("landings.RData",
+          "../Catch-Forecasting-Files/landings.RData",
+          overwrite = TRUE)
+library(knitr)
+files = c("Forecasting 1 - Introduction",
+        "Forecasting 2 - TV Regression")
+for(fil in files){
+  infil = paste0(fil,".Rmd")
+outfil = paste0("../Catch-Forecasting-Files/",fil,".R")
+knit(infil, output = outfil, tangle=TRUE)
+}
+```
+
+
+Set-up:
+
+1. Go to https://github.com/eeholmes/Catch-Forecasting-Files and copy all the files into a directory.
+
+- If GitHub Desktop works for you, then you can click 'Clone or download' and then click open in Desktop.
+
+- If GitHub Desktop is not working for you, then click 'Clone or download' and then download a zip file and unzip on your computer.
+
+2. Open RStudio and 'New Project' in the upper right.  Then select 'From Existing Directory' and select the directory where the 'Catch-Forecasting-Files' files are.
+
+3. Next time you open RStudio, you can select your project from the upper right..
+
+You will need to install the following packages: 
+
+```
+install.packages("ggplot2")
+install.packages("urca")
+install.packages("tseries")
+install.packages("forecast")
+```

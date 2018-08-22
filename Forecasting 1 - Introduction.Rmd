@@ -8,9 +8,13 @@ output:
       highlightLines: true
 ---
 
-```{r setup, include=FALSE, message=FALSE}
+```{r setup, include=FALSE, message=FALSE, purl=FALSE}
 options(htmltools.dir.version = FALSE, servr.daemon = TRUE)
 library(huxtable)
+```
+
+```{r load-packages, include=FALSE, message=FALSE}
+require(ggplot2)
 ```
 
 class: center, middle, inverse
@@ -26,7 +30,7 @@ class: center, middle, inverse
 
 ## Forecasting Time Series
 
-This week we will learn a number of standard approaches for forecasting from time series alone (meaning without any covariates or exogenous variables).  In later, weeks we will address how to incorporate covariates into a time series model and forecast.
+This week we will learn a number of standard approaches for forecasting from time series alone--meaning without any covariates or exogenous variables.  At the end of the week, we will address how to incorporate covariates into a time series forecast.
 
 ---
 
@@ -79,7 +83,7 @@ I will demonstrate these methods by replicating the work in Stergiou and Christo
 
 .center[
 
-!(./figs/StergiouChristou1996.jpeg)
+!(./figs/StergiouChristou1996.png)
 
 ]
 
@@ -88,7 +92,11 @@ I will demonstrate these methods by replicating the work in Stergiou and Christo
 
 ## Data
 
-We will use the annual landings data from Hellenic (Greek) waters that were used in Stergiou and Christou (1996). Stergiou and Christou analyzed 16 species.  We will look a subset of species: Anchovy, Sardine, Chub mackerel, Horse mackerel, and Jack mackerel.  Stergiou and Christou used the data from 1964-1989.  We have the data up to 2007, but will focus mainly on 1964-1989 (the first half of the time series) to replicate Stergiou and Christou's analyses.
+We will use the annual landings data from Hellenic (Greek) waters that were used in Stergiou and Christou (1996). 
+
+Stergiou and Christou analyzed 16 species.  We will look two of the species: Anchovy and Sardine.  
+
+Stergiou and Christou used the data from 1964-1989.  We have the data up to 2007, but will focus mainly on 1964-1989 (the first half of the time series) to replicate Stergiou and Christou's analyses.
 
 ---
 
@@ -106,11 +114,10 @@ We will use the annual landings data from Hellenic (Greek) waters that were used
 
 Load the data as follows and use only the 1964-1989 data.
 ```{r load_data, fig.align = "center", fig.height = 4, fig.width = 8}
-load("Data/landings.RData")
+load("landings.RData")
 landings$log.metric.tons = log(landings$metric.tons)
 landings = subset(landings, Year <= 1989)
 landings = subset(landings, Species %in% c("Anchovy","Sardine"))
-library(ggplot2)
 ggplot(landings, aes(x=Year, y=log.metric.tons)) +
   geom_line() + facet_wrap(~Species)
 ```

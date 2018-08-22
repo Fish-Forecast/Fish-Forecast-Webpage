@@ -80,7 +80,7 @@ We will use the annual landings data from Hellenic (Greek) waters that were used
 Load the data as follows and use only the 1964-1989 data.
 
 ```r
-load("Data/landings.RData")
+load("landings.RData")
 landings$log.metric.tons = log(landings$metric.tons)
 landings = subset(landings, Year &lt;= 1989)
 library(ggplot2)

@@ -26,7 +26,7 @@ class: center, middle, inverse
 Load the data and necessary libraries.
 
 ```{r load_data, echo=FALSE, message=FALSE, warning=FALSE}
-load("Data/landings.RData")
+load("landings.RData")
 landings$log.metric.tons = log(landings$metric.tons)
 landings = subset(landings, Year <= 1989)
 anchovy = subset(landings, Species=="Anchovy")$log.metric.tons
@@ -446,7 +446,7 @@ plot(diff(anchovy), type="l")
 
 Let's test the anchovy and sardine data with one difference.
 
-```{r diff1}
+```{r diff2}
 diff.anchovy = diff(anchovy)
 diff.sardine = diff(sardine)
 kpss.test(diff.anchovy)
@@ -458,7 +458,7 @@ The null hypothesis of stationairity is not rejected.
 ---
 
 
-```{r diff2}
+```{r test.dickey.fuller.diff}
 summary(ur.df(diff.anchovy))
 ur.df(diff.sardine)
 ```

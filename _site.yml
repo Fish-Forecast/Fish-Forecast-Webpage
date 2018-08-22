@@ -1,0 +1,21 @@
+name: "Catch-Forecasting"
+output_dir: "."
+navbar:
+  title: "Catch Forecasting Workshop"
+  left:
+    - text: "Set-up"
+      icon: fa-clone
+      href: setup.html
+    - text: "Lecture 1"
+      href: Forecasting_1_-_Introduction.html
+    - text: "Lecture 2"
+      href: Forecasting_2_-_TV_Regression.html
+    - text: "Lecture 3"
+      href: Forecasting_3_-_ARMA.html
+output:
+  html_document:
+    theme: readable
+    toc_depth: 3
+    toc_float:
+      collapsed: false
+    css: styles.css

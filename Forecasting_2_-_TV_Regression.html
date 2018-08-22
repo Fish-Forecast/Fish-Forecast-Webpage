@@ -13,12 +13,11 @@
 
 class: center, middle, inverse
 # Forecasting Time Series
-## Eli Holmes
-.large[_Northwest Fisheries Science Center&lt;br&gt;National Oceanic and Atmospheric Administration&lt;br&gt;Seattle, WA_]
+## Time-varying Regression
 
-.futnote[eli.holmes@noaa.gov]
+.futnote[Eli Holmes, NOAA Fisheries]
 
-.citation[@eli_holmes]
+.citation[eli.holmes@noaa.gov]
 
 ---
 
@@ -30,11 +29,11 @@ class: center, middle, inverse
 Time-varying regression is simply a linear regression where time is the explanatory variable:
 
 `$$log(catch) = \alpha + \beta t + \beta_2 t^2 + \dots + e_t$$`
-The error term ( `\(e_t\)` ) was treated as an independent Normal error ( `\(\sim N(0, \sigma)\)` ) in Stergiou and Christou (1995).  If that is not a reasonable assumption, then it is simple to fit an autocorrelated error model or non-Gausian error model in R.
+The error term ( `\(e_t\)` ) was treated as an independent Normal error ( `\(\sim N(0, \sigma)\)` ) in Stergiou and Christou (1996).  If that is not a reasonable assumption, then it is simple to fit an autocorrelated error model or non-Gausian error model in R.
 
 ---
 
-Stergiou and Christou (1995) fit time-varying regressions to the 1964-1987 data and show the results in Table 4.
+Stergiou and Christou (1996) fit time-varying regressions to the 1964-1987 data and show the results in Table 4.
 
 ![Table 4](./figs/SC1995Table4.png)
 
@@ -263,6 +262,8 @@ class: center, middle, inverse
 * You are only forecasting a few years ahead
 
 * No assumptions required about 'stationarity'
+
+---
 
 ## Why not to use time-varying regression?
 
