@@ -1,5 +1,5 @@
 ---
-title: "Creating a simple website from Rmarkdown files"
+title: "Forecasting Catch Time Series"
 ---
 
 ```{r echo=FALSE}
@@ -7,17 +7,4 @@ title: "Creating a simple website from Rmarkdown files"
 library(icon)
 ```
 
-We will create a simple website from Rmarkdown files using RStudio.
-
-Although the website we create will be simple and bare, you can create more complex and customized websites using the techniques you learn.  Here are some examples:
-
-* https://rmarkdown.rstudio.com  [`r icon::fa("github")`](https://github.com/rstudio/rmarkdown/tree/gh-pages)
-  
-* https://rmarkdown.rstudio.com/flexdashboard/  [`r icon::fa("github")`](https://github.com/rstudio/rmarkdown/tree/gh-pages)
-
- 
- Learn more
-
-* https://bookdown.org/yihui/rmarkdown/rmarkdown-site.html
-
-* https://rmarkdown.rstudio.com/lesson-13.html
+This week we will learn a number of standard approaches for forecasting from catch time series.
