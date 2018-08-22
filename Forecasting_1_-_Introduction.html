@@ -1,332 +1,158 @@
 <!DOCTYPE html>
-
-<html xmlns="http://www.w3.org/1999/xhtml">
-
-<head>
-
-<meta charset="utf-8" />
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<meta name="generator" content="pandoc" />
-
-
-
-
-<title></title>
-
-<script src="site_libs/jquery/jquery.min.js"></script>
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<link href="site_libs/bootstrap/css/readable.min.css" rel="stylesheet" />
-<script src="site_libs/bootstrap/js/bootstrap.min.js"></script>
-<script src="site_libs/bootstrap/shim/html5shiv.min.js"></script>
-<script src="site_libs/bootstrap/shim/respond.min.js"></script>
-<script src="site_libs/navigation/tabsets.js"></script>
-<link href="site_libs/highlightjs/default.css" rel="stylesheet" />
-<script src="site_libs/highlightjs/highlight.js"></script>
-<link href="site_libs/font-awesome/css/fa-svg-with-js.css" rel="stylesheet" />
-<script src="site_libs/font-awesome/js/fontawesome-all.min.js"></script>
-<script src="site_libs/font-awesome/js/fa-v4-shims.min.js"></script>
-
-<style type="text/css">code{white-space: pre;}</style>
-<style type="text/css">
-  pre:not([class]) {
-    background-color: white;
-  }
-</style>
-<script type="text/javascript">
-if (window.hljs) {
-  hljs.configure({languages: []});
-  hljs.initHighlightingOnLoad();
-  if (document.readyState && document.readyState === "complete") {
-    window.setTimeout(function() { hljs.initHighlighting(); }, 0);
-  }
-}
-</script>
-
-
-
-<style type="text/css">
-h1 {
-  font-size: 34px;
-}
-h1.title {
-  font-size: 38px;
-}
-h2 {
-  font-size: 30px;
-}
-h3 {
-  font-size: 24px;
-}
-h4 {
-  font-size: 18px;
-}
-h5 {
-  font-size: 16px;
-}
-h6 {
-  font-size: 12px;
-}
-.table th:not([align]) {
-  text-align: left;
-}
-</style>
-
-<link rel="stylesheet" href="styles.css" type="text/css" />
-
-</head>
-
-<body>
-
-<style type = "text/css">
-.main-container {
-  max-width: 940px;
-  margin-left: auto;
-  margin-right: auto;
-}
-code {
-  color: inherit;
-  background-color: rgba(0, 0, 0, 0.04);
-}
-img {
-  max-width:100%;
-  height: auto;
-}
-.tabbed-pane {
-  padding-top: 12px;
-}
-.html-widget {
-  margin-bottom: 20px;
-}
-button.code-folding-btn:focus {
-  outline: none;
-}
-</style>
-
-
-<style type="text/css">
-/* padding for bootstrap navbar */
-body {
-  padding-top: 66px;
-  padding-bottom: 40px;
-}
-/* offset scroll position for anchor links (for fixed navbar)  */
-.section h1 {
-  padding-top: 71px;
-  margin-top: -71px;
-}
-
-.section h2 {
-  padding-top: 71px;
-  margin-top: -71px;
-}
-.section h3 {
-  padding-top: 71px;
-  margin-top: -71px;
-}
-.section h4 {
-  padding-top: 71px;
-  margin-top: -71px;
-}
-.section h5 {
-  padding-top: 71px;
-  margin-top: -71px;
-}
-.section h6 {
-  padding-top: 71px;
-  margin-top: -71px;
-}
-</style>
-
-<script>
-// manage active state of menu based on current page
-$(document).ready(function () {
-  // active menu anchor
-  href = window.location.pathname
-  href = href.substr(href.lastIndexOf('/') + 1)
-  if (href === "")
-    href = "index.html";
-  var menuAnchor = $('a[href="' + href + '"]');
-
-  // mark it active
-  menuAnchor.parent().addClass('active');
-
-  // if it's got a parent navbar menu mark it active as well
-  menuAnchor.closest('li.dropdown').addClass('active');
-});
-</script>
-
-
-<div class="container-fluid main-container">
-
-<!-- tabsets -->
-<script>
-$(document).ready(function () {
-  window.buildTabsets("TOC");
-});
-</script>
-
-<!-- code folding -->
+<html>
+  <head>
+    <title></title>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="my-theme.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
 
 
 
 
 
 
-<div class="navbar navbar-default  navbar-fixed-top" role="navigation">
-  <div class="container">
-    <div class="navbar-header">
-      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar">
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-      </button>
-      <a class="navbar-brand" href="index.html">Catch Forecasting Workshop</a>
-    </div>
-    <div id="navbar" class="navbar-collapse collapse">
-      <ul class="nav navbar-nav">
-        <li>
-  <a href="setup.html">
-    <span class="fa fa-clone"></span>
-     
-    Set-up
-  </a>
-</li>
-<li>
-  <a href="Forecasting_1_-_Introduction.html">Lecture 1</a>
-</li>
-      </ul>
-      <ul class="nav navbar-nav navbar-right">
-        
-      </ul>
-    </div><!--/.nav-collapse -->
-  </div><!--/.container -->
-</div><!--/.navbar -->
+class: center, middle, inverse
+# Forecasting Time Series
+## Eli Holmes
+.large[_Northwest Fisheries Science Center&lt;br&gt;National Oceanic and Atmospheric Administration&lt;br&gt;Seattle, WA_]
 
-<div class="fluid-row" id="header">
+.futnote[eli.holmes@noaa.gov]
+
+.citation[@eli_holmes]
+
+---
+
+## Forecasting Time Series
+
+This week we will learn a number of standard approaches for forecasting from time series alone--meaning without any covariates or exogenous variables.  At the end of the week, we will address how to incorporate covariates into a time series forecast.
+
+---
+
+## Many approaches are available for non-seasonal modeling
+
+.pull-left.left[
+*Stergiou and Christou 1995*
+
+- Time-varying regression
+- Box-Jenkins models, aka ARIMA models
+- Multivariate time-series approaches
+    - Harmonic regression
+    - Dynamic regression
+    - Vector autoregression (MAR)
+- Exponential smoothing (2 variants)
+- Exponential surplus yield model (FOX)
+]
+
+.pull-right.left[
+*Georgakarakos et al. 2006*
+
+- Box-Jenkins models, aka ARIMA models
+- Artificial neural networks (ANNs)
+- Bayesian dynamic models
+
+*Lawer 2016*
+
+- Box-Jenkins models, aka ARIMA models
+- Artificial neural networks (ANNs)
+- Exponential Smoothing (6 variants)
+]
+
+---
+
+## Forecasting Time Series
+
+We will focus on a subset of these methods.  There are methods have a very long tradition (ARIMA), are often found to be the best or equally best method (Exponential smoothing), are non-parametric and recently used in a number of fisheries papers (EDM), and are commonly used in many variants (DLM):
+
+- Time-varying regression
+- Box-Jenkins models, aka ARIMA models
+- Exponential Smoothing
+- Empirical dynamic modeling (EDM)
+- Dynamic linear modeling (DLM)
+
+---
+
+## Stergiou and Christou 1996
+
+I will demonstrate these methods by replicating the work in Stergiou and Christou (1996) Modelling and forecasting annual fisheries catches: comparison of regression, univariate and multivariate time series methods. Fisheries Research 25: 105-136.
+
+.center[
+
+!(./figs/StergiouChristou1996.png)
+
+]
 
 
+---
 
+## Data
 
-</div>
+We will use the annual landings data from Hellenic (Greek) waters that were used in Stergiou and Christou (1996). 
 
+Stergiou and Christou analyzed 16 species.  We will look two of the species: Anchovy and Sardine.  
 
-<p>class: center, middle, inverse # Forecasting Time Series ## Eli Holmes .large[<em>Northwest Fisheries Science Center<br>National Oceanic and Atmospheric Administration<br>Seattle, WA</em>]</p>
-<p>.futnote[<a href="mailto:eli.holmes@noaa.gov">eli.holmes@noaa.gov</a>]</p>
-<p>.citation<span class="citation">[@eli_holmes]</span></p>
-<hr />
-<div id="forecasting-time-series" class="section level2">
-<h2>Forecasting Time Series</h2>
-<p>This week we will learn a number of standard approaches for forecasting from time series alone–meaning without any covariates or exogenous variables. At the end of the week, we will address how to incorporate covariates into a time series forecast.</p>
-<hr />
-</div>
-<div id="many-approaches-are-available-for-non-seasonal-modeling" class="section level2">
-<h2>Many approaches are available for non-seasonal modeling</h2>
-<p>.pull-left.left[ <em>Stergiou and Christou 1995</em></p>
-<ul>
-<li>Time-varying regression</li>
-<li>Box-Jenkins models, aka ARIMA models</li>
-<li>Multivariate time-series approaches
-<ul>
-<li>Harmonic regression</li>
-<li>Dynamic regression</li>
-<li>Vector autoregression (MAR)</li>
-</ul></li>
-<li>Exponential smoothing (2 variants)</li>
-<li>Exponential surplus yield model (FOX) ]</li>
-</ul>
-<p>.pull-right.left[ <em>Georgakarakos et al. 2006</em></p>
-<ul>
-<li>Box-Jenkins models, aka ARIMA models</li>
-<li>Artificial neural networks (ANNs)</li>
-<li>Bayesian dynamic models</li>
-</ul>
-<p><em>Lawer 2016</em></p>
-<ul>
-<li>Box-Jenkins models, aka ARIMA models</li>
-<li>Artificial neural networks (ANNs)</li>
-<li>Exponential Smoothing (6 variants) ]</li>
-</ul>
-<hr />
-</div>
-<div id="forecasting-time-series-1" class="section level2">
-<h2>Forecasting Time Series</h2>
-<p>We will focus on a subset of these methods. There are methods have a very long tradition (ARIMA), are often found to be the best or equally best method (Exponential smoothing), are non-parametric and recently used in a number of fisheries papers (EDM), and are commonly used in many variants (DLM):</p>
-<ul>
-<li>Time-varying regression</li>
-<li>Box-Jenkins models, aka ARIMA models</li>
-<li>Exponential Smoothing</li>
-<li>Empirical dynamic modeling (EDM)</li>
-<li>Dynamic linear modeling (DLM)</li>
-</ul>
-<hr />
-</div>
-<div id="stergiou-and-christou-1996" class="section level2">
-<h2>Stergiou and Christou 1996</h2>
-<p>I will demonstrate these methods by replicating the work in Stergiou and Christou (1996) Modelling and forecasting annual fisheries catches: comparison of regression, univariate and multivariate time series methods. Fisheries Research 25: 105-136.</p>
-<p>.center[</p>
-<p>!(./figs/StergiouChristou1996.png)</p>
-<p>]</p>
-<hr />
-</div>
-<div id="data" class="section level2">
-<h2>Data</h2>
-<p>We will use the annual landings data from Hellenic (Greek) waters that were used in Stergiou and Christou (1996).</p>
-<p>Stergiou and Christou analyzed 16 species. We will look two of the species: Anchovy and Sardine.</p>
-<p>Stergiou and Christou used the data from 1964-1989. We have the data up to 2007, but will focus mainly on 1964-1989 (the first half of the time series) to replicate Stergiou and Christou’s analyses.</p>
-<hr />
-<div class="figure">
-<img src="figs/Greece.png" alt="Area where data were collected" />
-<p class="caption">Area where data were collected</p>
-</div>
-<hr />
-<div class="figure">
-<img src="figs/StatisticalReportCover.png" alt="Statistical Reports" />
-<p class="caption">Statistical Reports</p>
-</div>
-<hr />
-<div class="figure">
-<img src="figs/StatisticalReportTableIV.png" alt="Statistical Report Table IV" />
-<p class="caption">Statistical Report Table IV</p>
-</div>
-<hr />
-<p>Load the data as follows and use only the 1964-1989 data.</p>
-<pre class="r"><code>load(&quot;Data/landings.RData&quot;)
+Stergiou and Christou used the data from 1964-1989.  We have the data up to 2007, but will focus mainly on 1964-1989 (the first half of the time series) to replicate Stergiou and Christou's analyses.
+
+---
+
+![Area where data were collected](./figs/Greece.png)
+
+---
+
+![Statistical Reports](./figs/StatisticalReportCover.png)
+
+---
+
+![Statistical Report Table IV](./figs/StatisticalReportTableIV.png)
+
+---
+
+Load the data as follows and use only the 1964-1989 data.
+
+```r
+load("landings.RData")
 landings$log.metric.tons = log(landings$metric.tons)
 landings = subset(landings, Year &lt;= 1989)
-landings = subset(landings, Species %in% c(&quot;Anchovy&quot;,&quot;Sardine&quot;))
-library(ggplot2)
+landings = subset(landings, Species %in% c("Anchovy","Sardine"))
 ggplot(landings, aes(x=Year, y=log.metric.tons)) +
-  geom_line() + facet_wrap(~Species)</code></pre>
-<p><img src="Forecasting_1_-_Introduction_files/figure-html/load_data-1.png" width="768" style="display: block; margin: auto;" /></p>
-</div>
+  geom_line() + facet_wrap(~Species)
+```
 
-
-
-
-</div>
-
-<script>
-
-// add bootstrap table styles to pandoc tables
-function bootstrapStylePandocTables() {
-  $('tr.header').parent('thead').parent('table').addClass('table table-condensed');
-}
-$(document).ready(function () {
-  bootstrapStylePandocTables();
+&lt;img src="Forecasting_1_-_Introduction_files/figure-html/load_data-1.png" style="display: block; margin: auto;" /&gt;
+    </textarea>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"highlightLines": true
 });
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function() {
+  var d = document, s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})();</script>
 
-
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+  tex2jax: {
+    skipTags: ['script', 'noscript', 'style', 'textarea', 'pre']
+  }
+});
 </script>
-
 <!-- dynamically load mathjax for compatibility with self-contained -->
 <script>
-  (function () {
-    var script = document.createElement("script");
-    script.type = "text/javascript";
-    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
-    document.getElementsByTagName("head")[0].appendChild(script);
-  })();
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://cdn.bootcss.com/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
 </script>
-
-</body>
+  </body>
 </html>
