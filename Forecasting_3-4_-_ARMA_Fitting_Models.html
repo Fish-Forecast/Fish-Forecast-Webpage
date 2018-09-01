@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title></title>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="my-theme.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+
+
+layout: true
+
+.hheader[&lt;a href="index.html"&gt;&lt;svg style="height:0.8em;top:.04em;position:relative;fill:steelblue;" viewBox="0 0 576 512"&gt;&lt;path d="M488 312.7V456c0 13.3-10.7 24-24 24H348c-6.6 0-12-5.4-12-12V356c0-6.6-5.4-12-12-12h-72c-6.6 0-12 5.4-12 12v112c0 6.6-5.4 12-12 12H112c-13.3 0-24-10.7-24-24V312.7c0-3.6 1.6-7 4.4-9.3l188-154.8c4.4-3.6 10.8-3.6 15.3 0l188 154.8c2.7 2.3 4.3 5.7 4.3 9.3zm83.6-60.9L488 182.9V44.4c0-6.6-5.4-12-12-12h-56c-6.6 0-12 5.4-12 12V117l-89.5-73.7c-17.7-14.6-43.3-14.6-61 0L4.4 251.8c-5.1 4.2-5.8 11.8-1.6 16.9l25.5 31c4.2 5.1 11.8 5.8 16.9 1.6l235.2-193.7c4.4-3.6 10.8-3.6 15.3 0l235.2 193.7c5.1 4.2 12.7 3.5 16.9-1.6l25.5-31c4.2-5.2 3.4-12.7-1.7-16.9z"/&gt;&lt;/svg&gt;&lt;/a&gt;]
+
+---
+
+
+
+class: center, middle, inverse
+# ARIMA Models
+## Fitting Models
+
+.futnote[Eli Holmes, NOAA Fisheries]
+
+.citation[eli.holmes@noaa.gov]
+
+---
+
+
+
+---
+
+## Fitting ARIMA Models
+
+We are now at step B of the Box-Jenkins Method.  
+
+A. Model form selection
+    1. Evaluate stationarity and seasonality
+    2. Selection of the differencing level (d)
+    3. Selection of the AR level (p)
+    4. Selection of the MA level (q)
+    
+B. **Parameter estimation**
+
+C. Model checking
+
+---
+
+## Fitting with `auto.arima()`
+
+Let's try fitting to some simulated data.  We will simulate with `arima.sim()`.  We will specify no differencing.
+
+
+```r
+set.seed(100)
+a1 = arima.sim(n=100, model=list(ar=c(.8,.1)))
+auto.arima(a1, seasonal=FALSE, max.d=0)
+```
+
+```
+## Series: a1 
+## ARIMA(1,0,0) with non-zero mean 
+## 
+## Coefficients:
+##          ar1     mean
+##       0.6928  -0.5343
+## s.e.  0.0732   0.2774
+## 
+## sigma^2 estimated as 0.7703:  log likelihood=-128.16
+## AIC=262.33   AICc=262.58   BIC=270.14
+```
+
+The 'best-fit' model is simpler than the model used to simulate the data. 
+
+---
+
+## Let's fit 100 and see how often the 'true' model is chosen
+
+By far the correct type of model is selected, AR-p, but usually a simpler model of AR-1 is chosen over AR-2 (correct) most of the time.
+
+
+```r
+save.fits = rep(NA,100)
+for(i in 1:100){
+  a1 = arima.sim(n=100, model=list(ar=c(.8,.1)))
+  fit = auto.arima(a1, seasonal=FALSE, max.d=0, max.q=0)
+  save.fits[i] = paste0(fit$arma[1], "-", fit$arma[2])
+}
+table(save.fits)
+```
+
+```
+## save.fits
+## 1-0 2-0 3-0 4-0 
+##  74  20   5   1
+```
+
+---
+
+# Missing values
+
+These fitting functions will accept missing values.
+
+
+```r
+set.seed(100)
+a1 = arima.sim(n=100, model=list(ar=c(.8,.1)))
+a1[sample(100,50)]=NA
+plot(a1, type="l")
+title("many missing values")
+```
+
+![](Forecasting_3-4_-_ARMA_Fitting_Models_files/figure-html/fitting.example.2.data-1.png)&lt;!-- --&gt;
+
+
+```r
+auto.arima(a1, seasonal=FALSE, max.d=0)
+```
+
+```
+## Series: a1 
+## ARIMA(1,0,0) with non-zero mean 
+## 
+## Coefficients:
+##          ar1     mean
+##       0.7231  -0.5107
+## s.e.  0.0885   0.3084
+## 
+## sigma^2 estimated as 0.3559:  log likelihood=-68.62
+## AIC=143.23   AICc=143.48   BIC=151.05
+```
+
+
+```r
+Arima(a1, order = c(2,0,0))
+```
+
+```
+## Series: a1 
+## ARIMA(2,0,0) with non-zero mean 
+## 
+## Coefficients:
+##          ar1     ar2     mean
+##       0.6448  0.0936  -0.4965
+## s.e.  0.1747  0.1789   0.3288
+## 
+## sigma^2 estimated as 0.3681:  log likelihood=-68.48
+## AIC=144.95   AICc=145.37   BIC=155.37
+```
+
+---
+
+## Summary
+
+- `auto.arima()` in the forecast package is a good choice for selection and fitting of ARIMA models.
+
+- `Arima()` is a good choice when you know the order (structure) of the model.
+
+- You need to know whether to the mean of the data should be zero and whether it is stationary around a linear line.
+    - `include.mean=TRUE` means the mean is not zero
+    - `include.drift=TRUE` means fit a model that fluctuates around a line (up or down)
+
+### Seasonality
+
+These functions will also fit seasonal models.  We will address seasonality later.
+    </textarea>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"highlightLines": true
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function() {
+  var d = document, s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})();</script>
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+  tex2jax: {
+    skipTags: ['script', 'noscript', 'style', 'textarea', 'pre']
+  }
+});
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://cdn.bootcss.com/mathjax/2.7.1/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

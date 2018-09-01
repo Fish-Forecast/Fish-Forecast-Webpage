@@ -1,0 +1,128 @@
+---
+output:
+  xaringan::moon_reader:
+    css: "my-theme.css"
+    lib_dir: libs
+    nature:
+      highlightStyle: github
+      highlightLines: true
+---
+
+layout: true
+
+.hheader[<a href="index.html">`r fontawesome::fa("home", fill = "steelblue")`</a>]
+
+---
+
+```{r setup, include=FALSE, message=FALSE}
+options(htmltools.dir.version = FALSE, servr.daemon = TRUE)
+library(huxtable)
+```
+
+class: center, middle, inverse
+# ARIMA Models
+## Fitting Models
+
+.futnote[Eli Holmes, NOAA Fisheries]
+
+.citation[eli.holmes@noaa.gov]
+
+---
+
+```{r load_data, echo=FALSE, message=FALSE, warning=FALSE}
+load("landings.RData")
+landings$log.metric.tons = log(landings$metric.tons)
+landings = subset(landings, Year <= 1989)
+anchovy = subset(landings, Species=="Anchovy")$log.metric.tons
+sardine = subset(landings, Species=="Sardine")$log.metric.tons
+
+library(ggplot2)
+library(gridExtra)
+library(reshape2)
+library(tseries)
+library(forecast)
+```
+
+---
+
+## Fitting ARIMA Models
+
+We are now at step B of the Box-Jenkins Method.  
+
+A. Model form selection
+    1. Evaluate stationarity and seasonality
+    2. Selection of the differencing level (d)
+    3. Selection of the AR level (p)
+    4. Selection of the MA level (q)
+    
+B. **Parameter estimation**
+
+C. Model checking
+
+---
+
+## Fitting with `auto.arima()`
+
+Let's try fitting to some simulated data.  We will simulate with `arima.sim()`.  We will specify no differencing.
+
+```{r fitting.example.1}
+set.seed(100)
+a1 = arima.sim(n=100, model=list(ar=c(.8,.1)))
+auto.arima(a1, seasonal=FALSE, max.d=0)
+```
+
+The 'best-fit' model is simpler than the model used to simulate the data. 
+
+---
+
+## Let's fit 100 and see how often the 'true' model is chosen
+
+By far the correct type of model is selected, AR-p, but usually a simpler model of AR-1 is chosen over AR-2 (correct) most of the time.
+
+```{r fit.1000}
+save.fits = rep(NA,100)
+for(i in 1:100){
+  a1 = arima.sim(n=100, model=list(ar=c(.8,.1)))
+  fit = auto.arima(a1, seasonal=FALSE, max.d=0, max.q=0)
+  save.fits[i] = paste0(fit$arma[1], "-", fit$arma[2])
+}
+table(save.fits)
+```
+
+---
+
+# Missing values
+
+These fitting functions will accept missing values.
+
+```{r fitting.example.2.data}
+set.seed(100)
+a1 = arima.sim(n=100, model=list(ar=c(.8,.1)))
+a1[sample(100,50)]=NA
+plot(a1, type="l")
+title("many missing values")
+```
+
+```{r fitting.example.2}
+auto.arima(a1, seasonal=FALSE, max.d=0)
+```
+
+```{r fitting.example.3}
+Arima(a1, order = c(2,0,0))
+```
+
+---
+
+## Summary
+
+- `auto.arima()` in the forecast package is a good choice for selection and fitting of ARIMA models.
+
+- `Arima()` is a good choice when you know the order (structure) of the model.
+
+- You need to know whether to the mean of the data should be zero and whether it is stationary around a linear line.
+    - `include.mean=TRUE` means the mean is not zero
+    - `include.drift=TRUE` means fit a model that fluctuates around a line (up or down)
+
+### Seasonality
+
+These functions will also fit seasonal models.  We will address seasonality later.

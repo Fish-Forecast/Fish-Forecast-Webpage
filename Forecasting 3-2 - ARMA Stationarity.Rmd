@@ -1,0 +1,510 @@
+---
+output:
+  xaringan::moon_reader:
+    css: "my-theme.css"
+    lib_dir: libs
+    nature:
+      highlightStyle: github
+      highlightLines: true
+---
+
+layout: true
+
+.hheader[<a href="index.html">`r fontawesome::fa("home", fill = "steelblue")`</a>]
+
+---
+
+```{r setup, include=FALSE, message=FALSE}
+options(htmltools.dir.version = FALSE, servr.daemon = TRUE)
+library(huxtable)
+```
+
+class: center, middle, inverse
+# ARIMA Models
+## Stationarity
+
+.futnote[Eli Holmes, NOAA Fisheries]
+
+.citation[eli.holmes@noaa.gov]
+
+---
+
+```{r load_data, echo=FALSE, message=FALSE, warning=FALSE}
+load("landings.RData")
+landings$log.metric.tons = log(landings$metric.tons)
+landings = subset(landings, Year <= 1989)
+anchovy = subset(landings, Species=="Anchovy")$log.metric.tons
+sardine = subset(landings, Species=="Sardine")$log.metric.tons
+
+library(ggplot2)
+library(gridExtra)
+library(reshape2)
+library(tseries)
+library(urca)
+```
+
+---
+
+## Stationarity
+
+Box-Jenkins Method
+
+A. Model form selection
+    1. **Evaluate stationarity and seasonality**
+    2. **Selection of the differencing level (d)**
+    3. Selection of the AR level (p)
+    4. Selection of the MA level (q)
+    
+B. Parameter estimation
+
+C. Model checking
+
+---
+
+## Stationarity
+
+Stationarity means 'not changing in time' in the context of time-series models.  Typically we test the trend and variance, however more generally all statistical properties of a time-series is time-constant if the time series is 'stationary'.
+
+Many ARMA models exhibit stationarity.  White noise is one type:
+$$x_t = e_t, e_t \sim N(0,\sigma)$$
+
+```{r fig.stationarity, fig.height = 4, fig.width = 8, fig.align = "center", echo=FALSE}
+require(gridExtra)
+require(reshape2)
+
+TT=100
+y = rnorm(TT)
+dat = data.frame(t=1:TT, y=y)
+p1 = ggplot(dat, aes(x=t, y=y)) + geom_line() + 
+  ggtitle("White Noise") + xlab("") + ylab("value")
+ys = matrix(rnorm(TT*10),TT,10)
+ys = data.frame(ys)
+ys$id = 1:TT
+
+ys2=melt(ys, id.var="id")
+p2 = ggplot(ys2, aes(x=id,y=value,group=variable)) +
+  geom_line() + xlab("") + ylab("value") +
+  ggtitle("The variance of a white noise process is steady")
+grid.arrange(p1, p2, ncol = 1)
+```
+
+---
+
+An AR-1 process with $b<1$
+$$x_t = b x_{t-1} + e_t$$
+is also stationary.
+
+```{r fig.stationarity2, fig.height = 4, fig.width = 8, fig.align = "center", echo=FALSE}
+require(ggplot2)
+require(reshape2)
+theta=0.8
+nsim=10
+ar1=as.vector(arima.sim(TT, model=list(ar=theta)))
+dat = data.frame(t=1:TT, y=ar1)
+p1 = ggplot(dat, aes(x=t, y=y)) + geom_line() + 
+  ggtitle("AR-1") + xlab("") + ylab("value")
+ys = matrix(0,TT,nsim)
+for(i in 1:nsim) ys[,i]=as.vector(arima.sim(TT, model=list(ar=theta)))
+ys = data.frame(ys)
+ys$id = 1:TT
+
+ys2=melt(ys, id.var="id")
+p2 = ggplot(ys2, aes(x=id,y=value,group=variable)) +
+  geom_line() + xlab("") + ylab("value") +
+  ggtitle("The variance of an AR-1 process is steady")
+grid.arrange(p1, p2, ncol = 1)
+```
+
+---
+
+The processes shown have mean 0 and a flat level.  We can also have stationarity around an non-zero level or stationarity around an linear trend. If $b=0$, we have white noise and if $b<1$ we have AR-1.
+
+1. Non-zero mean: $x_t = \mu + b x_{t-1} + e_t$
+
+2. Linear trend: $x_t = \mu + at + b x_{t-1} + e_t$
+
+```{r fig.stationarity3, fig.height = 4, fig.width = 8, fig.align = "center", echo=FALSE}
+require(ggplot2)
+require(gridExtra)
+intercept = .5
+trend=.1
+dat = data.frame(t=1:TT, wn=rnorm(TT))
+dat$wni = dat$wn+intercept
+dat$wnti = dat$wn + trend*(1:TT) + intercept
+p1 = ggplot(dat, aes(x=t, y=wn)) + geom_line() + ggtitle("White noise")
+p2 = ggplot(dat, aes(x=t, y=wni)) + geom_line() + ggtitle("with non-zero mean")
+p3 = ggplot(dat, aes(x=t, y=wnti)) + geom_line() + ggtitle("with linear trend")
+
+ar1 = rep(0,TT)
+err = rnorm(TT)
+for(i in 2:TT) ar1[i]=theta*ar1[i-1]+err[i]
+dat = data.frame(t=1:TT, ar1=ar1)
+dat$ar1i = dat$ar1+intercept
+dat$ar1ti = dat$ar1 + trend*(1:TT) + intercept
+p4 = ggplot(dat, aes(x=t, y=ar1)) + geom_line() + ggtitle("AR1")
+p5 = ggplot(dat, aes(x=t, y=ar1i)) + geom_line() + ggtitle("with non-zero mean")
+p6 = ggplot(dat, aes(x=t, y=ar1ti)) + geom_line() + ggtitle("with linear trend")
+
+grid.arrange(p1, p4, p2, p5, p3, p6, ncol = 2)
+```
+
+---
+
+## Non-stationarity
+
+One of the most common forms of non-stationarity that is tested for is 'unit root', which means that the process is a random walk:
+$$x_t = x_{t-1} + e_t$$ .
+
+```{r fig.nonstationarity, fig.height = 4, fig.width = 8, fig.align = "center", echo=FALSE}
+require(ggplot2)
+require(reshape2)
+
+rw = rep(0,TT)
+for(i in 2:TT) rw[i]=rw[i-1]+err[i]
+dat = data.frame(t=1:TT, rw=rw)
+p1 = ggplot(dat, aes(x=t, y=rw)) + geom_line() + 
+  ggtitle("Random Walk") + xlab("") + ylab("value")
+rws = apply(matrix(rnorm(TT*nsim),TT,nsim),2,cumsum)
+rws = data.frame(rws)
+rws$id = 1:TT
+
+rws2=melt(rws, id.var="id")
+p2 = ggplot(rws2, aes(x=id,y=value,group=variable)) +
+  geom_line() + xlab("") + ylab("value") +
+  ggtitle("The variance of a random walk process grows in time")
+grid.arrange(p1, p2, ncol = 1)
+```
+
+---
+
+Similar to the way we added an intecept and linear trend to the stationarity processes, we can do the same to the random walk.
+
+1. Non-zero mean or intercept: $x_t = \mu + x_{t-1} + e_t$
+
+2. Linear trend: $x_t = \mu + at + x_{t-1} + e_t$
+
+The effects are fundamentally different however.  The addition of $\mu$ leads to a upward mean linear trend while the addition of $at$ leads to exponential growth.
+
+```{r fig.stationarity4, fig.height = 4, fig.width = 8, fig.align = "center", echo=FALSE}
+require(ggplot2)
+require(gridExtra)
+dat = data.frame(t=1:TT, y=cumsum(rnorm(TT)))
+dat$yi = cumsum(rnorm(TT,intercept,1))
+dat$yti = cumsum(rnorm(TT,intercept+trend*1:TT,1))
+p1 = ggplot(dat, aes(x=t, y=y)) + geom_line() + ggtitle("Random Walk")
+p2 = ggplot(dat, aes(x=t, y=yi)) + geom_line() + ggtitle("with non-zero mean added")
+p3 = ggplot(dat, aes(x=t, y=yti)) + geom_line() + ggtitle("with linear trend added")
+
+grid.arrange(p1, p2, p3, ncol = 1)
+```
+
+---
+
+## Detecting stationarity
+
+Why is evaluating stationarity important? 
+
+- Many AR models have a flat level or trend and time-constant variance.  If your data do not have those properties, you are fitting a model that is fundamentally inconsistent with your data.
+- Many standard algorithms for fitting ARIMA models assume stationarity.  Note, you can fit ARIMA models without making this assumption, but you need to use the appropriate algorithm.
+
+We will discuss three common approaches to evaluating stationarity:
+
+- Visual test
+- (Augmented) Dickey-Fuller test
+- KPSS test
+
+---
+
+## Visual test
+
+The visual test is simply looking at a plot of the data versus time.  Look for
+
+- Change in the level over time.  Is the time series increasing or decreasing?  Does it appear to cycle?
+- Change in the variance over time.  Do deviations away from the mean change over time, increase or decrease?
+
+Note, if you are using an augmented Dickey-Fuller test, you may inadvertantly invalidate your test by looking at the data.
+
+---
+
+Here is a plot of the anchovy and sardine in Greek waters from 1965 to 1989.  The anchovies have an obvious non-stationary trend during this period.  The mean level is going up.  The sardines have a roughly stationary trend.  The variance (deviations away from the mean) appear to be roughly stationary, neither increasing or decreasing in time.
+
+```{r fig.vis, fig.height = 4, fig.width = 8, fig.align = "center", echo=FALSE}
+require(ggplot2)
+dat = subset(landings, Species %in% c("Anchovy", "Sardine") & 
+               Year <= 1989)
+dat$log.metric.tons = log(dat$metric.tons)
+ggplot(dat, aes(x=Year, y=log.metric.tons)) +
+  geom_line()+facet_wrap(~Species)
+```
+
+Although the logged anchovy time series is increasing, it appears to have an linear trend.
+
+---
+
+## Dickey-Fuller test
+
+The Dickey=Fuller test (and Augmented Dickey-Fuller test) look for evidence that the time series has a unit root.  The null hypothesis is that the time series has a unit root, that is, it has a random walk component.  The alternative hypothesis is some variation of stationarity.  The test has three main verisons. 
+
+---
+
+Visually, the null and alternative hypotheses for the three Dickey-Fuller tests are the following.  It is hard to see but in the panels on the left, the variance around the trend is increasing and on the right, it is not.
+
+```{r fig.df, fig.height = 6, fig.width = 8, fig.align = "center", echo=FALSE}
+require(ggplot2)
+require(gridExtra)
+#####
+ys = matrix(0,TT,nsim)
+for(i in 2:TT) ys[i,]=ys[i-1,]+rnorm(nsim)
+rws = data.frame(ys)
+rws$id = 1:TT
+library(reshape2)
+rws2=melt(rws, id.var="id")
+p1 = ggplot(rws2, aes(x=id,y=value,group=variable)) +
+  geom_line() + xlab("") + ylab("value") +
+  ggtitle("Null Non-stationary", subtitle="White noise")
+ys = matrix(0,TT,nsim)
+for(i in 2:TT) ys[i,]=theta*ys[i-1,]+rnorm(nsim)
+ar1s = data.frame(ys)
+ar1s$id = 1:TT
+library(reshape2)
+ar1s2=melt(ar1s, id.var="id")
+p2 = ggplot(ar1s2, aes(x=id,y=value,group=variable)) +
+  geom_line() + xlab("") + ylab("value") +
+  ggtitle("Alternate Stationary", subtitle="AR1")
+#####
+ys = matrix(intercept,TT,nsim)
+for(i in 2:TT) ys[i,]=intercept+ys[i-1,]+rnorm(nsim)
+rws = data.frame(ys)
+rws$id = 1:TT
+library(reshape2)
+rws2=melt(rws, id.var="id")
+p3 = ggplot(rws2, aes(x=id,y=value,group=variable)) +
+  geom_line() + xlab("") + ylab("value") +
+  ggtitle("", subtitle="White noise + drift")
+ys = matrix(intercept/(1-theta),TT,nsim)
+for(i in 2:TT) ys[i,]=intercept+theta*ys[i-1,]+rnorm(nsim)
+ar1s = data.frame(ys)
+ar1s$id = 1:TT
+library(reshape2)
+ar1s2=melt(ar1s, id.var="id")
+p4 = ggplot(ar1s2, aes(x=id,y=value,group=variable)) +
+  geom_line() + xlab("") + ylab("value") +
+  ggtitle("Alternate", subtitle="AR1 + non-zero level")
+#####
+ys = matrix(intercept+trend*1,TT,nsim)
+for(i in 2:TT) ys[i,]=intercept+trend*i+ys[i-1,]+rnorm(nsim)
+rws = data.frame(ys)
+rws$id = 1:TT
+library(reshape2)
+rws2=melt(rws, id.var="id")
+p5 = ggplot(rws2, aes(x=id,y=value,group=variable)) +
+  geom_line() + xlab("") + ylab("value") +
+  ggtitle("", subtitle="White noise + exponential drift")
+ys = matrix((intercept+trend*1)/(1-theta),TT,nsim)
+for(i in 2:TT) ys[i,]=intercept+trend*i+theta*ys[i-1,]+rnorm(nsim)
+ar1s = data.frame(ys)
+ar1s$id = 1:TT
+library(reshape2)
+ar1s2=melt(ar1s, id.var="id")
+p6 = ggplot(ar1s2, aes(x=id,y=value,group=variable)) +
+  geom_line() + xlab("") + ylab("value") +
+  ggtitle("Alternate", subtitle="AR1 + linear trend")
+#####
+grid.arrange(p1, p2, p3, p4, p5, p6, ncol = 2)
+```
+
+---
+
+In math, here are the null and alternative hypotheses.  In each, we are testing if $\delta=0$.
+
+1. Null is a random walk with no drift
+$x_t = x_{t-1}+e_t$
+
+Alternative is a mean-reverting (stationary) process with zero mean.
+$x_t = \delta x_{t-1}+e_t$
+
+2. Null is a random walk with drift (linear STOCHASTIC trend)
+$x_t = \mu + x_{t-1} + e_t$
+
+Alternative is a mean-reverting (stationary) process with non-zero mean and no trend.
+$x_t = \mu + \delta x_{t-1} + e_t$
+
+3. Null is a random walk with exponential trend
+$x_t = \mu + at + x_{t-1} + e_t$
+
+Alternative is a mean-reverting (stationary) process with non-zero mean and linear DETERMINISTIC trend.
+$x_t = \mu + at + \delta x_{t-1} + e_t$
+
+---
+
+
+
+## Example: Dickey-Fuller tests on the anchovy time series
+
+The `urca` R package can be used to apply the Dickey-Fuller tests.  Use `lags=0` for Dickey-Fuller which tests for AR-1 stationarity.
+
+```
+ur.df(y, type = c("none", "drift", "trend"), lags = 0)
+```
+
+```{r dickey.fuller, message=FALSE, warning=FALSE}
+require(urca)
+test = ur.df(anchovy, type="none", lags=0)
+test
+```
+
+---
+
+`ur.df()` will report the test statistic.  You can look up the values of the test statistic for different $\alpha$ levels using `summary(test)` or `attr(test, "cval")`.  If the test statistic is less than the critical value for $\alpha$=0.05 ('5pct' in cval), it means the null hypothesis of non-stationarity is rejected.  For the Dickey-Fuller test, you do want to reject the null hypothesis.
+
+The test statistic is 
+```{r teststat}
+attr(test, "teststat")
+```
+and the critical value at $\alpha = 0.05$ is 
+```{r cval}
+attr(test,"cval")[2]
+```
+The statistic is larger than the critical value and thus the null hypothesis of non-stationarity is not rejected. That's not what we want.
+
+---
+
+## Augmented Dickey-Fuller test
+
+The Dickey-Fuller test assumes that the stationary process is AR-1 (autoregressive lag-1).  The Augmented Dickey-Fuller test allows a general stationary process.  The idea of the test however is the same.
+
+We can apply the Augmented Dickey-Fuller test with the `ur.df()` function or the `adf.test()` function in the `tseries` package.
+
+```
+adf.test(x, alternative = c("stationary", "explosive"),
+         k = trunc((length(x)-1)^(1/3)))
+```
+
+The alternative is either stationary like $x_t = \delta x_{t-1} + \eta_t$ with $\delta<1$ or 'explosive' with $b>1$.  `k` is the number of lags which determines the number of time lags allowed in the autoregression.  `k` is generally determined by the length of your time series.
+
+---
+
+## Example: Augmented Dickey-Fuller tests with adf.test()
+
+With the `tseries` package, we apply the Augmented Dickey-Fuller test with `adf.test()`.  This function uses the test where the alternative model is stationary around a linear trend: $x_t = \mu + at + \delta x_{t-1} + e_t$.
+
+```{r dickey.fuller2, message=FALSE, warning=FALSE}
+require(tseries)
+adf.test(anchovy, alternative="stationary")
+```
+
+In both cases, we do not reject the null hypothesis that the data have a random walk.  Thus there is not support for these time-series being stationary.  `alternative="stationary"` is the default and the standard test.
+
+---
+
+## Example: Augmented Dickey-Fuller tests with ur.df()
+
+With the `urca` package, we apply the Augmented Dickey-Fuller test with `ur.df()`.  The defaults for `ur.df()` are different than for `adf.test()`.  `ur.df()` allow you to specify which of the 3 alternative hypotheses you want: none (stationary around 0), drift (stationary around a non-zero intercept), trend (stationary around a linear trend).
+
+Another difference is that by default, `ur.df()` uses a fixed lag of 1 while by default `adf.test()` selects the lag based on the length of the time series.
+
+We will specify "trend" to make the test similar to `adf.test()`.  We will set the lags like `adf.test()` does also.
+
+```{r dickey.fuller.ur.df, message=FALSE, warning=FALSE}
+require(urca)
+k = trunc((length(anchovy)-1)^(1/3))
+test = ur.df(anchovy, type="trend", lags=k)
+test
+```
+
+The test statistic values are the same, but we need to look up the critical values with `summary(test)`.
+
+---
+
+## KPSS test
+
+In the Dickey-Fuller test, the null hypothesis is the unit root, i.e. random walk.  Often times, there is not enough power to reject the null hypothesis.  A null hypothesis is accepted unless there is strong evidence against it.  The Kwiatkowski–Phillips–Schmidt–Shin (KPSS) test has as the null hypothesis that a time series is stationary around a level trend (or a linear trend). The alternative hypothesis for the KPSS test is a random walk.
+
+The stationarity assumption is general; it does not assume a specific type of stationarity such as white noise.
+
+If both KPSS and Dickey-Fuller tests support non-stationarity, then the stationarity assumption is not supported.
+
+---
+
+## Example: KPSS tests
+
+```{r kpss.test, message=FALSE, warning=FALSE}
+require(tseries)
+kpss.test(anchovy, null="Trend")
+```
+
+Here `null="Trend"` was included to account for the increasing trend in the data.  The null hypothesis of stationarity is rejected.  Thus both the KPSS and Dickey-Fuller tests support the hypothesis that the anchovy time series is non-stationary.  That's not what we want.
+
+---
+
+## Differencing the data to make the mean stationary
+
+Differencing means to create a new time series  $z_t = x_t - x_{t-1}$.  First order differencing means you do this once (so $z_t$) and second order differencing means you do this twice (so $z_t - z_{t-1}$).
+
+The `diff()` function takes the first difference:
+
+```{r diff1}
+par(mfrow=c(1,2))
+plot(anchovy, type="l")
+plot(diff(anchovy), type="l")
+```
+
+
+---
+
+Let's test the anchovy data with one difference using the KPSS test.
+
+```{r diff2}
+diff.anchovy = diff(anchovy)
+kpss.test(diff.anchovy)
+```
+
+The null hypothesis of stationairity is not rejected. That is good.
+
+---
+
+Let's test the anchovy data with one difference using the Augmented Dickey-Fuller test.  When we apply this test to differenced data, we need to use the model with no drift or intercept.  That is `type="none"` in the `ur.df()` test.
+
+```{r test.dickey.fuller.diff}
+test=ur.df(diff.anchovy, type="none", lags=2)
+summary(test)
+```
+
+The null hypothesis of NON-stationairity IS rejected. That is good.
+
+---
+
+## Summary
+
+Look at your data before you fit a mode.
+
+- Visual test: is the time series flutuating about a level or a linear trend?
+
+Yes or maybe?  Apply a "unit root" test.
+
+- (Augmented) Dickey-Fuller test
+- KPSS test
+
+No or fails the unit root test.
+
+- Apply differencing again and re-test.
+
+Still not passing?
+
+- Try a second difference.
+
+Still not passing?
+
+- ARMA model might not be the best choice.
+
+Note: another common approach is detrending with a TV regression with seasonality (if needed).
+
+---
+
+## Problems
+
+We will address these later.
+
+- Missing data points
+
+- Seasonality

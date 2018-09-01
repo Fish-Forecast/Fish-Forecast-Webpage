@@ -56,6 +56,24 @@ a, a > code {
   right: 5em;
   font-size: 90%;
 }
+/* Style the header with a grey background and some padding */
+.hheader {
+  position:fixed;
+  top:1em;
+  right:1em;
+}
+
+/* Style the header links */
+.hheader a {
+  float: left;
+  color: black;
+  text-align: center;
+  padding: 12px;
+  text-decoration: none;
+  font-size: 18px;
+  line-height: 25px;
+  border-radius: 4px;
+}
 .remark-code, .remark-inline-code { font-family: 'Source Code Pro', 'Lucida Console', Monaco, monospace; }
 .remark-code-line-highlighted     { background-color: #ffff88; }
 .remark-slide-number {

@@ -8,6 +8,12 @@ output:
       highlightLines: true
 ---
 
+layout: true
+
+.hheader[<a href="index.html">`r fontawesome::fa("home", fill = "steelblue")`</a>]
+
+---
+
 ```{r setup, include=FALSE, message=FALSE, purl=FALSE}
 options(htmltools.dir.version = FALSE, servr.daemon = TRUE)
 library(huxtable)
@@ -16,6 +22,7 @@ library(huxtable)
 ```{r load-packages, include=FALSE, message=FALSE}
 require(ggplot2)
 ```
+
 
 class: center, middle, inverse
 # Forecasting Time Series

@@ -6,10 +6,12 @@ navbar:
     - text: "Set-up"
       icon: fa-clone
       href: setup.html
-    - text: "Lecture 1"
+    - text: "Introduction"
       href: Forecasting_1_-_Introduction.html
-    - text: "Lecture 2"
-      href: Forecasting_2_-_TV_Regression.html
+    - text: "TV Regresson"
+      href: TV-Regression.html
+    - text: "ARMA Models"
+      href: ARMA-Models.html
     - text: "Lecture 3"
       href: Forecasting_3_-_ARMA.html
 output:

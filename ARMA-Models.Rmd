@@ -1,0 +1,23 @@
+---
+title: "ARMA Models"
+---
+
+- Lecture 1 [Introduction to ARMA Models](Forecasting_3-1_-_ARMA_Intro.html)
+
+- Lab Create and plot data from ARMA models
+
+- Lecture 2 [Stationarity](Forecasting_3-2_-_ARMA_Stationarity.html)
+
+- Lab Test the Greek catch data for stationarity
+
+- Lecture 3 [Selecting Model Structure](Forecasting_3-3_-_ARMA_Model_Structure.html)
+
+- Lecture 4 [Fitting ARMA Models](Forecasting_3-4_-_ARMA_Fitting_Models.html)
+
+- Lab Fit ARMA Models to the Greek catch data
+
+- Lecture 5 [Forecasting from ARMA Models](Forecasting_3-5_-_ARMA_Forecasting.html)
+
+- Lab Create your own forecasts
+
+- Lab Test your forecasts

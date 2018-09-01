@@ -2,9 +2,9 @@
 title: "Forecasting Catch Time Series"
 ---
 
-```{r echo=FALSE}
-# devtools::install_github("ropenscilabs/icon")
-library(icon)
+```{r echo=FALSE, warnings=FALSE, include=FALSE}
+# devtools::install_github("rstudio/fontawesome")
+library(fontawesome)
 ```
 
 This week we will learn a number of standard approaches for forecasting from catch time series.

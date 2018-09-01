@@ -1,0 +1,109 @@
+---
+output:
+  xaringan::moon_reader:
+    css: "my-theme.css"
+    lib_dir: libs
+    nature:
+      highlightStyle: github
+      highlightLines: true
+---
+
+layout: true
+
+.hheader[<a href="index.html">`r fontawesome::fa("home", fill = "steelblue")`</a>]
+
+---
+
+```{r setup, include=FALSE, message=FALSE}
+options(htmltools.dir.version = FALSE, servr.daemon = TRUE)
+library(huxtable)
+```
+
+class: center, middle, inverse
+# Forecasting Time Series
+## ARIMA Models
+
+.futnote[Eli Holmes, NOAA Fisheries]
+
+.citation[eli.holmes@noaa.gov]
+
+---
+
+```{r load_data, echo=FALSE, message=FALSE, warning=FALSE}
+load("landings.RData")
+landings$log.metric.tons = log(landings$metric.tons)
+landings = subset(landings, Year <= 1989)
+anchovy = subset(landings, Species=="Anchovy")$log.metric.tons
+sardine = subset(landings, Species=="Sardine")$log.metric.tons
+
+library(ggplot2)
+library(gridExtra)
+library(reshape2)
+library(tseries)
+library(urca)
+```
+
+## Basic idea
+
+Past values in the time series have information about the current state.  An ARMA model models as a linear relationship of current values with past values.:
+
+$$x_t = \phi_1 x_{t-1} + \phi_2 x_{t-2} + ... + \phi_p x_{t-p} + e_t$$
+
+.center[
+
+![Species Plot](./figs/SpeciesPlot.jpeg)
+
+]
+
+---
+
+## ARIMA models (Box-Jenkins models)
+
+You will commonly see ARIMA models referred to as *Box-Jenkins* models.  This model has 3 components (p, d, q):
+
+- **AR autoregressive**  $y_t$ depends on past values. The AR level is maximum lag $p$.
+
+$$x_t = \phi_1 x_{t-1} + \phi_2 x_{t-2} + ... + \phi_p x_{t-p} + e_t$$
+
+- **I differencing** $x_t$ may be a difference of the observed time series.  The number of differences is denoted $d$. First difference is $d=1$:
+
+$$x_t = y_t - y_{t-1}$$
+
+- **MA moving average**  The error $e_t$ can be a sum of a time series of independent random errors.  The maximum lag is denoted $q$.
+
+$$e_t = \eta_t + \theta_1 \eta_{t-1} + \theta_2 \eta_{t-2} + ... + \theta_q \eta_{t-q},\quad \eta_t \sim N(0, \sigma)$$
+
+---
+
+## Create some data from an ARMA Model
+
+```{r arima.sim}
+dat = arima.sim(n=100, model=list(ar=c(.8,.1)))
+plot(dat)
+```
+
+---
+
+## Box-Jenkins Method
+
+This refers to a step-by-step process of selecting a forecasting model.  You need to go through the steps otherwise you could end up fitting a nonsensical model or using fitting a sensible model with an algorithm that will not work on your data.
+
+A. Model form selection
+    1. Evaluate stationarity and seasonality
+    2. Selection of the differencing level (d)
+    3. Selection of the AR level (p)
+    4. Selection of the MA level (q)
+    
+B. Parameter estimation
+
+C. Model checking
+
+---
+
+## Lectures
+
+2. Stationarity
+3. Model Selection
+4. Fitting Models (parameter estimation)
+5. Forecasting
+6. Model Checking
