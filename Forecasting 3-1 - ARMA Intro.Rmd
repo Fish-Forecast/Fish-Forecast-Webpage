@@ -100,10 +100,22 @@ C. Model checking
 
 ---
 
+.pull-left.left[
 ## Lectures
 
-2. Stationarity
-3. Model Selection
-4. Fitting Models (parameter estimation)
-5. Forecasting
-6. Model Checking
+1. Stationarity
+2. Model Selection
+3. Fitting Models (parameter estimation)
+4. Forecasting
+5. Model Checking
+]
+
+.pull-right.left[
+## Labs
+
+1. Create and plot data from ARMA processes
+2. Test the Greek catch data for stationarity
+3. Fit ARMA models to the Greek catch data
+4. Create forecasts
+5. Test forecast performance
+]

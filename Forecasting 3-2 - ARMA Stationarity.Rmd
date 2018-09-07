@@ -1,4 +1,24 @@
 ---
+fontsize: 30pt
+output:
+  html_document:
+    theme: readable
+    toc: true
+    toc_depth: 2
+    toc_float:
+      collapsed: no
+    code_folding: hide
+---
+
+<style type="text/css">
+
+body{ /* Normal  */
+      font-size: 24px;
+  }
+</style>
+
+<!--
+----
 output:
   xaringan::moon_reader:
     css: "my-theme.css"
@@ -6,7 +26,7 @@ output:
     nature:
       highlightStyle: github
       highlightLines: true
----
+----
 
 layout: true
 
@@ -27,9 +47,11 @@ class: center, middle, inverse
 
 .citation[eli.holmes@noaa.gov]
 
----
+-->
 
-```{r load_data, echo=FALSE, message=FALSE, warning=FALSE}
+## Load the data and packages
+
+```{r load_data, message=FALSE, warning=FALSE}
 load("landings.RData")
 landings$log.metric.tons = log(landings$metric.tons)
 landings = subset(landings, Year <= 1989)
@@ -47,14 +69,15 @@ library(urca)
 
 ## Stationarity
 
-Box-Jenkins Method
+#### Box-Jenkins Method
 
 A. Model form selection
-    1. **Evaluate stationarity and seasonality**
-    2. **Selection of the differencing level (d)**
-    3. Selection of the AR level (p)
-    4. Selection of the MA level (q)
-    
+
+  1. **Evaluate stationarity and seasonality**
+  2. **Selection of the differencing level (d)**
+  3. Selection of the AR level (p)
+  4. Selection of the MA level (q)
+
 B. Parameter estimation
 
 C. Model checking
