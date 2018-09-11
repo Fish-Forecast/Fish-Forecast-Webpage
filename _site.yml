@@ -12,8 +12,10 @@ navbar:
       href: TV-Regression.html
     - text: "ARMA Models"
       href: ARMA-Models.html
-    - text: "Lecture 3"
-      href: Forecasting_3_-_ARMA.html
+    - text: "Exp Smoothing"
+      href: Exp_Smoothing.html
+    - text: "Labs"
+      href: https://fish-forecast.github.io/Catch-Forecasting-Files/
 output:
   html_document:
     theme: readable

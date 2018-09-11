@@ -1,0 +1,19 @@
+---
+title: "Exponential Smoothing Models"
+---
+
+- Lecture 1 [Introduction to Exponential Models](Forecasting_4_-_Exp_Smoothing.html)
+
+- Lecture 2 Selecting Model Structure
+
+- Lab Fit exponential smoothing models to ARMA data
+
+- Lecture 3 Forecasting with exponential smoothing models
+
+- Lab Create forecasts with exponential smoothing models
+
+- Lab Test your forecasts
+
+- Lecture 4 Seasonality with exponential smoothing models
+
+
