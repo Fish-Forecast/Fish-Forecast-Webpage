@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Forecasting_3-1_-_ARMA_Intro.utf8.md</title>
+    <title>Forecasting_2-2_-_TV_Regression.utf8.md</title>
     <meta charset="utf-8">
     <link rel="stylesheet" href="my-theme.css" type="text/css" />
   </head>
@@ -19,7 +19,7 @@ layout: true
 
 class: center, middle, inverse
 # Forecasting Time Series
-## ARIMA Models
+## Time-varying Regression: Forecasting
 
 .futnote[Eli Holmes, NOAA Fisheries]
 
@@ -29,85 +29,122 @@ class: center, middle, inverse
 
 
 
-## Basic idea
+Forecasting is easy in R once you have a fitted model.  Use the model with the covariates `\(t+1\)`, `\(t+2\)`, etc.
 
-Past values in the time series have information about the current state.  An ARMA model models as a linear relationship of current values with past values.:
+For the anchovy, we fit the model
 
-`$$x_t = \phi_1 x_{t-1} + \phi_2 x_{t-2} + ... + \phi_p x_{t-p} + e_t$$`
+`$$C_t = \alpha + \beta t + e_t$$`
+where `\(t\)` is year starting at 0 (so 1963 is `\(t=0\)`).  To predict, predict the catch in year X, we use
 
-.center[
-
-![Species Plot](./figs/SpeciesPlot.jpeg)
-
-]
+`$$C_t = \alpha + \beta X + e_t$$`
 
 ---
 
-## ARIMA models (Box-Jenkins models)
-
-You will commonly see ARIMA models referred to as *Box-Jenkins* models.  This model has 3 components (p, d, q):
-
-- **AR autoregressive**  `\(y_t\)` depends on past values. The AR level is maximum lag `\(p\)`.
-
-`$$x_t = \phi_1 x_{t-1} + \phi_2 x_{t-2} + ... + \phi_p x_{t-p} + e_t$$`
-
-- **I differencing** `\(x_t\)` may be a difference of the observed time series.  The number of differences is denoted `\(d\)`. First difference is `\(d=1\)`:
-
-`$$x_t = y_t - y_{t-1}$$`
-
-- **MA moving average**  The error `\(e_t\)` can be a sum of a time series of independent random errors.  The maximum lag is denoted `\(q\)`.
-
-`$$e_t = \eta_t + \theta_1 \eta_{t-1} + \theta_2 \eta_{t-2} + ... + \theta_q \eta_{t-q},\quad \eta_t \sim N(0, \sigma)$$`
-
----
-
-## Create some data from an ARMA Model
+Model fit:
 
 
 ```r
-dat = arima.sim(n=100, model=list(ar=c(.8,.1)))
-plot(dat)
+model &lt;- lm(log.metric.tons ~ t, data=anchovy)
+coef(model)
 ```
 
-![](Forecasting_3-1_-_ARMA_Intro_files/figure-html/arima.sim-1.png)&lt;!-- --&gt;
+```
+## (Intercept)           t 
+##  8.41962028  0.05818942
+```
+
+For anchovy, the estimated `\(\alpha\)` (Intercept) is 8.4196203 and `\(\beta\)` is 0.0581894.  We want to use these estimates to forecast 1988 ($t=24$).
+
+So the 1988 forecast is 8.4196203 + 0.0581894 `\(\times\)` 24 :
+
+
+```r
+coef(model)[1]+coef(model)[2]*24
+```
+
+```
+## (Intercept) 
+##    9.816166
+```
+
+log metric tons.
 
 ---
 
-## Box-Jenkins Method
+# The forecast package
 
-This refers to a step-by-step process of selecting a forecasting model.  You need to go through the steps otherwise you could end up fitting a nonsensical model or using fitting a sensible model with an algorithm that will not work on your data.
+The forecast package in R makes it easy to create forecasts with fitted models and to plot those forecasts.
 
-A. Model form selection
-    1. Evaluate stationarity and seasonality
-    2. Selection of the differencing level (d)
-    3. Selection of the AR level (p)
-    4. Selection of the MA level (q)
-    
-B. Parameter estimation
+For a TV Regression model, our `forecast()` call looks like
 
-C. Model checking
+
+```r
+library(forecast)
+fr &lt;- forecast(model, newdata = data.frame(t=24:28))
+fr
+```
+
+```
+##   Point Forecast    Lo 80    Hi 80    Lo 95    Hi 95
+## 1       9.816166 9.539761 10.09257 9.382308 10.25002
+## 2       9.874356 9.595310 10.15340 9.436353 10.31236
+## 3       9.932545 9.650683 10.21441 9.490121 10.37497
+## 4       9.990735 9.705886 10.27558 9.543623 10.43785
+## 5      10.048924 9.760924 10.33692 9.596865 10.50098
+```
 
 ---
 
-.pull-left.left[
-## Lectures
+The dark grey bands are the 80% prediction intervals and the light grey are the 95% prediction intervals.
 
-1. Stationarity
-2. Model Selection
-3. Fitting Models (parameter estimation)
-4. Forecasting
-5. Model Checking
-]
 
-.pull-right.left[
-## Labs
+```r
+plot(fr)
+```
 
-1. Create and plot data from ARMA processes
-2. Test the Greek catch data for stationarity
-3. Fit ARMA models to the Greek catch data
-4. Create forecasts
-5. Test forecast performance
-]
+![](Forecasting_2-2_-_TV_Regression_files/figure-html/plot.TVreg.forecast-1.png)&lt;!-- --&gt;
+
+---
+
+Sardine forecasts from a 4th order polynomial can similarly be made:
+
+
+```r
+model &lt;- lm(log.metric.tons ~ t + I(t^2) + I(t^3) + I(t^4), data=sardine)
+fr &lt;- forecast(model, newdata = data.frame(t=24:28))
+fr
+```
+
+```
+##   Point Forecast    Lo 80     Hi 80    Lo 95     Hi 95
+## 1       9.241230 9.054530  9.427930 8.946917  9.535543
+## 2       9.293302 9.031922  9.554682 8.881264  9.705340
+## 3       9.387034 9.016062  9.758007 8.802235  9.971834
+## 4       9.532185 9.013777 10.050593 8.714969 10.349401
+## 5       9.739329 9.031707 10.446951 8.623837 10.854821
+```
+
+---
+
+Unfortunately, forecast does not recognize that there is only one predictor `\(t\)`
+
+```r
+try(plot(fr))
+```
+
+---
+
+
+
+I created a funciton that you can use to plot time-varying regressions with polynomial `\(t\)`.  You will use this function in the lab.
+
+
+```r
+plotforecasttv(model)
+```
+
+![](Forecasting_2-2_-_TV_Regression_files/figure-html/plot.TVreg.forecast2-1.png)&lt;!-- --&gt;
+---
     </textarea>
 <script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
 <script>var slideshow = remark.create({

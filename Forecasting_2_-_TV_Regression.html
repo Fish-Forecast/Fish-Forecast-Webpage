@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title></title>
+    <title>Forecasting_2_-_TV_Regression.utf8.md</title>
     <meta charset="utf-8">
     <link rel="stylesheet" href="my-theme.css" type="text/css" />
   </head>
@@ -120,12 +120,36 @@ c(coef(model), summary(model)$adj.r.squared)
 
 ---
 
-We want to test if our residuals are independent.  We can do this with the Ljung-Box test as Stergio and Christou (1995) do.  Stergio and Christou appear to use a lag of 14 for the test (this is a bit large for 24 data points).  The degrees of freedom is lag minus the number of estimated parameters in the model.  So for the Anchovy data, `\(df = 14 - 2\)`.
+We want to test if our residuals are independent.  We can do this with the Ljung-Box test as Stergio and Christou (1995) do.  For the Ljung-Box test
+
+* Null hypothesis is that the data are independent
+* Alternate hypothesis is that the data are serially correlated
+
+Example:
+
+
+```r
+Box.test(rnorm(100), type="Ljung-Box")
+```
+
+```
+## 
+## 	Box-Ljung test
+## 
+## data:  rnorm(100)
+## X-squared = 0.16501, df = 1, p-value = 0.6846
+```
+
+The null hypothesis is not rejected.  These are not serially correlated.
+
+---
+
+Stergio and Christou appear to use a lag of 14 for the test (this is a bit large for 24 data points).  The degrees of freedom is lag minus the number of estimated parameters in the model.  So for the Anchovy data, `\(df = 14 - 2\)`.
 
 
 ```r
 x &lt;- resid(model)
-Box.test(x, lag = 14, type = "Ljung-Box",fitdf=2)
+Box.test(x, lag = 14, type = "Ljung-Box", fitdf=2)
 ```
 
 ```
@@ -235,7 +259,7 @@ The test for autocorrelation of the residuals is
 
 ```r
 x &lt;- resid(model)
-Box.test(x, lag = 14, type = "Ljung-Box",fitdf=5)
+Box.test(x, lag = 14, type = "Ljung-Box", fitdf=5)
 ```
 
 ```
@@ -248,7 +272,7 @@ Box.test(x, lag = 14, type = "Ljung-Box",fitdf=5)
 
 `fitdf` specifies the number of parameters estimated by the model.  In this case it is 5, intercept and 4 coefficients.
 
-The p-value is less than 0.05 indicating lack of autocorrelation in the residuals.
+The p-value is less than 0.05 indicating that the residuals are temporally correlated.
 
 ---
 
@@ -298,12 +322,23 @@ if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
   d.head.appendChild(s);
 })();</script>
 
-<script type="text/x-mathjax-config">
-MathJax.Hub.Config({
-  tex2jax: {
-    skipTags: ['script', 'noscript', 'style', 'textarea', 'pre']
+<script>
+(function() {
+  var i, text, code, codes = document.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
   }
-});
+})();
 </script>
 <!-- dynamically load mathjax for compatibility with self-contained -->
 <script>

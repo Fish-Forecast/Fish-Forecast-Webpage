@@ -4,12 +4,11 @@ title: "TV Regression"
 
 - Lecture 1 [Introduction to time-varying regression](Forecasting_2_-_TV_Regression.html)
 
-- Lab Fit TV regression models to catch data
+- Lab Fit TV regression models to catch data: `TV Regression Lab 1.Rmd`
 
-- Lecture 2 Forecasts with a time-varying regression model
+- Lecture 2 [Forecasts with a time-varying regression model](Forecasting_2-2_-_TV_Regression.html)
 
-- Lab Create your own forecasts
+- Lab Create time-varying regression forecasts: `TV Regression Lab 2.Rmd`
 
-- Lab Test your forecasts
 
 

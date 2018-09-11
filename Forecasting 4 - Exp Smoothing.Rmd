@@ -13,6 +13,14 @@ options(htmltools.dir.version = FALSE, servr.daemon = TRUE)
 library(huxtable)
 ```
 
+---
+
+layout: true
+
+.hheader[<a href="index.html">`r fontawesome::fa("home", fill = "steelblue")`</a>]
+
+---
+
 class: center, middle, inverse
 # Forecasting Time Series
 ## Exponential Smoothing
@@ -23,7 +31,7 @@ class: center, middle, inverse
 
 ---
 
-```{r load_data, echo=FALSE}
+```{r load_data_exp_smoothing, echo=FALSE}
 load("landings.RData")
 landings$log.metric.tons = log(landings$metric.tons)
 landings = subset(landings, Year <= 1989)

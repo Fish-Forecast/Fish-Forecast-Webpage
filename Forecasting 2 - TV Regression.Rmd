@@ -103,11 +103,26 @@ c(coef(model), summary(model)$adj.r.squared)
 
 ---
 
-We want to test if our residuals are independent.  We can do this with the Ljung-Box test as Stergio and Christou (1995) do.  Stergio and Christou appear to use a lag of 14 for the test (this is a bit large for 24 data points).  The degrees of freedom is lag minus the number of estimated parameters in the model.  So for the Anchovy data, $df = 14 - 2$.
+We want to test if our residuals are independent.  We can do this with the Ljung-Box test as Stergio and Christou (1995) do.  For the Ljung-Box test
+
+* Null hypothesis is that the data are independent
+* Alternate hypothesis is that the data are serially correlated
+
+Example:
+
+```{r example_LB_test}
+Box.test(rnorm(100), type="Ljung-Box")
+```
+
+The null hypothesis is not rejected.  These are not serially correlated.
+
+---
+
+Stergio and Christou appear to use a lag of 14 for the test (this is a bit large for 24 data points).  The degrees of freedom is lag minus the number of estimated parameters in the model.  So for the Anchovy data, $df = 14 - 2$.
 
 ```{r}
 x <- resid(model)
-Box.test(x, lag = 14, type = "Ljung-Box",fitdf=2)
+Box.test(x, lag = 14, type = "Ljung-Box", fitdf=2)
 ```
 Compare to the values in the far right column in Table 4.
 
@@ -161,12 +176,12 @@ The test for autocorrelation of the residuals is
 
 ```{r}
 x <- resid(model)
-Box.test(x, lag = 14, type = "Ljung-Box",fitdf=5)
+Box.test(x, lag = 14, type = "Ljung-Box", fitdf=5)
 ```
 
 `fitdf` specifies the number of parameters estimated by the model.  In this case it is 5, intercept and 4 coefficients.
 
-The p-value is less than 0.05 indicating lack of autocorrelation in the residuals.
+The p-value is less than 0.05 indicating that the residuals are temporally correlated.
 
 ---
 
