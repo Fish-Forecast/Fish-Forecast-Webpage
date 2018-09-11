@@ -16,6 +16,9 @@ navbar:
       href: Exp_Smoothing.html
     - text: "Labs"
       href: https://fish-forecast.github.io/Catch-Forecasting-Files/
+  right:
+    - icon: fa-home
+      href: https://rverse-tutorials.github.io/Fish-Forecast-Training-Course/
 output:
   html_document:
     theme: readable
