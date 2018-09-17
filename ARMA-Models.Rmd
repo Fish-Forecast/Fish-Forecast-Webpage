@@ -4,7 +4,7 @@ title: "ARMA Models"
 
 - Lecture 1 [Introduction to ARMA Models](Forecasting_3-1_-_ARMA_Intro.html)
 
-- Lab Create and plot data from ARMA models
+- Lab Intro to ARMA models and diagnostic plotsa: [ARMA Lab 1.Rmd](https://fish-forecast.github.io/Catch-Forecasting-Files/ARMA Lab 1.Rmd)
 
 - Lecture 2 [Stationarity](Forecasting_3-2_-_ARMA_Stationarity.html)
 
