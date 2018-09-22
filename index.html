@@ -22,9 +22,8 @@
 <script src="site_libs/navigation/tabsets.js"></script>
 <link href="site_libs/highlightjs/default.css" rel="stylesheet" />
 <script src="site_libs/highlightjs/highlight.js"></script>
-<link href="site_libs/font-awesome/css/fa-svg-with-js.css" rel="stylesheet" />
-<script src="site_libs/font-awesome/js/fontawesome-all.min.js"></script>
-<script src="site_libs/font-awesome/js/fa-v4-shims.min.js"></script>
+<link href="site_libs/font-awesome/css/all.css" rel="stylesheet" />
+<link href="site_libs/font-awesome/css/v4-shims.css" rel="stylesheet" />
 
 <style type="text/css">code{white-space: pre;}</style>
 <style type="text/css">
@@ -114,7 +113,6 @@ body {
   padding-top: 71px;
   margin-top: -71px;
 }
-
 .section h2 {
   padding-top: 71px;
   margin-top: -71px;
@@ -134,6 +132,43 @@ body {
 .section h6 {
   padding-top: 71px;
   margin-top: -71px;
+}
+.dropdown-submenu {
+  position: relative;
+}
+.dropdown-submenu>.dropdown-menu {
+  top: 0;
+  left: 100%;
+  margin-top: -6px;
+  margin-left: -1px;
+  border-radius: 0 6px 6px 6px;
+}
+.dropdown-submenu:hover>.dropdown-menu {
+  display: block;
+}
+.dropdown-submenu>a:after {
+  display: block;
+  content: " ";
+  float: right;
+  width: 0;
+  height: 0;
+  border-color: transparent;
+  border-style: solid;
+  border-width: 5px 0 5px 5px;
+  border-left-color: #cccccc;
+  margin-top: 5px;
+  margin-right: -10px;
+}
+.dropdown-submenu:hover>a:after {
+  border-left-color: #ffffff;
+}
+.dropdown-submenu.pull-left {
+  float: none;
+}
+.dropdown-submenu.pull-left>.dropdown-menu {
+  left: -100%;
+  margin-left: 10px;
+  border-radius: 6px 0 6px 6px;
 }
 </style>
 
@@ -155,18 +190,77 @@ $(document).ready(function () {
 });
 </script>
 
-
 <div class="container-fluid main-container">
 
 <!-- tabsets -->
+
+<style type="text/css">
+.tabset-dropdown > .nav-tabs {
+  display: inline-table;
+  max-height: 500px;
+  min-height: 44px;
+  overflow-y: auto;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs > li.active:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li.active:before {
+  content: "&#xe258;";
+  border: none;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open:before {
+  content: "";
+  font-family: 'Glyphicons Halflings';
+  display: inline-block;
+  padding: 10px;
+  border-right: 1px solid #ddd;
+}
+
+.tabset-dropdown > .nav-tabs > li.active {
+  display: block;
+}
+
+.tabset-dropdown > .nav-tabs > li > a,
+.tabset-dropdown > .nav-tabs > li > a:focus,
+.tabset-dropdown > .nav-tabs > li > a:hover {
+  border: none;
+  display: inline-block;
+  border-radius: 4px;
+}
+
+.tabset-dropdown > .nav-tabs.nav-tabs-open > li {
+  display: block;
+  float: none;
+}
+
+.tabset-dropdown > .nav-tabs > li {
+  display: none;
+}
+</style>
+
 <script>
 $(document).ready(function () {
   window.buildTabsets("TOC");
 });
+
+$(document).ready(function () {
+  $('.tabset-dropdown > .nav-tabs > li').click(function () {
+    $(this).parent().toggleClass('nav-tabs-open')
+  });
+});
 </script>
 
 <!-- code folding -->
-
 
 
 
@@ -209,8 +303,8 @@ $(document).ready(function () {
       </ul>
       <ul class="nav navbar-nav navbar-right">
         <li>
-  <a href="https://rverse-tutorials.github.io/Fish-Forecast-Training-Course/">
-    <span class="fa fa-home"></span>
+  <a href="https://github.com/Fish-Forecast/Catch-Forecasting-INCOIS">
+    <span class="fa fa-github"></span>
      
   </a>
 </li>
@@ -228,7 +322,30 @@ $(document).ready(function () {
 </div>
 
 
-<p>This week we will learn a number of standard approaches for forecasting from catch time series.</p>
+<p>This week we will learn a number of standard approaches for forecasting from catch time series. We will be using the data and methods discussed in Stergiou and Christou (1996) Modelling and forecasting annual fisheries catches: comparison of regression, univariate and multivariate time series methods. Fisheries Research 25: 105-136.</p>
+<div id="course-syllabus" class="section level1">
+<h1>Course Syllabus</h1>
+<p><img style="float: right" src="https://rverse-tutorials.github.io/Fish-Forecast-Training-Course/images/fish-forecast.jpg" width=20%></p>
+<ul>
+<li>Time-varying regression</li>
+<li>Box-Jenkins (ARMA) Models</li>
+<li>Exponential smoothing</li>
+<li>Modelling time series with seasonality</li>
+<li>Forecast diagnostics and accuracy metrics</li>
+</ul>
+</div>
+<div id="links" class="section level1">
+<h1>Links</h1>
+<ul>
+<li><a href="https://rverse-tutorials.github.io/Fish-Forecast-Training-Course/">Main Course Page</a></li>
+<li><a href="https://fish-forecast.github.io/Catch-Forecasting-INCOIS/">Catch Forecasting</a></li>
+<li><a href="https://rverse-tutorials.github.io/RWorkflow-Workshop/">R Workflow</a></li>
+</ul>
+<hr>
+<div style="text-align: center">
+<p><i class="fas fa-cubes"></i> NOAA Fisheries - NW Fisheries Science Center <i class="fas fa-cubes"></i></p>
+</div>
+</div>
 
 
 

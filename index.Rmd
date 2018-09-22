@@ -7,4 +7,27 @@ title: "Forecasting Catch Time Series"
 library(fontawesome)
 ```
 
-This week we will learn a number of standard approaches for forecasting from catch time series.
+This week we will learn a number of standard approaches for forecasting from catch time series.  We will be using the data and methods discussed in Stergiou and Christou (1996) Modelling and forecasting annual fisheries catches: comparison of regression, univariate and multivariate time series methods. Fisheries Research 25: 105-136.
+
+# Course Syllabus
+
+<img style="float: right" src="https://rverse-tutorials.github.io/Fish-Forecast-Training-Course/images/fish-forecast.jpg" width=20%>
+
+- Time-varying regression
+- Box-Jenkins (ARMA) Models
+- Exponential smoothing
+- Modelling time series with seasonality
+- Forecast diagnostics and accuracy metrics
+
+# Links
+
+- [Main Course Page](https://rverse-tutorials.github.io/Fish-Forecast-Training-Course/)
+- [Catch Forecasting](https://fish-forecast.github.io/Catch-Forecasting-INCOIS/)
+- [R Workflow](https://rverse-tutorials.github.io/RWorkflow-Workshop/)
+
+<hr>
+
+
+<div style="text-align: center">
+<i class="fas fa-cubes"></i> NOAA Fisheries - NW Fisheries Science Center <i class="fas fa-cubes"></i>
+</div>

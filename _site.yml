@@ -17,8 +17,8 @@ navbar:
     - text: "Labs"
       href: https://fish-forecast.github.io/Catch-Forecasting-Files/
   right:
-    - icon: fa-home
-      href: https://rverse-tutorials.github.io/Fish-Forecast-Training-Course/
+    - icon: fa-github
+      href: https://github.com/Fish-Forecast/Catch-Forecasting-INCOIS
 output:
   html_document:
     theme: readable
