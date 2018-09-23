@@ -36,6 +36,8 @@ A single random walk can be made with a simple for loop or with a `cumsum` on wh
 
 ```{r rw}
 # this is a random walk
+TT <- 100
+sd <- 0.2
 rw <- rep(0,TT)
 for(i in 2:TT) rw[i] <- rw[i-1]+rnorm(1, sd=sd)
 # and this is a random walk
@@ -56,17 +58,18 @@ for(i in 1:nsim){
 *Optional* We can make a similar plot with ggplot.
 
 ```{r rw.ggplot}
-rw = rep(0,TT)
+rw <- rep(0,TT)
+err <- rnorm(TT, sd)
 for(i in 2:TT) rw[i]=rw[i-1]+err[i]
-dat = data.frame(t=1:TT, rw=rw)
-p1 = ggplot(dat, aes(x=t, y=rw)) + geom_line() + 
+dat <- data.frame(t=1:TT, rw=rw)
+p1 <- ggplot(dat, aes(x=t, y=rw)) + geom_line() + 
   ggtitle("Random Walk") + xlab("") + ylab("value")
-rws = apply(matrix(rnorm(TT*nsim),TT,nsim),2,cumsum)
-rws = data.frame(rws)
-rws$id = 1:TT
+rws <- apply(matrix(rnorm(TT*nsim),TT,nsim),2,cumsum)
+rws <- data.frame(rws)
+rws$id <- 1:TT
 
-rws2=melt(rws, id.var="id")
-p2 = ggplot(rws2, aes(x=id,y=value,group=variable)) +
+rws2 <- melt(rws, id.var="id")
+p2 <- ggplot(rws2, aes(x=id,y=value,group=variable)) +
   geom_line() + xlab("") + ylab("value") +
   ggtitle("The variance of a random walk process grows in time")
 grid.arrange(p1, p2, ncol = 1)
@@ -86,7 +89,8 @@ Adding an intercept to a random walk leads to an upward linear drift.  While in 
 
 ```{r rwt.vs.ar1t}
 TT <- 100
-alpha <- 1
+intercept <- 1
+trend <- beta1 <- 0.5
 rwi <- rep(0,TT)
 err <- rnorm(TT, sd=sd)
 for(i in 2:TT) rwi[i] <- rwi[i-1] + intercept + err[i]
@@ -101,12 +105,12 @@ plot(ar1i, type="l")
 ```{r rwt.vs.ar1t.ggplot}
 require(ggplot2)
 require(gridExtra)
-dat = data.frame(t=1:TT, y=cumsum(rnorm(TT)))
-dat$yi = cumsum(rnorm(TT,intercept,1))
-dat$yti = cumsum(rnorm(TT,intercept+trend*1:TT,1))
-p1 = ggplot(dat, aes(x=t, y=y)) + geom_line() + ggtitle("Random Walk")
-p2 = ggplot(dat, aes(x=t, y=yi)) + geom_line() + ggtitle("with non-zero mean added")
-p3 = ggplot(dat, aes(x=t, y=yti)) + geom_line() + ggtitle("with linear trend added")
+dat <- data.frame(t=1:TT, y=cumsum(rnorm(TT)))
+dat$yi <- cumsum(rnorm(TT,intercept,1))
+dat$yti <- cumsum(rnorm(TT,intercept+trend*1:TT,1))
+p1 <- ggplot(dat, aes(x=t, y=y)) + geom_line() + ggtitle("Random Walk")
+p2 <- ggplot(dat, aes(x=t, y=yi)) + geom_line() + ggtitle("with non-zero mean added")
+p3 <- ggplot(dat, aes(x=t, y=yti)) + geom_line() + ggtitle("with linear trend added")
 
 grid.arrange(p1, p2, p3, ncol = 1)
 ```
@@ -144,7 +148,7 @@ Scroll down and notice that the test statistic is LESS than the critical value f
 ### Dickey-Fuller on the anchovy data
 
 ```{r df.anchovy}
-test = ur.df(anchovy, type="trend", lags=0)
+test <- ur.df(anchovy, type="trend", lags=0)
 summary(test)
 ```
 

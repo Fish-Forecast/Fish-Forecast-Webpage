@@ -1,0 +1,69 @@
+---
+title: "X Copy Files"
+---
+
+```{r tangle_R_files, include=FALSE, echo=FALSE}
+library(stringr)
+# This is moving not copying for some reason
+# file.copy("landings.RData",
+#           "Labs/landings.RData",
+#           overwrite = TRUE)
+library(knitr)
+library(rmarkdown)
+files <- dir(pattern="^Forecasting.*Rmd$")
+files <- str_sub(files,1,-5)
+for(fil in files){
+  infil = paste0(fil,".Rmd")
+outfil = paste0("Labs/R_scripts/",fil,".R")
+knit(infil, output = outfil, tangle=TRUE)
+}
+```
+
+```{r render_Rmd_files, include=FALSE, echo=FALSE}
+require(stringr)
+files <- dir("Labs", pattern="*Rmd$")
+files <- str_sub(files,1,-5)
+for(fil in files){
+  infil = paste0("Labs/", fil,".Rmd")
+outfil = paste0(fil,".html")
+render(infil, output_file=outfil)
+}
+```
+
+```{r copy_html_files, include=FALSE, echo=FALSE}
+library(stringr)
+file.copy("landings.RData",
+           "../../INCOIS Fish Forecast/Forecast Labs/landings.RData",
+           overwrite = TRUE)
+files <- dir("Labs", pattern="*Rmd$")
+for(fil in files){
+  file.copy(
+           paste0("Labs/",fil),
+           paste0("../../INCOIS Fish Forecast/Forecast Labs/", fil),
+           overwrite = TRUE)
+}
+files <- dir(pattern="*html$")
+for(fil in files){
+  file.copy(fil,
+           paste0("../../INCOIS Fish Forecast/Catch-Forecasting-INCOIS/", fil),
+           overwrite = TRUE)
+}
+files <- dir(pattern="*_files$")
+for(fil in files){
+  if(dir.exists(fil)){
+    files2 <- dir(paste0(fil,"/figure-html"))
+    for(fil2 in files2)
+       file.copy(
+           paste0(fil,"/figure-html/",fil2),
+           paste0("../../INCOIS Fish Forecast/Catch-Forecasting-INCOIS/",fil,"/figure-html/",fil2),
+           overwrite = TRUE)
+  }else{
+       file.copy(
+           fil,
+           "../../INCOIS Fish Forecast/Catch-Forecasting-INCOIS/",
+           recursive = TRUE)
+    
+  }
+}
+```
+

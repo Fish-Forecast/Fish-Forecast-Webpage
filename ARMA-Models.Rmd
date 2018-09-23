@@ -4,11 +4,11 @@ title: "ARMA Models"
 
 - Lecture 1 [Introduction to ARMA Models](Forecasting_3-1_-_ARMA_Intro.html)
 
-- Lab 1 Intro to ARMA models and diagnostic plots: [ARMA Lab 1](Labs/ARMA Lab 1.html) - [Rmd file](Labs/ARMA Lab 1.Rmd)
+- Lab 1 Intro to ARMA models and diagnostic plots: [ARMA Lab 1](ARMA Lab 1.html) - [Rmd file](Labs/ARMA Lab 1.Rmd)
 
 - Lecture 2 [Stationarity](Forecasting_3-2_-_ARMA_Stationarity.html)
 
-- Lab 2 Test the Greek catch data for stationarity [ARMA Lab 2 Stationarity](Labs/ARMA Lab 2 Stationarity.html) - [Rmd file](Labs/ARMA Lab 2 Stationarity.Rmd)
+- Lab 2 Test the Greek catch data for stationarity [ARMA Lab 2 Stationarity](ARMA Lab 2 Stationarity.html) - [Rmd file](Labs/ARMA Lab 2 Stationarity.Rmd)
 
 - Lecture 3 [Selecting Model Structure](Forecasting_3-3_-_ARMA_Model_Structure.html)
 
