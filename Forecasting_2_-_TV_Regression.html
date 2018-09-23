@@ -137,7 +137,7 @@ Box.test(rnorm(100), type="Ljung-Box")
 ## 	Box-Ljung test
 ## 
 ## data:  rnorm(100)
-## X-squared = 0.037837, df = 1, p-value = 0.8458
+## X-squared = 0.26523, df = 1, p-value = 0.6066
 ```
 
 The null hypothesis is not rejected.  These are not serially correlated.
@@ -159,7 +159,7 @@ Box.test(x, lag = 14, type = "Ljung-Box", fitdf=2)
 ## data:  x
 ## X-squared = 27.18, df = 12, p-value = 0.007279
 ```
-Compare to the values in the far right column in Table 4.
+Compare to the values in the far right column in Table 4.  The null hypothesis of independence is rejected.
 
 ---
 
@@ -273,6 +273,26 @@ Box.test(x, lag = 14, type = "Ljung-Box", fitdf=5)
 `fitdf` specifies the number of parameters estimated by the model.  In this case it is 5, intercept and 4 coefficients.
 
 The p-value is less than 0.05 indicating that the residuals are temporally correlated.
+
+---
+
+Although Breusch-Godfrey test is more standard for regression residuals.  The forecast package has the `checkresiduals()` function which will run this test and some diagnostic plots.
+
+
+```r
+library(forecast)
+checkresiduals(model)
+```
+
+![](Forecasting_2_-_TV_Regression_files/figure-html/unnamed-chunk-6-1.png)&lt;!-- --&gt;
+
+```
+## 
+## 	Breusch-Godfrey test for serial correlation of order up to 8
+## 
+## data:  Residuals
+## LM test = 14.6, df = 8, p-value = 0.06741
+```
 
 ---
 

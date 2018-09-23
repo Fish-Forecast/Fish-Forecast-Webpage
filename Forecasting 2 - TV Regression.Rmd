@@ -124,7 +124,7 @@ Stergio and Christou appear to use a lag of 14 for the test (this is a bit large
 x <- resid(model)
 Box.test(x, lag = 14, type = "Ljung-Box", fitdf=2)
 ```
-Compare to the values in the far right column in Table 4.
+Compare to the values in the far right column in Table 4.  The null hypothesis of independence is rejected.
 
 ---
 
@@ -182,6 +182,15 @@ Box.test(x, lag = 14, type = "Ljung-Box", fitdf=5)
 `fitdf` specifies the number of parameters estimated by the model.  In this case it is 5, intercept and 4 coefficients.
 
 The p-value is less than 0.05 indicating that the residuals are temporally correlated.
+
+---
+
+Although Breusch-Godfrey test is more standard for regression residuals.  The forecast package has the `checkresiduals()` function which will run this test and some diagnostic plots.
+
+```{r}
+library(forecast)
+checkresiduals(model)
+```
 
 ---
 

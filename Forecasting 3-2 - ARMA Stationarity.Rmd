@@ -1,24 +1,4 @@
 ---
-fontsize: 30pt
-output:
-  html_document:
-    theme: readable
-    toc: true
-    toc_depth: 2
-    toc_float:
-      collapsed: no
-    code_folding: hide
----
-
-<style type="text/css">
-
-body{ /* Normal  */
-      font-size: 24px;
-  }
-</style>
-
-<!--
-----
 output:
   xaringan::moon_reader:
     css: "my-theme.css"
@@ -26,7 +6,7 @@ output:
     nature:
       highlightStyle: github
       highlightLines: true
-----
+---
 
 layout: true
 
@@ -47,11 +27,10 @@ class: center, middle, inverse
 
 .citation[eli.holmes@noaa.gov]
 
--->
+---
 
-## Load the data and packages
 
-```{r load_data, message=FALSE, warning=FALSE}
+```{r load_data, message=FALSE, warning=FALSE, echo=FALSE}
 load("landings.RData")
 landings$log.metric.tons = log(landings$metric.tons)
 landings = subset(landings, Year <= 1989)
@@ -65,7 +44,26 @@ library(tseries)
 library(urca)
 ```
 
+```{r eval=FALSE, echo=FALSE}
 ---
+fontsize: 30pt
+output:
+  html_document:
+    theme: readable
+    toc: true
+    toc_depth: 2
+    toc_float:
+      collapsed: no
+    code_folding: hide
+---
+
+<style type="text/css">
+
+body{ /* Normal  */
+      font-size: 24px;
+  }
+</style>
+```
 
 ## Stationarity
 
@@ -245,7 +243,6 @@ The visual test is simply looking at a plot of the data versus time.  Look for
 - Change in the level over time.  Is the time series increasing or decreasing?  Does it appear to cycle?
 - Change in the variance over time.  Do deviations away from the mean change over time, increase or decrease?
 
-Note, if you are using an augmented Dickey-Fuller test, you may inadvertantly invalidate your test by looking at the data.
 
 ---
 
@@ -266,7 +263,11 @@ Although the logged anchovy time series is increasing, it appears to have an lin
 
 ## Dickey-Fuller test
 
-The Dickey=Fuller test (and Augmented Dickey-Fuller test) look for evidence that the time series has a unit root.  The null hypothesis is that the time series has a unit root, that is, it has a random walk component.  The alternative hypothesis is some variation of stationarity.  The test has three main verisons. 
+The Dickey=Fuller test (and Augmented Dickey-Fuller test) look for evidence that the time series has a unit root.  
+
+The null hypothesis is that the time series has a unit root, that is, it has a random walk component.  
+
+The alternative hypothesis is some variation of stationarity.  The test has three main verisons. 
 
 ---
 
@@ -403,7 +404,7 @@ adf.test(x, alternative = c("stationary", "explosive"),
          k = trunc((length(x)-1)^(1/3)))
 ```
 
-The alternative is either stationary like $x_t = \delta x_{t-1} + \eta_t$ with $\delta<1$ or 'explosive' with $b>1$.  `k` is the number of lags which determines the number of time lags allowed in the autoregression.  `k` is generally determined by the length of your time series.
+The alternative is either stationary like $x_t = \delta x_{t-1} + \eta_t$ with $\delta<1$ or 'explosive' with $\delta>1$.  `k` is the number of lags which determines the number of time lags allowed in the autoregression.  `k` is generally determined by the length of your time series.
 
 ---
 
@@ -422,9 +423,13 @@ In both cases, we do not reject the null hypothesis that the data have a random 
 
 ## Example: Augmented Dickey-Fuller tests with ur.df()
 
-With the `urca` package, we apply the Augmented Dickey-Fuller test with `ur.df()`.  The defaults for `ur.df()` are different than for `adf.test()`.  `ur.df()` allow you to specify which of the 3 alternative hypotheses you want: none (stationary around 0), drift (stationary around a non-zero intercept), trend (stationary around a linear trend).
+With the `urca` package, we apply the Augmented Dickey-Fuller test with `ur.df()`.  The defaults for `ur.df()` are different than for `adf.test()`.  
+
+`ur.df()` allows you to specify which of the 3 alternative hypotheses you want: none (stationary around 0), drift (stationary around a non-zero intercept), trend (stationary around a linear trend).
 
 Another difference is that by default, `ur.df()` uses a fixed lag of 1 while by default `adf.test()` selects the lag based on the length of the time series.
+
+---
 
 We will specify "trend" to make the test similar to `adf.test()`.  We will set the lags like `adf.test()` does also.
 
@@ -441,7 +446,9 @@ The test statistic values are the same, but we need to look up the critical valu
 
 ## KPSS test
 
-In the Dickey-Fuller test, the null hypothesis is the unit root, i.e. random walk.  Often times, there is not enough power to reject the null hypothesis.  A null hypothesis is accepted unless there is strong evidence against it.  The Kwiatkowski–Phillips–Schmidt–Shin (KPSS) test has as the null hypothesis that a time series is stationary around a level trend (or a linear trend). The alternative hypothesis for the KPSS test is a random walk.
+In the Dickey-Fuller test, the null hypothesis is the unit root, i.e. random walk.  Often times, there is not enough power to reject the null hypothesis.  A null hypothesis is accepted unless there is strong evidence against it.  
+
+The Kwiatkowski–Phillips–Schmidt–Shin (KPSS) test has as the null hypothesis that a time series is stationary around a level trend (or a linear trend). The alternative hypothesis for the KPSS test is a random walk.
 
 The stationarity assumption is general; it does not assume a specific type of stationarity such as white noise.
 
@@ -467,9 +474,26 @@ Differencing means to create a new time series  $z_t = x_t - x_{t-1}$.  First or
 The `diff()` function takes the first difference:
 
 ```{r diff1}
+x <- diff(c(1,2,4,7,11))
+x
+```
+
+The second difference is the first difference of the first difference.
+
+```{r diff2}
+diff(x)
+```
+
+---
+
+Here is a plot of the anchovy data and its first difference.
+
+```{r diff1.plot, fig.align="center", fig.height = 4, fig.width = 8}
 par(mfrow=c(1,2))
 plot(anchovy, type="l")
+title("Anchovy")
 plot(diff(anchovy), type="l")
+title("Anchovy first difference")
 ```
 
 
@@ -477,7 +501,7 @@ plot(diff(anchovy), type="l")
 
 Let's test the anchovy data with one difference using the KPSS test.
 
-```{r diff2}
+```{r diff.anchovy.test}
 diff.anchovy = diff(anchovy)
 kpss.test(diff.anchovy)
 ```
@@ -486,20 +510,31 @@ The null hypothesis of stationairity is not rejected. That is good.
 
 ---
 
-Let's test the anchovy data with one difference using the Augmented Dickey-Fuller test.  When we apply this test to differenced data, we need to use the model with no drift or intercept.  That is `type="none"` in the `ur.df()` test.
+Let's test the first difference of the anchovy data using the Augmented Dickey-Fuller test.  When we apply this test to differenced data, we need to use the model with no drift or intercept.  That is `type="none"` in the `ur.df()` test.
 
 ```{r test.dickey.fuller.diff}
 test=ur.df(diff.anchovy, type="none", lags=2)
-summary(test)
 ```
 
+---
+
 The null hypothesis of NON-stationairity IS rejected. That is good.
+
+The test statistic is 
+```{r teststat.diff}
+attr(test, "teststat")
+```
+
+and the critical value at $\alpha = 0.05$ is 
+```{r cval.diff}
+attr(test,"cval")[2]
+```
 
 ---
 
 ## Summary
 
-Look at your data before you fit a mode.
+Test stationarity before you fit a ARMA model.
 
 - Visual test: is the time series flutuating about a level or a linear trend?
 
@@ -518,16 +553,10 @@ Still not passing?
 
 Still not passing?
 
-- ARMA model might not be the best choice.
-
-Note: another common approach is detrending with a TV regression with seasonality (if needed).
+- ARMA model might not be the best choice. Or you may need to an adhoc detrend.
 
 ---
 
-## Problems
+## Good news
 
-We will address these later.
-
-- Missing data points
-
-- Seasonality
+Much of this will be automated with the forecast package functions.

@@ -29,22 +29,22 @@ class: center, middle, inverse
 
 
 
----
-
 ## Model Structure
 
 We are now at step A3 and A4 of the Box-Jenkins Method.  Note we did not address seasonality since we are working with yearly data.
 
 A. Model form selection
-    1. Evaluate stationarity and seasonality
-    2. Selection of the differencing level (d)
-    3. **Selection of the AR level (p)**
-    4. **Selection of the MA level (q)**
+
+  1. Evaluate stationarity and seasonality
+  2. Selection of the differencing level (d)
+  3. **Selection of the AR level (p)**
+  4. **Selection of the MA level (q)**
     
 B. Parameter estimation
 
 C. Model checking
 
+*Much of this will be automated when we use the forecast package*
 
 ---
 
@@ -60,7 +60,7 @@ Step A4  is to determine the number of `\(q\)` lags in the MA part of the model:
 
 ---
 
-## Terminology: Model Order
+## Terminology: model order
 
 For an ARIMA model, the number of AR lags, number of differences, and number of MA lags is called the **model order** or just **order**.
 
@@ -82,6 +82,8 @@ Examples.  Note `\(e_t \sim N(0,\sigma)\)`
 
 `$$x_t = \phi x_{t-1} + e_t + \theta e_{t-1}$$`
 
+---
+
 - order (0,1,0) random walk
 
 `$$x_t - x_{t-1} = e_t$$`
@@ -98,11 +100,13 @@ which is the same as
 
 The ACF plot shows you how the correlation between `\(x_t\)` and `\(x_{t+p}\)` decrease as `\(p\)` increases.  The PACF plot shows you the same but removes the autocorrelation due to lags less that `\(p\)`.
 
+---
+
 &lt;img src="Forecasting_3-3_-_ARMA_Model_Structure_files/figure-html/fig.acf.pacf-1.png" style="display: block; margin: auto;" /&gt;
 
 ---
 
-If it looks like the top panel, it is AR-p.  The first lag where the PACF is below the dashed lines is the `\(p\)` lag for your model.
+If your ACF and PACF look like the top panel, it is AR-p.  The first lag where the PACF is below the dashed lines is the `\(p\)` lag for your model.
 
 &lt;img src="Forecasting_3-3_-_ARMA_Model_Structure_files/figure-html/fig.acf-1.png" style="display: block; margin: auto;" /&gt;
 
@@ -236,18 +240,20 @@ table(save.fits)
 ##  74  20   5   1
 ```
 
+---
+
 ## Summary
 
 - Once you have dealt with stationarity, you need to determine the order of the model: the AR part and the MA part.
 
 - Although you could simply use `auto.arima()`, it is best to run `acf()` and `pacf()` on your data to understand it better.
 
-    - Does it look like a pure AR process?
+  - Does it look like a pure AR process?
     
 - Also evaluate if there are reasons to assume a particular structure.  
 
-    - Are you using an established model form?
-    - Are you fitting to a process that is fundamentally AR only or AR + MA?
+  - Are you using an established model form, from say another paper?
+  - Are you fitting to a process that is fundamentally AR only or AR + MA?
     </textarea>
 <script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
 <script>var slideshow = remark.create({

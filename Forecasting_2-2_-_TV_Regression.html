@@ -29,15 +29,14 @@ class: center, middle, inverse
 
 
 
-Forecasting is easy in R once you have a fitted model.  Use the model with the covariates `\(t+1\)`, `\(t+2\)`, etc.
+Forecasting is easy in R once you have a fitted model.  
 
-For the anchovy, we fit the model
+Let's say for the anchovy, we fit the model
 
 `$$C_t = \alpha + \beta t + e_t$$`
-where `\(t\)` is year starting at 0 (so 1963 is `\(t=0\)`).  To predict, predict the catch in year X, we use
+where `\(t\)` starts at 0 (so 1964 is `\(t=0\)` ).  To predict, predict the catch in year t, we use
 
-`$$C_t = \alpha + \beta X + e_t$$`
-
+`$$C_t = \alpha + \beta t + e_t$$`
 ---
 
 Model fit:
@@ -53,7 +52,7 @@ coef(model)
 ##  8.41962028  0.05818942
 ```
 
-For anchovy, the estimated `\(\alpha\)` (Intercept) is 8.4196203 and `\(\beta\)` is 0.0581894.  We want to use these estimates to forecast 1988 ($t=24$).
+For anchovy, the estimated `\(\alpha\)` (Intercept) is 8.4196203 and `\(\beta\)` is 0.0581894.  We want to use these estimates to forecast 1988 ( `\(t=24\)` ).
 
 So the 1988 forecast is 8.4196203 + 0.0581894 `\(\times\)` 24 :
 
@@ -73,7 +72,7 @@ log metric tons.
 
 # The forecast package
 
-The forecast package in R makes it easy to create forecasts with fitted models and to plot those forecasts.
+The forecast package in R makes it easy to create forecasts with fitted models and to plot (some of) those forecasts.
 
 For a TV Regression model, our `forecast()` call looks like
 
@@ -81,16 +80,6 @@ For a TV Regression model, our `forecast()` call looks like
 ```r
 library(forecast)
 fr &lt;- forecast(model, newdata = data.frame(t=24:28))
-fr
-```
-
-```
-##   Point Forecast    Lo 80    Hi 80    Lo 95    Hi 95
-## 1       9.816166 9.539761 10.09257 9.382308 10.25002
-## 2       9.874356 9.595310 10.15340 9.436353 10.31236
-## 3       9.932545 9.650683 10.21441 9.490121 10.37497
-## 4       9.990735 9.705886 10.27558 9.543623 10.43785
-## 5      10.048924 9.760924 10.33692 9.596865 10.50098
 ```
 
 ---
@@ -102,49 +91,101 @@ The dark grey bands are the 80% prediction intervals and the light grey are the 
 plot(fr)
 ```
 
-![](Forecasting_2-2_-_TV_Regression_files/figure-html/plot.TVreg.forecast-1.png)&lt;!-- --&gt;
+&lt;img src="Forecasting_2-2_-_TV_Regression_files/figure-html/plot.TVreg.forecast-1.png" style="display: block; margin: auto;" /&gt;
 
 ---
 
-Sardine forecasts from a 4th order polynomial can similarly be made:
+Sardine forecasts from a higher order polynomial can similarly be made.  Let's fit a 4-th order polynomial.
+
+
+`$$C_t = \alpha + \beta_1 t + \beta_2 t^2 + \beta_3 t^3 + \beta_4 t^4 + e_t$$`
+
+To forecast with this model, we fit the model to estimate the `\(\beta\)`'s and then replace `\(t\)` with `\(24\)`:
+
+`$$C_{1988} = \alpha + \beta_1 24 + \beta_2 24^2 + \beta_3 24^3 + \beta_4 24^4 + e_t$$`
+
+---
+
+This is how to do that in R:
 
 
 ```r
-model &lt;- lm(log.metric.tons ~ t + I(t^2) + I(t^3) + I(t^4), data=sardine)
+model &lt;- lm(log.metric.tons ~ t + I(t^2) + I(t^3) + I(t^4), data=anchovy)
 fr &lt;- forecast(model, newdata = data.frame(t=24:28))
 fr
 ```
 
 ```
-##   Point Forecast    Lo 80     Hi 80    Lo 95     Hi 95
-## 1       9.241230 9.054530  9.427930 8.946917  9.535543
-## 2       9.293302 9.031922  9.554682 8.881264  9.705340
-## 3       9.387034 9.016062  9.758007 8.802235  9.971834
-## 4       9.532185 9.013777 10.050593 8.714969 10.349401
-## 5       9.739329 9.031707 10.446951 8.623837 10.854821
+##   Point Forecast    Lo 80    Hi 80    Lo 95    Hi 95
+## 1       10.18017 9.856576 10.50377 9.670058 10.69028
+## 2       10.30288 9.849849 10.75591 9.588723 11.01704
+## 3       10.41391 9.770926 11.05689 9.400315 11.42750
+## 4       10.50839 9.609866 11.40691 9.091963 11.92482
+## 5       10.58101 9.354533 11.80748 8.647599 12.51442
 ```
 
 ---
 
-Unfortunately, forecast does not recognize that there is only one predictor `\(t\)`
+Unfortunately, forecast does not recognize that there is only one predictor `\(t\)` and we cannot use forecast's plot function.
+
+If you do this in R, it throws an error.
 
 ```r
 try(plot(fr))
 ```
 
+```
+Error in plotlmforecast(x, PI = PI, shaded = shaded, shadecols = shadecols, : Forecast plot for regression models only available for a single predictor
+```
+
 ---
 
 
 
-I created a funciton that you can use to plot time-varying regressions with polynomial `\(t\)`.  You will use this function in the lab.
+I created a function that you can use to plot time-varying regressions with polynomial `\(t\)`.  You will use this function in the lab.
 
 
 ```r
-plotforecasttv(model)
+plotforecasttv(model, ylims=c(8,17))
 ```
 
-![](Forecasting_2-2_-_TV_Regression_files/figure-html/plot.TVreg.forecast2-1.png)&lt;!-- --&gt;
+&lt;img src="Forecasting_2-2_-_TV_Regression_files/figure-html/plot.TVreg.forecast2-1.png" style="display: block; margin: auto;" /&gt;
+
 ---
+
+A feature of a time-varying regression with many polynomials is that it fits the data well, but the forecast quickly becomes uncertain due to uncertainty regarding the polynomial fit.  A simpler model can give forecasts that do not become rapidly uncertain.
+
+The flip-side is that the simpler model may not capture the short-term trends very well and may suffer from autocorrelated residuals.
+
+
+
+
+```r
+model &lt;- lm(log.metric.tons ~ t + I(t^2), data=sardine)
+```
+
+---
+
+
+```r
+plotforecasttv(model, ylims=c(8,17))
+```
+
+&lt;img src="Forecasting_2-2_-_TV_Regression_files/figure-html/plot.TVreg.lm1-1.png" style="display: block; margin: auto;" /&gt;
+
+---
+
+# Summary
+
+* Time-varying regression is a simple approach to forecasting that allows a non-linear trend.
+* The uncertainty in your forecast is determined by how much error there is between the fit an the data.
+* Fit must be balanced against prediction uncertainty.
+* R allows you to quickly fit models and compute the prediction intervals.
+
+Careful thought must be given to selecting the polynomial order.
+
+* Standard methods are available in R for order selection
+* Using different orders for different data sets has prediction consequences
     </textarea>
 <script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
 <script>var slideshow = remark.create({

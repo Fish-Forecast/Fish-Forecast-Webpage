@@ -45,7 +45,7 @@ library(urca)
 
 ## Basic idea
 
-Past values in the time series have information about the current state.  An ARMA model models as a linear relationship of current values with past values.:
+Past values in the time series have information about the current state.  An ARMA model models the current state as a linear function of past values:
 
 $$x_t = \phi_1 x_{t-1} + \phi_2 x_{t-2} + ... + \phi_p x_{t-p} + e_t$$
 

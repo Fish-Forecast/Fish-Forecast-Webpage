@@ -17,6 +17,8 @@ layout: true
 ```{r setup, include=FALSE, message=FALSE}
 options(htmltools.dir.version = FALSE, servr.daemon = TRUE)
 library(huxtable)
+library(ggplot2)
+library(forecast)
 ```
 
 class: center, middle, inverse
@@ -38,15 +40,14 @@ anchovy = subset(landings, Species=="Anchovy" & Year <= 1987)
 sardine = subset(landings, Species=="Sardine" & Year <= 1987)
 ```
 
-Forecasting is easy in R once you have a fitted model.  Use the model with the covariates $t+1$, $t+2$, etc.
+Forecasting is easy in R once you have a fitted model.  
 
-For the anchovy, we fit the model
+Let's say for the anchovy, we fit the model
 
 $$C_t = \alpha + \beta t + e_t$$
-where $t$ is year starting at 0 (so 1963 is $t=0$).  To predict, predict the catch in year X, we use
+where $t$ starts at 0 (so 1964 is $t=0$ ).  To predict, predict the catch in year t, we use
 
-$$C_t = \alpha + \beta X + e_t$$
-
+$$C_t = \alpha + \beta t + e_t$$
 ---
 
 Model fit:
@@ -56,7 +57,7 @@ model <- lm(log.metric.tons ~ t, data=anchovy)
 coef(model)
 ```
 
-For anchovy, the estimated $\alpha$ (Intercept) is `r coef(model)[1]` and $\beta$ is `r coef(model)[2]`.  We want to use these estimates to forecast 1988 ($t=24$).
+For anchovy, the estimated $\alpha$ (Intercept) is `r coef(model)[1]` and $\beta$ is `r coef(model)[2]`.  We want to use these estimates to forecast 1988 ( $t=24$ ).
 
 So the 1988 forecast is `r coef(model)[1]` + `r coef(model)[2]` $\times$ 24 :
 
@@ -70,55 +71,74 @@ log metric tons.
 
 # The forecast package
 
-The forecast package in R makes it easy to create forecasts with fitted models and to plot those forecasts.
+The forecast package in R makes it easy to create forecasts with fitted models and to plot (some of) those forecasts.
 
 For a TV Regression model, our `forecast()` call looks like
 
 ```{r TVregression.forecast2}
 library(forecast)
 fr <- forecast(model, newdata = data.frame(t=24:28))
-fr
 ```
 
 ---
 
 The dark grey bands are the 80% prediction intervals and the light grey are the 95% prediction intervals.
 
-```{r plot.TVreg.forecast}
+```{r plot.TVreg.forecast, fig.align = "center"}
 plot(fr)
 ```
 
 ---
 
-Sardine forecasts from a 4th order polynomial can similarly be made:
+Sardine forecasts from a higher order polynomial can similarly be made.  Let's fit a 4-th order polynomial.
+
+
+$$C_t = \alpha + \beta_1 t + \beta_2 t^2 + \beta_3 t^3 + \beta_4 t^4 + e_t$$
+
+To forecast with this model, we fit the model to estimate the $\beta$'s and then replace $t$ with $24$:
+
+$$C_{1988} = \alpha + \beta_1 24 + \beta_2 24^2 + \beta_3 24^3 + \beta_4 24^4 + e_t$$
+
+---
+
+This is how to do that in R:
 
 ```{r tvreg.sardine2}
-model <- lm(log.metric.tons ~ t + I(t^2) + I(t^3) + I(t^4), data=sardine)
+model <- lm(log.metric.tons ~ t + I(t^2) + I(t^3) + I(t^4), data=anchovy)
 fr <- forecast(model, newdata = data.frame(t=24:28))
 fr
 ```
 
 ---
 
-Unfortunately, forecast does not recognize that there is only one predictor $t$
+Unfortunately, forecast does not recognize that there is only one predictor $t$ and we cannot use forecast's plot function.
+
+If you do this in R, it throws an error.
 ```{r plot.TVreg.forecast.bad}
 try(plot(fr))
+```
+
+```
+Error in plotlmforecast(x, PI = PI, shaded = shaded, shadecols = shadecols, : Forecast plot for regression models only available for a single predictor
 ```
 
 ---
 
 ```{r plot.TVreg.func, echo=FALSE}
-plotforecasttv <- function(object, h=10){
+plotforecasttv <- function(object, h=10, ylims=NULL){
   dat <- object$model
+  dat$fitted <- object$fitted.values
   tlim <- (max(object$model$t)+1:h)
   pr95 <- predict(model, newdata = data.frame(t=(max(object$model$t)+1:h)), level=0.95, interval="prediction")
   pr80 <- predict(model, newdata = data.frame(t=(max(object$model$t)+1:h)), level=0.80, interval="prediction")
   pr95 <- as.data.frame(pr95); pr95$t <- tlim
   pr80 <- as.data.frame(pr80); pr80$t <- tlim
-  ylims <- c(min(dat[,1],pr95$lwr, pr80$lwr), max(dat[,1],pr95$upr, pr80$upr))
+  if(is.null(ylims)) ylims <- c(min(dat[,1],pr95$lwr, pr80$lwr), max(dat[,1],pr95$upr, pr80$upr))
   p1 <- ggplot(dat, aes_string(x = colnames(dat)[2], y = colnames(dat)[1])) +
   theme_bw() +
-  geom_point(color = "blue") + xlim(0,max(tlim)) + ylim(ylims)
+  geom_point(color = "blue") + xlim(0,max(tlim)) + ylim(ylims) +
+  geom_line(aes(x=t, y=fitted), color="red")
+  
   p1 + 
     geom_ribbon(mapping=aes(x=t, ymin=lwr, ymax=upr), data=pr95, inherit.aes=FALSE, fill = "grey50") +
     geom_ribbon(mapping=aes(x=t, ymin=lwr, ymax=upr), data=pr80, inherit.aes=FALSE, fill = "grey75") +
@@ -126,10 +146,42 @@ plotforecasttv <- function(object, h=10){
 }
 ```
 
-I created a funciton that you can use to plot time-varying regressions with polynomial $t$.  You will use this function in the lab.
+I created a function that you can use to plot time-varying regressions with polynomial $t$.  You will use this function in the lab.
 
-```{r plot.TVreg.forecast2}
-plotforecasttv(model)
+```{r plot.TVreg.forecast2, fig.align = "center"}
+plotforecasttv(model, ylims=c(8,17))
 ```
+
 ---
+
+A feature of a time-varying regression with many polynomials is that it fits the data well, but the forecast quickly becomes uncertain due to uncertainty regarding the polynomial fit.  A simpler model can give forecasts that do not become rapidly uncertain.
+
+The flip-side is that the simpler model may not capture the short-term trends very well and may suffer from autocorrelated residuals.
+
+
+
+```{r tvreg.lm1}
+model <- lm(log.metric.tons ~ t + I(t^2), data=sardine)
+```
+
+---
+
+```{r plot.TVreg.lm1, fig.align = "center"}
+plotforecasttv(model, ylims=c(8,17))
+```
+
+---
+
+# Summary
+
+* Time-varying regression is a simple approach to forecasting that allows a non-linear trend.
+* The uncertainty in your forecast is determined by how much error there is between the fit an the data.
+* Fit must be balanced against prediction uncertainty.
+* R allows you to quickly fit models and compute the prediction intervals.
+
+Careful thought must be given to selecting the polynomial order.
+
+* Standard methods are available in R for order selection
+* Using different orders for different data sets has prediction consequences
+
 
