@@ -33,13 +33,13 @@ render(infil, output_file=outfil)
 ```{r copy_html_files, include=FALSE, echo=FALSE}
 library(stringr)
 file.copy("landings.RData",
-           "../../INCOIS Fish Forecast/Forecast Labs/landings.RData",
+           "../../INCOIS Student Folders/Forecast Labs/landings.RData",
            overwrite = TRUE)
 files <- dir("Labs", pattern="*Rmd$")
 for(fil in files){
   file.copy(
            paste0("Labs/",fil),
-           paste0("../../INCOIS Fish Forecast/Forecast Labs/", fil),
+           paste0("../../INCOIS Student Folders/Forecast Labs/", fil),
            overwrite = TRUE)
 }
 files <- dir(pattern="*html$")

@@ -4,7 +4,7 @@ title: "TV Regression"
 
 - Lecture 1 [Introduction to time-varying regression](Forecasting_2_-_TV_Regression.html)
 
-- Lab Fit TV regression models to catch data: [TV Regression Lab 1](TV Regression Lab 1.html) - [Rmd file](Labs/TV Regression Lab 1.Rmd)
+- Lab Fit TV regression models to catch data: [TV Regression Lab 1](TV Regression Lab 1.html) - [Rmd file](Labs/TV Regression Lab 1.Rmd) [Data](https://github.com/Fish-Forecast/Catch-Forecasting-INCOIS/blob/master/landings.RData)
 
 - Lecture 2 [Forecasts with a time-varying regression model](Forecasting_2-2_-_TV_Regression.html)
 
