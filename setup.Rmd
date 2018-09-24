@@ -30,6 +30,7 @@ render(infil, output_file=outfil)
 }
 ```
 
+For full set-up including R and RStudio, go to [full setup](https://rverse-tutorials.github.io/Fish-Forecast-Training-Course/set-up.html)
 
 Set-up:
 
@@ -43,13 +44,8 @@ Set-up:
 
 3. Next time you open RStudio, you can select your project from the upper right..
 
-You will need to install the following packages: 
+2. Install **other packages** that we are going to be need. I have created a package on GitHub that will install the packages you need.  This will probably take **awhile** as the first time you do it, many packages will be loaded.
 
-```
-install.packages("ggplot2")
-install.packages("gridExtra")
-install.packages("reshape2")
-install.packages("urca")
-install.packages("tseries")
-install.packages("forecast")
+```{r get-packages, eval=FALSE}
+devtools::install_github("RVerse-Tutorials/RWorkflowsetup")
 ```
