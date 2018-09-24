@@ -1,3 +1,26 @@
+/* Need to adjust the navbar behaviour so the navbar doesn't wrap */
+.navbar-nav { 
+position: fixed;
+left: 150px;
+width: 1000px;
+}
+
+.navbar-right { 
+position: fixed;
+left: 80%;
+width: 300px;
+}
+
+.navbar-header {
+position: fixed;
+left: 30px;
+width: 97%;
+}
+
+.nav {
+    font-size: 15px;
+}
+
 body {
     font-family: "Raleway","Helvetica Neue",Helvetica,Arial,sans-serif;
     line-height: 2;
@@ -11,7 +34,6 @@ h1.title {
 }
 h2 {
   font-size: 28px;
-  color: green;
   padding-top: 100px;
   margin: 0 200px 0 0;
   display: block;

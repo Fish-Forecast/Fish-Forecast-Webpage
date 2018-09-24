@@ -1,10 +1,9 @@
 name: "Catch-Forecasting"
 output_dir: "."
 navbar:
-  title: "Catch Forecasting Workshop"
+  title: fish forecast
   left:
     - text: "Set-up"
-      icon: fa-clone
       href: setup.html
     - text: "Introduction"
       href: Forecasting_1_-_Introduction.html
@@ -14,9 +13,13 @@ navbar:
       href: ARMA-Models.html
     - text: "Exp Smoothing"
       href: Exp_Smoothing.html
-    - text: "Labs"
-      href: https://fish-forecast.github.io/Catch-Forecasting-Files/
   right:
+    - icon: fa-home
+      href: https://rverse-tutorials.github.io/Fish-Forecast-Training-Course/
+    - icon: fa-wrench
+      href: https://rverse-tutorials.github.io/RWorkflow-Workshop
+    - icon: fa-line-chart
+      href: https://fish-forecast.github.io/Catch-Forecasting-INCOIS/
     - icon: fa-github
       href: https://github.com/Fish-Forecast/Catch-Forecasting-INCOIS
 output:
