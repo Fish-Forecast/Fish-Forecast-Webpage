@@ -4,6 +4,7 @@ output:
   html_document:
     toc: true
     toc_float: true
+    css: styles.css
 ---
 
 In this lab, you will simulate ARMA data and get a feel for what that data looks like and what the acf and pacf functions look like.  In developing forecasting models, you use simulation to test your modeling approaches and estimate the power of your fitting procedures.  

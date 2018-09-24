@@ -75,13 +75,102 @@ $$e_t = \eta_t + \theta_1 \eta_{t-1} + \theta_2 \eta_{t-2} + ... + \theta_q \eta
 
 ---
 
-## Create some data from an ARMA Model
+## Create some data from an AR(2) Model
 
-```{r arima.sim}
-dat = arima.sim(n=100, model=list(ar=c(.8,.1)))
+$$x_t = 0.5 x_{t-1} + 0.3 x_{t-2} + e_t$$
+
+```{r arima.sim, fig.align="center"}
+dat = arima.sim(n=1000, model=list(ar=c(.5,.3)))
 plot(dat)
+abline(h=0, col="red")
 ```
 
+---
+
+```{r arimavsrn, fig.align="center", echo=FALSE}
+par(mfrow=c(1,2))
+plot(dat[1:500],type="l",ylab="dat")
+abline(h=0, col="red")
+title("ar(2)")
+plot(rnorm(length(dat))[1:500],type="l",ylab="dat",xlab="Time")
+abline(h=0, col="red")
+title("random normal")
+```
+
+---
+
+## AR(2) is auto-correlated
+
+Plot the data at time $t$ against the data at time $t-1$
+
+```{r arimavsrncorr, fig.align="center", echo=FALSE}
+par(mfrow=c(1,2))
+TT=length(dat)
+plot(dat[2:TT],dat[1:(TT-1)],type="p")
+title("ar(2)")
+rn=rnorm(length(dat))
+plot(rn[2:TT],rn[1:(TT-1)],type="p")
+title("random normal")
+```
+
+---
+
+## Auto-correlation function
+
+The auto-correlation function is the correlation between the data at time $t$ and $t+1$.  This is one of the basic diagnostic plots for time series data.
+
+```{r acf, fig.align="center"}
+acf(dat[1:50])
+```
+
+---
+
+`cor()` is the correlation function.
+
+```{r corr}
+cor(dat[2:TT], dat[1:(TT-1)])
+cor(dat[11:TT], dat[1:(TT-10)])
+```
+
+```{r acf2, fig.align="center", echo=FALSE}
+par(mfrow=c(1,2))
+plot(dat[1:50], type="b", pch="x")
+title("dat[1:50]")
+acf(dat,lag.max=25)
+```
+
+---
+
+## ACF for independent data
+
+```{r acf.random, fig.align="center",echo=FALSE}
+rn <- rnorm(TT)
+par(mfrow=c(1,2))
+plot(rn[1:50], type="b", pch="x")
+title("random 1:50")
+acf(rn,lag.max=25)
+```
+
+---
+
+## Partial ACF
+
+$$x_t = 0.5 x_{t-1} + 0.3 x_{t-2} + e_t$$
+
+```{r pacf.ar2, fig.align="center"}
+pacf(dat)
+```
+
+---
+
+## Partial ACF for AR(1)
+
+$$x_t = 0.5 x_{t-1} + e_t$$
+
+```{r pacf.ar3, fig.align="center"}
+dat <- arima.sim(TT, model=list(ar=c(.5)))
+pacf(dat)
+```
 ---
 
 ## Box-Jenkins Method
@@ -89,13 +178,11 @@ plot(dat)
 This refers to a step-by-step process of selecting a forecasting model.  You need to go through the steps otherwise you could end up fitting a nonsensical model or using fitting a sensible model with an algorithm that will not work on your data.
 
 A. Model form selection
-    1. Evaluate stationarity and seasonality
-    2. Selection of the differencing level (d)
-    3. Selection of the AR level (p)
-    4. Selection of the MA level (q)
-    
+  1. Evaluate stationarity and seasonality
+  2. Selection of the differencing level (d)
+  3. Selection of the AR level (p)
+  4. Selection of the MA level (q)
 B. Parameter estimation
-
 C. Model checking
 
 ---

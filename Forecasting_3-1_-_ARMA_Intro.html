@@ -61,16 +61,99 @@ You will commonly see ARIMA models referred to as *Box-Jenkins* models.  This mo
 
 ---
 
-## Create some data from an ARMA Model
+## Create some data from an AR(2) Model
+
+`$$x_t = 0.5 x_{t-1} + 0.3 x_{t-2} + e_t$$`
 
 
 ```r
-dat = arima.sim(n=100, model=list(ar=c(.8,.1)))
+dat = arima.sim(n=1000, model=list(ar=c(.5,.3)))
 plot(dat)
+abline(h=0, col="red")
 ```
 
-![](Forecasting_3-1_-_ARMA_Intro_files/figure-html/arima.sim-1.png)&lt;!-- --&gt;
+&lt;img src="Forecasting_3-1_-_ARMA_Intro_files/figure-html/arima.sim-1.png" style="display: block; margin: auto;" /&gt;
 
+---
+
+&lt;img src="Forecasting_3-1_-_ARMA_Intro_files/figure-html/arimavsrn-1.png" style="display: block; margin: auto;" /&gt;
+
+---
+
+## AR(2) is auto-correlated
+
+Plot the data at time `\(t\)` against the data at time `\(t-1\)`
+
+&lt;img src="Forecasting_3-1_-_ARMA_Intro_files/figure-html/arimavsrncorr-1.png" style="display: block; margin: auto;" /&gt;
+
+---
+
+## Auto-correlation function
+
+The auto-correlation function is the correlation between the data at time `\(t\)` and `\(t+1\)`.  This is one of the basic diagnostic plots for time series data.
+
+
+```r
+acf(dat[1:50])
+```
+
+&lt;img src="Forecasting_3-1_-_ARMA_Intro_files/figure-html/acf-1.png" style="display: block; margin: auto;" /&gt;
+
+---
+
+`cor()` is the correlation function.
+
+
+```r
+cor(dat[2:TT], dat[1:(TT-1)])
+```
+
+```
+## [1] 0.7500135
+```
+
+```r
+cor(dat[11:TT], dat[1:(TT-10)])
+```
+
+```
+## [1] 0.2897134
+```
+
+&lt;img src="Forecasting_3-1_-_ARMA_Intro_files/figure-html/acf2-1.png" style="display: block; margin: auto;" /&gt;
+
+---
+
+## ACF for independent data
+
+&lt;img src="Forecasting_3-1_-_ARMA_Intro_files/figure-html/acf.random-1.png" style="display: block; margin: auto;" /&gt;
+
+---
+
+## Partial ACF
+
+`$$x_t = 0.5 x_{t-1} + 0.3 x_{t-2} + e_t$$`
+
+
+```r
+pacf(dat)
+```
+
+&lt;img src="Forecasting_3-1_-_ARMA_Intro_files/figure-html/pacf.ar2-1.png" style="display: block; margin: auto;" /&gt;
+
+---
+
+## Partial ACF for AR(1)
+
+`$$x_t = 0.5 x_{t-1} + e_t$$`
+
+
+```r
+dat &lt;- arima.sim(TT, model=list(ar=c(.5)))
+pacf(dat)
+```
+
+&lt;img src="Forecasting_3-1_-_ARMA_Intro_files/figure-html/pacf.ar3-1.png" style="display: block; margin: auto;" /&gt;
 ---
 
 ## Box-Jenkins Method
@@ -78,13 +161,11 @@ plot(dat)
 This refers to a step-by-step process of selecting a forecasting model.  You need to go through the steps otherwise you could end up fitting a nonsensical model or using fitting a sensible model with an algorithm that will not work on your data.
 
 A. Model form selection
-    1. Evaluate stationarity and seasonality
-    2. Selection of the differencing level (d)
-    3. Selection of the AR level (p)
-    4. Selection of the MA level (q)
-    
+  1. Evaluate stationarity and seasonality
+  2. Selection of the differencing level (d)
+  3. Selection of the AR level (p)
+  4. Selection of the MA level (q)
 B. Parameter estimation
-
 C. Model checking
 
 ---

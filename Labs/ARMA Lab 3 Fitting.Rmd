@@ -1,0 +1,181 @@
+---
+title: ARMA Models Lab 2
+output:
+  html_document:
+    toc: true
+    toc_float: true
+---
+
+In this lab, you will fit data with the `auto.arima()` function in the forecast package.
+
+# Set-up
+
+
+If you have not loaded the setup package with the Greek landings data, do so now.  You would have needed this for the TV Regression lab, so you should not need to do this again.
+
+```
+library(devtools)
+devtools::install_github("RVerse-Tutorials/RWorkflowsetup")
+```
+
+We will use the data before 1987 for the lab and you will look at the later data in the problems.
+
+```{r read_data}
+load("landings.RData")
+landings$log.metric.tons <- log(landings$metric.tons)
+landings <- subset(landings, Year <= 1987)
+anchovy <- subset(landings, Species=="Anchovy")
+sardine <- subset(landings, Species=="Sardine")
+```
+
+Load the necessary packages.
+
+```{r load_forecast}
+library(forecast)
+library(tseries)
+```
+
+## Fitting to simulated data
+
+To see info on `arima.sim()`, type `?arima.sim` and `?arima`.
+
+Fit to AR(2) data:
+
+$$x_t = 0.8 x_{t-1} + 0.1 x_{t-2} + e_t$$
+```{r}
+a1 = arima.sim(n=100, model=list(ar=c(.8,.1)))
+auto.arima(a1, seasonal=FALSE, max.d=0)
+```
+
+Fit to AR(1) data:
+
+$$x_t = 0.8 x_{t-1} + e_t$$
+
+```{r}
+a1 = arima.sim(n=100, model=list(ar=c(.8)))
+auto.arima(a1, seasonal=FALSE, max.d=0)
+```
+
+$$x_t = 0.8 x_{t-1} + e_t + 0.8 e_{t-1} + 0.2 e_{t-2}$$
+
+Fit to ARMA(1,2) data:
+
+We will up the number of data points to 1000 because models with a MA component take a lot of data to estimate.  Models with MA(>1) are not very practical for fisheries data for that reason.
+
+```{r}
+a1 = arima.sim(n=1000, model=list(ar=c(0.8), ma=c(0.8, 0.2)))
+auto.arima(a1, seasonal=FALSE, max.d=0)
+```
+
+## Fitting to 100 simulated data sets
+
+```{r}
+save.fits = rep(NA,100)
+for(i in 1:100){
+  a1 = arima.sim(n=100, model=list(ar=c(.8,.1)))
+  fit = auto.arima(a1, seasonal=FALSE, max.d=0, max.q=0)
+  save.fits[i] = paste0(fit$arma[1], "-", fit$arma[2])
+}
+table(save.fits)
+```
+
+## These functions work for data with missing values
+
+Create some AR(2) data and then add missing values (NA).
+
+```{r}
+a1 = arima.sim(n=100, model=list(ar=c(.8,.1)))
+a1[sample(100,50)]=NA
+plot(a1, type="l")
+title("many missing values")
+```
+
+As always to understand what the code is doing, run pieces of it and look at the output.  Use `?sample` (say) to read about functions you don't know.
+
+Fit to the data with missing values.  You need to give `auto.arima()` a little help by telling it not to include models with differencing.  So we set `max.d=0`.  You can remove that and see what happens.
+
+```{r}
+auto.arima(a1, seasonal=FALSE, max.d=0)
+```
+
+`auto.arima()` is nice because it selects the model order for you.  But if you know what model you want to fit, you can use `Arima()`:
+
+```{r}
+Arima(a1, order = c(2,0,0))
+```
+
+## Fit to the Anchovy landing data
+
+```{r}
+fit <- auto.arima(anchovy$log.metric.tons)
+fit
+```
+
+Compare to Table 8 in Stergiou and Christou.   Note `arima()` writes a MA model like:
+
+$$x_t = e_t + b_1 e_{t-1} + b_2 e_{t-2}$$
+
+while Stergiou and Christou use the following (also common) notation:
+
+$$x_t = e_t - \theta_1 e_{t-1} - \theta_2 e_{t-2}$$
+
+so the MA parameters reported by `auto.arima()` will be NEGATIVE of that reported in Stergiou and Christou.  *Note, in Stergiou and Christou, the model is written in backshift notation on page 112.  To see the model as the equation above, I translated from backshift to non-backshift notation.*
+
+Here are the values for anchovy in Table 8.
+
+ARIMA Model  | $\theta_1$ | drift (c) | R$^2$ | BIC | LB
+------------- | --------| --- | --- | --- | --- | 
+(0,1,1) | 0.563 | 0.064 | 0.83 | 1775 | 5.4
+
+The model selected by `auto.arima()` is the same.  The model selection criteria is similar in spirit but not in detail.  Stergiou and Christou used a combination of model fit and BIC (a model selection criteria), which `auto.arima()` uses AICc by default (you can specifiy BIC).
+
+The parameter estimates are similar.
+
+The BIC value is different, that is expected because there is a constant that is often left off.
+
+The Ljung-Box test is not significant.  They don't give the p-value, but state in the table legend that it is not significant.  That is good.  That means we don't reject the null hypothesis of independence.
+
+Here is how to do the test that they did:
+
+```{r}
+res <- resid(fit)
+Box.test(res, type="Ljung-Box", lag=12, fitdf=2)
+```
+
+Here is how to do the default test with `checkresiduals()`:
+
+```{r}
+checkresiduals(fit)
+```
+
+# Problems
+
+1. Fit to the sardine data.  
+  - Use `auto.arima()`
+  - Compare to Table 8 in Stergiou and Christou. Do you get the same result?
+  
+I am not sure how Stergiou and Christou selected the amount of differencing to use.  `auto.arima()` uses the KPSS test by default.  Let's try the Augmented Dickey-Fuller test instead.  Specify this by passing in `test="adf"`.
+
+```{r, results="hide"}
+auto.arima(sardine$log.metric.tons, test="adf")
+```
+
+  - Is the selected model the same?
+  
+2. Now fit to the anchovy data 1989-2007
+
+```{r}
+load("landings.RData")
+landings$log.metric.tons <- log(landings$metric.tons)
+anchovy <- subset(landings, Species=="Anchovy" & Year>=1989)
+```
+
+  - First plot the data.
+  - Fit with `auto.arima()`.  Do you get the same model? You don't. ARIMA(0,1,1) is very different than ARIMA(0,0,1).
+  - Force a fit of ARIMA(0,1,1) with drift using `Arima()`.  This is the best fit model with `auto.arima()`.
+  
+```{r}
+Arima(anchovy$log.metric.tons, order=c(0,1,1), include.drift=TRUE)
+```
+   - Compare the estimates of `ma1`.
+   
