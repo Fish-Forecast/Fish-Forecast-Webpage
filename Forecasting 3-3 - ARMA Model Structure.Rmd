@@ -32,7 +32,7 @@ class: center, middle, inverse
 ```{r load_data, echo=FALSE, message=FALSE, warning=FALSE}
 load("landings.RData")
 landings$log.metric.tons = log(landings$metric.tons)
-landings = subset(landings, Year <= 1989)
+landings = subset(landings, Year <= 1987)
 anchovy = subset(landings, Species=="Anchovy")$log.metric.tons
 sardine = subset(landings, Species=="Sardine")$log.metric.tons
 
@@ -259,6 +259,25 @@ table(save.fits)
 
 ---
 
+## Trace = TRUE
+
+You can see what models that `auto.arima()` tried using `trace=TRUE`.  The models are selected on AICc by default and the AICc value is shown next to the model.
+
+```{r}
+auto.arima(anchovy, trace=TRUE)
+```
+
+---
+
+## stepwise=FALSE
+
+By default, step-wise selection is used and an approximation is used for the models tried in the model selection step.  For a final model selection, you should turn these off.
+
+```{r}
+auto.arima(anchovy, stepwise=FALSE, approximation=FALSE)
+```
+
+---
 ## Summary
 
 - Once you have dealt with stationarity, you need to determine the order of the model: the AR part and the MA part.

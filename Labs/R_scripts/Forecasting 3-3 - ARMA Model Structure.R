@@ -5,7 +5,7 @@ library(huxtable)
 ## ----load_data, echo=FALSE, message=FALSE, warning=FALSE-----------------
 load("landings.RData")
 landings$log.metric.tons = log(landings$metric.tons)
-landings = subset(landings, Year <= 1989)
+landings = subset(landings, Year <= 1987)
 anchovy = subset(landings, Species=="Anchovy")$log.metric.tons
 sardine = subset(landings, Species=="Sardine")$log.metric.tons
 
@@ -98,4 +98,10 @@ for(i in 1:100){
   save.fits[i] = paste0(fit$arma[1], "-", fit$arma[2])
 }
 table(save.fits)
+
+## ------------------------------------------------------------------------
+auto.arima(anchovy, trace=TRUE)
+
+## ------------------------------------------------------------------------
+auto.arima(anchovy, stepwise=FALSE, approximation=FALSE)
 

@@ -1,6 +1,6 @@
 ## ----setup, include=FALSE, message=FALSE---------------------------------
 options(htmltools.dir.version = FALSE, servr.daemon = TRUE)
-knitr::opts_chunk$set(fig.height=4)
+knitr::opts_chunk$set(fig.height=5)
 library(huxtable)
 
 ## ----load_data, echo=FALSE, message=FALSE, warning=FALSE-----------------

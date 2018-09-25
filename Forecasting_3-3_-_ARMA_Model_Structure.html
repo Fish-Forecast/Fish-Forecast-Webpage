@@ -156,11 +156,11 @@ auto.arima(anchovy.diff1)
 ## 
 ## Coefficients:
 ##           ma1    mean
-##       -0.6685  0.0542
-## s.e.   0.1977  0.0142
+##       -0.5731  0.0641
+## s.e.   0.1610  0.0173
 ## 
-## sigma^2 estimated as 0.04037:  log likelihood=5.39
-## AIC=-4.79   AICc=-3.65   BIC=-1.13
+## sigma^2 estimated as 0.03583:  log likelihood=6.5
+## AIC=-6.99   AICc=-5.73   BIC=-3.58
 ```
 
 The output indicates that the 'best' model is a MA-1 with a non-zero mean.  "non-zero mean" means that the mean of our data (`anchovy.diff1`) is not zero.
@@ -180,11 +180,11 @@ auto.arima(anchovy)
 ## 
 ## Coefficients:
 ##           ma1   drift
-##       -0.6685  0.0542
-## s.e.   0.1977  0.0142
+##       -0.5731  0.0641
+## s.e.   0.1610  0.0173
 ## 
-## sigma^2 estimated as 0.04037:  log likelihood=5.39
-## AIC=-4.79   AICc=-3.65   BIC=-1.13
+## sigma^2 estimated as 0.03583:  log likelihood=6.5
+## AIC=-6.99   AICc=-5.73   BIC=-3.58
 ```
 
 The output indicates that the 'best' model is a MA-1 with first difference.  "with drift" means that the mean of our data (`anchovy`) is not zero.  This is the same model but the jargon regarding the mean is different.
@@ -242,6 +242,68 @@ table(save.fits)
 
 ---
 
+## Trace = TRUE
+
+You can see what models that `auto.arima()` tried using `trace=TRUE`.  The models are selected on AICc by default and the AICc value is shown next to the model.
+
+
+```r
+auto.arima(anchovy, trace=TRUE)
+```
+
+```
+## 
+##  ARIMA(2,1,2) with drift         : 0.9971438
+##  ARIMA(0,1,0) with drift         : -1.582738
+##  ARIMA(1,1,0) with drift         : -3.215851
+##  ARIMA(0,1,1) with drift         : -5.727702
+##  ARIMA(0,1,0)                    : -1.869767
+##  ARIMA(1,1,1) with drift         : -2.907571
+##  ARIMA(0,1,2) with drift         : -3.219136
+##  ARIMA(1,1,2) with drift         : -1.363802
+##  ARIMA(0,1,1)                    : -1.425496
+## 
+##  Best model: ARIMA(0,1,1) with drift
+```
+
+```
+## Series: anchovy 
+## ARIMA(0,1,1) with drift 
+## 
+## Coefficients:
+##           ma1   drift
+##       -0.5731  0.0641
+## s.e.   0.1610  0.0173
+## 
+## sigma^2 estimated as 0.03583:  log likelihood=6.5
+## AIC=-6.99   AICc=-5.73   BIC=-3.58
+```
+
+---
+
+## stepwise=FALSE
+
+By default, step-wise selection is used and an approximation is used for the models tried in the model selection step.  For a final model selection, you should turn these off.
+
+
+```r
+auto.arima(anchovy, stepwise=FALSE, approximation=FALSE)
+```
+
+```
+## Series: anchovy 
+## ARIMA(0,1,1) with drift 
+## 
+## Coefficients:
+##           ma1   drift
+##       -0.5731  0.0641
+## s.e.   0.1610  0.0173
+## 
+## sigma^2 estimated as 0.03583:  log likelihood=6.5
+## AIC=-6.99   AICc=-5.73   BIC=-3.58
+```
+
+---
 ## Summary
 
 - Once you have dealt with stationarity, you need to determine the order of the model: the AR part and the MA part.
