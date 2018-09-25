@@ -22,4 +22,6 @@ title: "ARMA Models"
 
 - Lab 4 Create your own forecasts
 
+- Lecture 6 [Cross Validation](Forecasting_3-6_-_ARMA_Performance.html)
+
 - Lab 5 Test your forecasts

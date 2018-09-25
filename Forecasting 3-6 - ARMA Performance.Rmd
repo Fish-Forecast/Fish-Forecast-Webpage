@@ -1,0 +1,58 @@
+---
+output:
+  xaringan::moon_reader:
+    css: "my-theme.css"
+    lib_dir: libs
+    nature:
+      highlightStyle: github
+      highlightLines: true
+---
+
+layout: true
+
+.hheader[<a href="index.html">`r fontawesome::fa("home", fill = "steelblue")`</a>]
+
+---
+
+```{r setup, include=FALSE, message=FALSE}
+options(htmltools.dir.version = FALSE, servr.daemon = TRUE)
+knitr::opts_chunk$set(fig.height=5, fig.align="center")
+library(huxtable)
+```
+
+class: center, middle, inverse
+# ARIMA Models
+## Cross Validation
+
+.futnote[Eli Holmes, NOAA Fisheries]
+
+.citation[eli.holmes@noaa.gov]
+
+---
+
+```{r load_data, echo=FALSE, message=FALSE, warning=FALSE}
+library(ggplot2)
+library(gridExtra)
+library(reshape2)
+library(tseries)
+library(forecast)
+```
+
+```{r load_data2, message=FALSE, warning=FALSE, echo=FALSE}
+load("landings.RData")
+landings$log.metric.tons = log(landings$metric.tons)
+landings = subset(landings, Year <= 1987)
+anchovy = subset(landings, Species=="Anchovy")$log.metric.tons
+sardine = subset(landings, Species=="Sardine")$log.metric.tons
+```
+
+## Cross-Validation
+
+```{r}
+far2 <- function(x, h){
+  forecast(Arima(x, order=c(2,1,0)), h=h)
+  }
+e <- tsCV(anchovy, far2, h=1)
+#RMSE
+sqrt(mean(e^2, na.rm=TRUE))
+```
