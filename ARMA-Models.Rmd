@@ -2,9 +2,11 @@
 title: "ARMA Models"
 ---
 
+*For labs*: Click the 'Rmd file' link and download to your RWorkflow folder.  Open RStudio.  Switch to your RWorkflow project, by clicking button in top right (create a new project if you did not do this step before).  If you need the landings data, download here [here](https://fish-forecast.github.io/Catch-Forecasting-INCOIS/landings.RData).
+
 - Lecture 1 [Introduction to ARMA Models](Forecasting_3-1_-_ARMA_Intro.html)
 
-- Lab 1 Intro to ARMA models and diagnostic plots: [ARMA Lab 1](ARMA Lab 1.html) - [Rmd file](Labs/ARMA Lab 1.Rmd)
+- Lab 1 Intro to ARMA models and diagnostic plots: [ARMA Lab 1](ARMA Lab 1.html) - [Rmd file](Labs/ARMA Lab 1.Rmd) - 
 
 - Lecture 2 [Stationarity](Forecasting_3-2_-_ARMA_Stationarity.html)
 

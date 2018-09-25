@@ -174,7 +174,34 @@ Alternative is a mean-reverting (stationary) process with non-zero mean and line
 
 ## Example: Dickey-Fuller tests on the anchovy time series
 
-The `urca` R package can be used to apply the Dickey-Fuller tests.  Use `lags=0` for Dickey-Fuller which tests for AR-1 stationarity.
+`adf.test()` in the tseries package will apply the Augemented Dickey-Fuller and report the p-value.  We want to reject the Dickey=Fuller null hypothesis of non-stationarity.  We will set `k=0` to apply the Dickey-Fuller test which tests for AR(1) stationarity.  The Augmented Dickey-Fuller tests for more general lag-p stationarity.
+
+```
+adf.test(x, alternative = c("stationary", "explosive"),
+         k = trunc((length(x)-1)^(1/3)))
+```
+
+Here is how to apply this test to the anchovy data
+
+
+```r
+adf.test(anchovy, k=0)
+```
+
+```
+## 
+## 	Augmented Dickey-Fuller Test
+## 
+## data:  anchovy
+## Dickey-Fuller = -3.4558, Lag order = 0, p-value = 0.07003
+## alternative hypothesis: stationary
+```
+
+The null hypothesis is not rejected.  That is not what we want.
+
+---
+
+The `urca` R package can also be used to apply the Dickey-Fuller tests.  Use `lags=0` for Dickey-Fuller which tests for AR(1) stationarity.  We will set `type="trend"` to deal with the trend seen in the anchovy data.  Note, `adf.test()` uses this type by default.
 
 ```
 ur.df(y, type = c("none", "drift", "trend"), lags = 0)
@@ -183,7 +210,7 @@ ur.df(y, type = c("none", "drift", "trend"), lags = 0)
 
 ```r
 require(urca)
-test = ur.df(anchovy, type="none", lags=0)
+test = ur.df(anchovy, type="trend", lags=0)
 test
 ```
 
@@ -193,7 +220,7 @@ test
 ## # Augmented Dickey-Fuller Test Unit Root / Cointegration Test # 
 ## ############################################################### 
 ## 
-## The value of the test statistic is: 0.8195
+## The value of the test statistic is: -3.4558 4.3568 5.9805
 ```
 
 ---
@@ -207,17 +234,20 @@ attr(test, "teststat")
 ```
 
 ```
-##                tau1
-## statistic 0.8195156
+##                tau3     phi2     phi3
+## statistic -3.455795 4.356764 5.980506
 ```
 and the critical value at `\(\alpha = 0.05\)` is 
 
 ```r
-attr(test,"cval")[2]
+attr(test,"cval")
 ```
 
 ```
-## [1] -1.95
+##       1pct  5pct 10pct
+## tau3 -4.15 -3.50 -3.18
+## phi2  7.02  5.13  4.31
+## phi3  9.31  6.73  5.61
 ```
 The statistic is larger than the critical value and thus the null hypothesis of non-stationarity is not rejected. That's not what we want.
 
@@ -225,7 +255,7 @@ The statistic is larger than the critical value and thus the null hypothesis of 
 
 ## Augmented Dickey-Fuller test
 
-The Dickey-Fuller test assumes that the stationary process is AR-1 (autoregressive lag-1).  The Augmented Dickey-Fuller test allows a general stationary process.  The idea of the test however is the same.
+The Dickey-Fuller test assumes that the stationary process is AR(1) (autoregressive lag-1).  The Augmented Dickey-Fuller test allows a general stationary process.  The idea of the test however is the same.
 
 We can apply the Augmented Dickey-Fuller test with the `ur.df()` function or the `adf.test()` function in the `tseries` package.
 
@@ -245,7 +275,7 @@ With the `tseries` package, we apply the Augmented Dickey-Fuller test with `adf.
 
 ```r
 require(tseries)
-adf.test(anchovy, alternative="stationary")
+adf.test(anchovy)
 ```
 
 ```
@@ -257,7 +287,7 @@ adf.test(anchovy, alternative="stationary")
 ## alternative hypothesis: stationary
 ```
 
-In both cases, we do not reject the null hypothesis that the data have a random walk.  Thus there is not support for these time-series being stationary.  `alternative="stationary"` is the default and the standard test.
+In both cases, we do not reject the null hypothesis that the data have a random walk.  Thus there is not support for these time series being stationary.
 
 ---
 
@@ -396,11 +426,27 @@ The null hypothesis of stationairity is not rejected. That is good.
 
 ---
 
-Let's test the first difference of the anchovy data using the Augmented Dickey-Fuller test.  When we apply this test to differenced data, we need to use the model with no drift or intercept.  That is `type="none"` in the `ur.df()` test.
+Let's test the first difference of the anchovy data using the Augmented Dickey-Fuller test.  We do the default test and allow it to chose the number of lags.
 
 
 ```r
-test=ur.df(diff.anchovy, type="none", lags=2)
+adf.test(diff.anchovy)
+```
+
+```
+## 
+## 	Augmented Dickey-Fuller Test
+## 
+## data:  diff.anchovy
+## Dickey-Fuller = -3.2718, Lag order = 2, p-value = 0.09558
+## alternative hypothesis: stationary
+```
+
+The null hypothesis of non-stationarity is not rejected.  That is not what we want.  However, we differenced which removed the trend thus we are testing against a more general model than we need.  Let's test with an alternative hypothesis that has a non-zero mean.  We can do this with `ur.df()` and `type='drift'`.
+
+
+```r
+test &lt;- ur.df(diff.anchovy, type="drift", lags=2)
 ```
 
 ---
@@ -414,18 +460,20 @@ attr(test, "teststat")
 ```
 
 ```
-##                tau1
-## statistic -2.755005
+##                tau2     phi1
+## statistic -3.339142 5.847969
 ```
 
 and the critical value at `\(\alpha = 0.05\)` is 
 
 ```r
-attr(test,"cval")[2]
+attr(test,"cval")
 ```
 
 ```
-## [1] -1.95
+##       1pct  5pct 10pct
+## tau2 -3.75 -3.00 -2.63
+## phi1  7.88  5.18  4.12
 ```
 
 ---

@@ -365,7 +365,24 @@ $x_t = \mu + at + \delta x_{t-1} + e_t$
 
 ## Example: Dickey-Fuller tests on the anchovy time series
 
-The `urca` R package can be used to apply the Dickey-Fuller tests.  Use `lags=0` for Dickey-Fuller which tests for AR-1 stationarity.
+`adf.test()` in the tseries package will apply the Augemented Dickey-Fuller and report the p-value.  We want to reject the Dickey=Fuller null hypothesis of non-stationarity.  We will set `k=0` to apply the Dickey-Fuller test which tests for AR(1) stationarity.  The Augmented Dickey-Fuller tests for more general lag-p stationarity.
+
+```
+adf.test(x, alternative = c("stationary", "explosive"),
+         k = trunc((length(x)-1)^(1/3)))
+```
+
+Here is how to apply this test to the anchovy data
+
+```{r adf.test.anchovy1}
+adf.test(anchovy, k=0)
+```
+
+The null hypothesis is not rejected.  That is not what we want.
+
+---
+
+The `urca` R package can also be used to apply the Dickey-Fuller tests.  Use `lags=0` for Dickey-Fuller which tests for AR(1) stationarity.  We will set `type="trend"` to deal with the trend seen in the anchovy data.  Note, `adf.test()` uses this type by default.
 
 ```
 ur.df(y, type = c("none", "drift", "trend"), lags = 0)
@@ -373,7 +390,7 @@ ur.df(y, type = c("none", "drift", "trend"), lags = 0)
 
 ```{r dickey.fuller, message=FALSE, warning=FALSE}
 require(urca)
-test = ur.df(anchovy, type="none", lags=0)
+test = ur.df(anchovy, type="trend", lags=0)
 test
 ```
 
@@ -387,7 +404,7 @@ attr(test, "teststat")
 ```
 and the critical value at $\alpha = 0.05$ is 
 ```{r cval}
-attr(test,"cval")[2]
+attr(test,"cval")
 ```
 The statistic is larger than the critical value and thus the null hypothesis of non-stationarity is not rejected. That's not what we want.
 
@@ -395,7 +412,7 @@ The statistic is larger than the critical value and thus the null hypothesis of 
 
 ## Augmented Dickey-Fuller test
 
-The Dickey-Fuller test assumes that the stationary process is AR-1 (autoregressive lag-1).  The Augmented Dickey-Fuller test allows a general stationary process.  The idea of the test however is the same.
+The Dickey-Fuller test assumes that the stationary process is AR(1) (autoregressive lag-1).  The Augmented Dickey-Fuller test allows a general stationary process.  The idea of the test however is the same.
 
 We can apply the Augmented Dickey-Fuller test with the `ur.df()` function or the `adf.test()` function in the `tseries` package.
 
@@ -414,10 +431,10 @@ With the `tseries` package, we apply the Augmented Dickey-Fuller test with `adf.
 
 ```{r dickey.fuller2, message=FALSE, warning=FALSE}
 require(tseries)
-adf.test(anchovy, alternative="stationary")
+adf.test(anchovy)
 ```
 
-In both cases, we do not reject the null hypothesis that the data have a random walk.  Thus there is not support for these time-series being stationary.  `alternative="stationary"` is the default and the standard test.
+In both cases, we do not reject the null hypothesis that the data have a random walk.  Thus there is not support for these time series being stationary.
 
 ---
 
@@ -510,10 +527,16 @@ The null hypothesis of stationairity is not rejected. That is good.
 
 ---
 
-Let's test the first difference of the anchovy data using the Augmented Dickey-Fuller test.  When we apply this test to differenced data, we need to use the model with no drift or intercept.  That is `type="none"` in the `ur.df()` test.
+Let's test the first difference of the anchovy data using the Augmented Dickey-Fuller test.  We do the default test and allow it to chose the number of lags.
 
-```{r test.dickey.fuller.diff}
-test=ur.df(diff.anchovy, type="none", lags=2)
+```{r test.dickey.fuller.diff1}
+adf.test(diff.anchovy)
+```
+
+The null hypothesis of non-stationarity is not rejected.  That is not what we want.  However, we differenced which removed the trend thus we are testing against a more general model than we need.  Let's test with an alternative hypothesis that has a non-zero mean.  We can do this with `ur.df()` and `type='drift'`.
+
+```{r test.dickey.fuller.diff2}
+test <- ur.df(diff.anchovy, type="drift", lags=2)
 ```
 
 ---
@@ -527,7 +550,7 @@ attr(test, "teststat")
 
 and the critical value at $\alpha = 0.05$ is 
 ```{r cval.diff}
-attr(test,"cval")[2]
+attr(test,"cval")
 ```
 
 ---

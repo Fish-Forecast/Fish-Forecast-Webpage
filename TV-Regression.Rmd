@@ -2,6 +2,8 @@
 title: "TV Regression"
 ---
 
+*For labs*: Click the 'Rmd file' link and download to your RWorkflow folder.  Open RStudio.  Switch to your RWorkflow project, by clicking button in top right (click create a new project if you did not do this step before).  If you need the landings data, download here [here](https://fish-forecast.github.io/Catch-Forecasting-INCOIS/landings.RData).
+
 - Lecture 1 [Introduction to time-varying regression](Forecasting_2_-_TV_Regression.html)
 
 - Lab Fit TV regression models to catch data: [TV Regression Lab 1](TV Regression Lab 1.html) - [Rmd file](Labs/TV Regression Lab 1.Rmd) - [Data](https://fish-forecast.github.io/Catch-Forecasting-INCOIS/landings.RData)

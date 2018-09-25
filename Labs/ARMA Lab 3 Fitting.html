@@ -2084,7 +2084,8 @@ fit</code></pre>
 <p><span class="math display">\[x_t = e_t + b_1 e_{t-1} + b_2 e_{t-2}\]</span></p>
 <p>while Stergiou and Christou use the following (also common) notation:</p>
 <p><span class="math display">\[x_t = e_t - \theta_1 e_{t-1} - \theta_2 e_{t-2}\]</span></p>
-<p>so the MA parameters reported by <code>auto.arima()</code> will be NEGATIVE of that reported in Stergiou and Christou. Here are the values for anchovy in Table 8.</p>
+<p>so the MA parameters reported by <code>auto.arima()</code> will be NEGATIVE of that reported in Stergiou and Christou. <em>Note, in Stergiou and Christou, the model is written in backshift notation on page 112. To see the model as the equation above, I translated from backshift to non-backshift notation.</em></p>
+<p>Here are the values for anchovy in Table 8.</p>
 <table>
 <thead>
 <tr class="header">

@@ -2,6 +2,9 @@
 title: "Exponential Smoothing Models"
 ---
 
+*For labs*: Click the 'Rmd file' link and download to your RWorkflow folder.  Open RStudio.  Switch to your RWorkflow project, by clicking button in top right (click create a new project if you did not do this step before).  If you need the landings data, download here [here](https://fish-forecast.github.io/Catch-Forecasting-INCOIS/landings.RData).
+
+
 - Lecture 1 [Introduction to Exponential Models](Forecasting_4_-_Exp_Smoothing.html)
 
 - Lecture 2 Selecting Model Structure

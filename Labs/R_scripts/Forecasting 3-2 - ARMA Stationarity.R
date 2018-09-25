@@ -200,20 +200,23 @@ p6 = ggplot(ar1s2, aes(x=id,y=value,group=variable)) +
 #####
 grid.arrange(p1, p2, p3, p4, p5, p6, ncol = 2)
 
+## ----adf.test.anchovy1---------------------------------------------------
+adf.test(anchovy, k=0)
+
 ## ----dickey.fuller, message=FALSE, warning=FALSE-------------------------
 require(urca)
-test = ur.df(anchovy, type="none", lags=0)
+test = ur.df(anchovy, type="trend", lags=0)
 test
 
 ## ----teststat------------------------------------------------------------
 attr(test, "teststat")
 
 ## ----cval----------------------------------------------------------------
-attr(test,"cval")[2]
+attr(test,"cval")
 
 ## ----dickey.fuller2, message=FALSE, warning=FALSE------------------------
 require(tseries)
-adf.test(anchovy, alternative="stationary")
+adf.test(anchovy)
 
 ## ----dickey.fuller.ur.df, message=FALSE, warning=FALSE-------------------
 require(urca)
@@ -243,12 +246,15 @@ title("Anchovy first difference")
 diff.anchovy = diff(anchovy)
 kpss.test(diff.anchovy)
 
-## ----test.dickey.fuller.diff---------------------------------------------
-test=ur.df(diff.anchovy, type="none", lags=2)
+## ----test.dickey.fuller.diff1--------------------------------------------
+adf.test(diff.anchovy)
+
+## ----test.dickey.fuller.diff2--------------------------------------------
+test <- ur.df(diff.anchovy, type="drift", lags=2)
 
 ## ----teststat.diff-------------------------------------------------------
 attr(test, "teststat")
 
 ## ----cval.diff-----------------------------------------------------------
-attr(test,"cval")[2]
+attr(test,"cval")
 

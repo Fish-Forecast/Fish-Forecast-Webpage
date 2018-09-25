@@ -16,6 +16,7 @@ layout: true
 
 ```{r setup, include=FALSE, message=FALSE}
 options(htmltools.dir.version = FALSE, servr.daemon = TRUE)
+knitr::opts_chunk$set(fig.height=4)
 library(huxtable)
 ```
 
