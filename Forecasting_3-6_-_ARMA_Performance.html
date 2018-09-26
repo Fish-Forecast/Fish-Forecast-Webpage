@@ -30,54 +30,255 @@ class: center, middle, inverse
 
 
 
-```r
-load("landings.RData")
-landings$log.metric.tons = log(landings$metric.tons)
-```
 
 ## Measures of forecast fit
 
-
-```r
-spp &lt;- "Anchovy"
-training = subset(landings, Year &lt;= 1987)
-test = subset(landings, Year &gt;= 1988 &amp; Year &lt;= 1989)
-
-traindat &lt;- subset(training, Species==spp)$log.metric.tons
-testdat &lt;- subset(test, Species==spp)$log.metric.tons
-plot(1964:1987, traindat, xlim=c(1964,1989))
-points(1988:1989, testdat, pch=2)
-```
+To measure the forecast fit, we fit a model to training data and test a forecast against data in a test set.  We 'held out' the test data and did not use it at all in our fitting.
 
 &lt;img src="Forecasting_3-6_-_ARMA_Performance_files/figure-html/unnamed-chunk-1-1.png" style="display: block; margin: auto;" /&gt;
-```
-fit1 &lt;- auto.arima(training)
-plot(anchovy, xlim=c(1,10))
-```
 
-### RMSE
+---
 
-### MAPE
-
-
-googtest &lt;- window(goog, start=201, end=240)
-accuracy(googfc1, googtest)
-accuracy(googfc2, googtest)
-accuracy(googfc3, googtest)
-## Cross-Validation
+We will fit to the training data and make a forecast.
 
 
 ```r
-far2 &lt;- function(x, h){
-  forecast(Arima(x, order=c(2,1,0)), h=h)
-  }
-e &lt;- tsCV(anchovy, far2, h=1)
-#RMSE
-sqrt(mean(e^2, na.rm=TRUE))
+fit1 &lt;- auto.arima(traindat)
+fr &lt;- forecast(fit1, h=2)
+fr
 ```
 
 ```
-## [1] 0.2246388
+##    Point Forecast    Lo 80    Hi 80    Lo 95    Hi 95
+## 25       10.03216 9.789577 10.27475 9.661160 10.40317
+## 26       10.09625 9.832489 10.36001 9.692861 10.49964
+```
+
+&lt;img src="Forecasting_3-6_-_ARMA_Performance_files/figure-html/unnamed-chunk-3-1.png" style="display: block; margin: auto;" /&gt;
+
+---
+
+How to we quantify the difference between the forecast and the actual values?
+
+
+```r
+fr.err &lt;- testdat - fr$mean
+fr.err
+```
+
+```
+## Time Series:
+## Start = 25 
+## End = 26 
+## Frequency = 1 
+## [1] -0.1704302 -0.4944778
+```
+
+There are many metrics.  The `accuracy()` function in forecast provides many different metrics: mean error, root mean square error, mean absolute error, mean percentage error, mean absolute percentage error.
+
+---
+
+### ME Mean err
+
+
+```r
+me &lt;- mean(fr.err)
+me
+```
+
+```
+## [1] -0.332454
+```
+
+### RMSE Root mean squared error
+
+
+```r
+rmse &lt;- sqrt(mean(fr.err^2))
+rmse
+```
+
+```
+## [1] 0.3698342
+```
+
+### MAE Mean absolute error
+
+
+```r
+mae &lt;- mean(abs(fr.err))
+mae
+```
+
+```
+## [1] 0.332454
+```
+
+---
+
+### MPE Mean percentage error
+
+
+```r
+fr.pe &lt;- 100*fr.err/testdat
+mpe &lt;- mean(fr.pe)
+mpe
+```
+
+```
+## [1] -3.439028
+```
+
+### MAPE Mean absolute percentage error
+
+
+```r
+fr.pe &lt;- 100*fr.err/testdat
+mape &lt;- mean(abs(fr.pe))
+mape
+```
+
+```
+## [1] 3.439028
+```
+
+---
+
+
+```r
+accuracy(fr, testdat)[,1:5]
+```
+
+```
+##                       ME      RMSE       MAE        MPE     MAPE
+## Training set -0.00473511 0.1770653 0.1438523 -0.1102259 1.588409
+## Test set     -0.33245398 0.3698342 0.3324540 -3.4390277 3.439028
+```
+
+
+```r
+c(me, rmse, mae, mpe, mape)
+```
+
+```
+## [1] -0.3324540  0.3698342  0.3324540 -3.4390277  3.4390277
+```
+
+---
+
+## Test all the models in your candidate model
+
+
+```r
+fit1 &lt;- Arima(traindat, order=c(0,1,1))
+fr1 &lt;- forecast(fit1, h=2)
+test1 &lt;- accuracy(fr1, testdat)[2,1:5]
+
+fit2 &lt;- Arima(traindat, order=c(1,1,0))
+fr2 &lt;- forecast(fit2, h=2)
+test2 &lt;- accuracy(fr2, testdat)[2,1:5]
+
+fit3 &lt;- rwf(traindat, drift=TRUE)
+fr3 &lt;- forecast(fit3, h=2)
+test3 &lt;- accuracy(fr3, testdat)[2,1:5]
+```
+
+---
+
+## Show a summary
+
+&lt;table&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:left;"&gt;   &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; ME &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; RMSE &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; MAE &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; MPE &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; MAPE &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; test1 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; -0.2925326 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0.3201093 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0.2925326 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; -3.024338 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 3.024338 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; test2 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; -0.3094545 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0.3408165 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0.3094545 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; -3.200013 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 3.200013 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; test3 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; -0.4829045 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0.5096293 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0.4829045 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; -4.985395 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 4.985395 &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+## Cross-Validation
+
+![](figs/tsCV1.png)
+---
+
+## Time-series cross-validation with forecast
+
+
+```r
+far2 &lt;- function(x, h, order){
+  forecast(Arima(x, order=order), h=h)
+  }
+e &lt;- tsCV(traindat, far2, h=1, order=c(0,1,1))
+#RMSE
+tsrmse1 &lt;- sqrt(mean(e^2, na.rm=TRUE))
+tsrmse1
+```
+
+```
+## [1] 0.2261706
+```
+
+Compare to RMSE from just the 2 test data points.
+
+```r
+test1
+```
+
+```
+##         ME       RMSE        MAE        MPE       MAPE 
+## -0.2925326  0.3201093  0.2925326 -3.0243381  3.0243381
+```
+
+---
+
+## Cross-validation farther in future
+
+![](figs/tsCV4.png)
+
+---
+
+Compare accuracy of forecasts 1 year out versus 4 years out
+
+
+```r
+e &lt;- tsCV(traindat, far2, h=4, order=c(0,1,1))
+#RMSE
+tsrmse4 &lt;- sqrt(mean(e^2, na.rm=TRUE))
+c(tsrmse1, tsrmse4)
+```
+
+```
+## [1] 0.2261706 0.3031262
 ```
     </textarea>
 <script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
