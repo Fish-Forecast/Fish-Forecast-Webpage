@@ -20,8 +20,8 @@ title: "ARMA Models"
 
 - Lecture 5 [Forecasting from ARMA Models](Forecasting_3-5_-_ARMA_Forecasting.html)
 
-- Lab 4 Create your own forecasts
+- Lab 4 Create your own forecasts [R Code](Labs/R/Forecasting 3-5 - ARMA Forecasting.R)
 
 - Lecture 6 [Cross Validation](Forecasting_3-6_-_ARMA_Performance.html)
 
-- Lab 5 Test your forecasts
+- Lab 5 Test your forecasts [R Code](Labs/R/Forecasting 3-6 - ARMA Performance.R)

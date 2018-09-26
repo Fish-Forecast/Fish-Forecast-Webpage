@@ -351,6 +351,8 @@ fit.AR2
 ## AIC=3.81   AICc=5.91   BIC=8.52
 ```
 
+---
+
 ## Model Checking
 
 * Plot your data
@@ -394,6 +396,22 @@ checkresiduals(fit)
 
 ---
 
+## Modeling Workflow for non-seasonal data
+
+* Go through Box-Jenkins Method to evaluate stationarity
+
+* Plot the data and make decisions about transformations to make the data more unimodal
+
+* Make some decisions about differencing and any other data transformations via the stationarity tests
+
+* Use `auto.arima(data, trace=TRUE)` to evaluate what ARMA models best fit the data.  Fix the differencing if needed.
+
+* Determine a set of candidate models.  Include a null model in the candidate list.  naive and naive with drift are typical nulls.
+
+* Test candidate models for forecast performance with cross-validation (next lecture).
+
+---
+
 ## Summary
 
 - `auto.arima()` in the forecast package is a good choice for selection and fitting of ARIMA models.
@@ -410,7 +428,7 @@ These functions will also fit seasonal models.  We will address seasonality late
 
 ---
 
-## Final note: don't use stepwise model selection
+## Final note: stepwise model selection
 
 Stepwise model selection is fast and useful if you need to explore many models and it takes awhile to fit.  Our models fit quickly and we don't have season in our models.  Though it will not make a difference for this particular dataset, in general set `stepwise=FALSE` to do a more thorough model search.
 
