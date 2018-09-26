@@ -57,7 +57,6 @@ mpe <- mean(fr.pe)
 mpe
 
 ## ------------------------------------------------------------------------
-fr.pe <- 100*fr.err/testdat
 mape <- mean(abs(fr.pe))
 mape
 
@@ -68,20 +67,25 @@ accuracy(fr, testdat)[,1:5]
 c(me, rmse, mae, mpe, mape)
 
 ## ------------------------------------------------------------------------
+# The model picked by auto.arima
 fit1 <- Arima(traindat, order=c(0,1,1))
 fr1 <- forecast(fit1, h=2)
 test1 <- accuracy(fr1, testdat)[2,1:5]
 
+# AR-1
 fit2 <- Arima(traindat, order=c(1,1,0))
 fr2 <- forecast(fit2, h=2)
 test2 <- accuracy(fr2, testdat)[2,1:5]
 
+# Naive model with drift
 fit3 <- rwf(traindat, drift=TRUE)
 fr3 <- forecast(fit3, h=2)
 test3 <- accuracy(fr3, testdat)[2,1:5]
 
 ## ----results='asis', echo=FALSE------------------------------------------
 sum.tests <- rbind(test1, test2, test3)
+row.names(sum.tests) <- c("(0,1,1)","(1,1,0)","Naive")
+sum.tests <- format(sum.tests, digits=3)
 knitr::kable(sum.tests, format="html")
 
 ## ------------------------------------------------------------------------

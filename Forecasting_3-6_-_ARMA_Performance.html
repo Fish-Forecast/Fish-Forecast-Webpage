@@ -133,7 +133,6 @@ mpe
 
 
 ```r
-fr.pe &lt;- 100*fr.err/testdat
 mape &lt;- mean(abs(fr.pe))
 mape
 ```
@@ -168,16 +167,21 @@ c(me, rmse, mae, mpe, mape)
 
 ## Test all the models in your candidate model
 
+Now that you have some metrics for forecast accuracy, you can compute these for all the models in your candidate set.
+
 
 ```r
+# The model picked by auto.arima
 fit1 &lt;- Arima(traindat, order=c(0,1,1))
 fr1 &lt;- forecast(fit1, h=2)
 test1 &lt;- accuracy(fr1, testdat)[2,1:5]
 
+# AR-1
 fit2 &lt;- Arima(traindat, order=c(1,1,0))
 fr2 &lt;- forecast(fit2, h=2)
 test2 &lt;- accuracy(fr2, testdat)[2,1:5]
 
+# Naive model with drift
 fit3 &lt;- rwf(traindat, drift=TRUE)
 fr3 &lt;- forecast(fit3, h=2)
 test3 &lt;- accuracy(fr3, testdat)[2,1:5]
@@ -191,37 +195,37 @@ test3 &lt;- accuracy(fr3, testdat)[2,1:5]
  &lt;thead&gt;
   &lt;tr&gt;
    &lt;th style="text-align:left;"&gt;   &lt;/th&gt;
-   &lt;th style="text-align:right;"&gt; ME &lt;/th&gt;
-   &lt;th style="text-align:right;"&gt; RMSE &lt;/th&gt;
-   &lt;th style="text-align:right;"&gt; MAE &lt;/th&gt;
-   &lt;th style="text-align:right;"&gt; MPE &lt;/th&gt;
-   &lt;th style="text-align:right;"&gt; MAPE &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; ME &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; RMSE &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; MAE &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; MPE &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; MAPE &lt;/th&gt;
   &lt;/tr&gt;
  &lt;/thead&gt;
 &lt;tbody&gt;
   &lt;tr&gt;
-   &lt;td style="text-align:left;"&gt; test1 &lt;/td&gt;
-   &lt;td style="text-align:right;"&gt; -0.2925326 &lt;/td&gt;
-   &lt;td style="text-align:right;"&gt; 0.3201093 &lt;/td&gt;
-   &lt;td style="text-align:right;"&gt; 0.2925326 &lt;/td&gt;
-   &lt;td style="text-align:right;"&gt; -3.024338 &lt;/td&gt;
-   &lt;td style="text-align:right;"&gt; 3.024338 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; (0,1,1) &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; -0.293 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 0.320 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 0.293 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; -3.024 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 3.024 &lt;/td&gt;
   &lt;/tr&gt;
   &lt;tr&gt;
-   &lt;td style="text-align:left;"&gt; test2 &lt;/td&gt;
-   &lt;td style="text-align:right;"&gt; -0.3094545 &lt;/td&gt;
-   &lt;td style="text-align:right;"&gt; 0.3408165 &lt;/td&gt;
-   &lt;td style="text-align:right;"&gt; 0.3094545 &lt;/td&gt;
-   &lt;td style="text-align:right;"&gt; -3.200013 &lt;/td&gt;
-   &lt;td style="text-align:right;"&gt; 3.200013 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; (1,1,0) &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; -0.309 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 0.341 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 0.309 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; -3.200 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 3.200 &lt;/td&gt;
   &lt;/tr&gt;
   &lt;tr&gt;
-   &lt;td style="text-align:left;"&gt; test3 &lt;/td&gt;
-   &lt;td style="text-align:right;"&gt; -0.4829045 &lt;/td&gt;
-   &lt;td style="text-align:right;"&gt; 0.5096293 &lt;/td&gt;
-   &lt;td style="text-align:right;"&gt; 0.4829045 &lt;/td&gt;
-   &lt;td style="text-align:right;"&gt; -4.985395 &lt;/td&gt;
-   &lt;td style="text-align:right;"&gt; 4.985395 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; Naive &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; -0.483 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 0.510 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 0.483 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; -4.985 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 4.985 &lt;/td&gt;
   &lt;/tr&gt;
 &lt;/tbody&gt;
 &lt;/table&gt;
