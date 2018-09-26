@@ -169,6 +169,7 @@ row.names(sum.tests) <- c("(0,1,1)","(1,1,0)","Naive")
 sum.tests <- format(sum.tests, digits=3)
 knitr::kable(sum.tests, format="html")
 ```
+
 ---
 
 ## Cross-Validation
