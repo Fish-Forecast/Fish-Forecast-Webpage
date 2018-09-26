@@ -16,12 +16,12 @@ title: "ARMA Models"
 
 - Lecture 4 [Fitting ARMA Models](Forecasting_3-4_-_ARMA_Fitting_Models.html)
 
-- Lab 3 Fit ARMA Models to the Greek catch data  [ARMA Lab 3 Fitting](ARMA Lab 3 Fitting.html) - [Rmd file](Labs/ARMA Lab 3 Fitting.Rmd) - [R Code](Labs/R/Forecasting 3-4 - ARMA Fitting Models.R)
+- Lab 3 Fit ARMA Models to the Greek catch data  [ARMA Lab 3 Fitting](ARMA Lab 3 Fitting.html) - [Rmd file](Labs/ARMA Lab 3 Fitting.Rmd) - [R Code](Labs/R_scripts/Forecasting 3-4 - ARMA Fitting Models.R)
 
 - Lecture 5 [Forecasting from ARMA Models](Forecasting_3-5_-_ARMA_Forecasting.html)
 
-- Lab 4 Create your own forecasts [R Code](Labs/R/Forecasting 3-5 - ARMA Forecasting.R)
+- Lab 4 Create your own forecasts [R Code](Labs/R_scripts/Forecasting 3-5 - ARMA Forecasting.R)
 
 - Lecture 6 [Cross Validation](Forecasting_3-6_-_ARMA_Performance.html)
 
-- Lab 5 Test your forecasts [R Code](Labs/R/Forecasting 3-6 - ARMA Performance.R)
+- Lab 5 Test your forecasts [R Code](Labs/R_scripts/Forecasting 3-6 - ARMA Performance.R)

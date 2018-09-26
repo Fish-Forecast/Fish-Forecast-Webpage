@@ -10,12 +10,19 @@ library(reshape2)
 library(tseries)
 library(forecast)
 
-## ----load_data2, message=FALSE, warning=FALSE, echo=FALSE----------------
+## ----load_data2, message=FALSE, warning=FALSE----------------------------
 load("landings.RData")
 landings$log.metric.tons = log(landings$metric.tons)
-landings = subset(landings, Year <= 1987)
-anchovy = subset(landings, Species=="Anchovy")$log.metric.tons
-sardine = subset(landings, Species=="Sardine")$log.metric.tons
+
+## ------------------------------------------------------------------------
+spp <- "Anchovy"
+training = subset(landings, Year <= 1987)
+test = subset(landings, Year >= 1988 & Year <= 1989)
+
+traindat <- subset(training, Species==spp)$log.metric.tons
+testdat <- subset(test, Species==spp)$log.metric.tons
+plot(1964:1987, traindat, xlim=c(1964,1989))
+points(1988:1989, testdat, pch=2)
 
 ## ------------------------------------------------------------------------
 far2 <- function(x, h){

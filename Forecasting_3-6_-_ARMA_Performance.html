@@ -30,7 +30,40 @@ class: center, middle, inverse
 
 
 
+```r
+load("landings.RData")
+landings$log.metric.tons = log(landings$metric.tons)
+```
 
+## Measures of forecast fit
+
+
+```r
+spp &lt;- "Anchovy"
+training = subset(landings, Year &lt;= 1987)
+test = subset(landings, Year &gt;= 1988 &amp; Year &lt;= 1989)
+
+traindat &lt;- subset(training, Species==spp)$log.metric.tons
+testdat &lt;- subset(test, Species==spp)$log.metric.tons
+plot(1964:1987, traindat, xlim=c(1964,1989))
+points(1988:1989, testdat, pch=2)
+```
+
+&lt;img src="Forecasting_3-6_-_ARMA_Performance_files/figure-html/unnamed-chunk-1-1.png" style="display: block; margin: auto;" /&gt;
+```
+fit1 &lt;- auto.arima(training)
+plot(anchovy, xlim=c(1,10))
+```
+
+### RMSE
+
+### MAPE
+
+
+googtest &lt;- window(goog, start=201, end=240)
+accuracy(googfc1, googtest)
+accuracy(googfc2, googtest)
+accuracy(googfc3, googtest)
 ## Cross-Validation
 
 
