@@ -218,7 +218,7 @@ The trend from all the data is (last-first)/(number of steps).
 
 
 ```r
-(anchovy[24]-anchovy[1])/23
+mean(diff(anchovy))
 ```
 
 ```
@@ -257,6 +257,25 @@ But we could use a weighting that falls off exponentially so that we more recent
 
 ---
 
+## Naive model with trend
+
+If your training data are length `\(T\)`, then a forecast for `\(T+h\)` is
+
+`$$\hat{x}_{T+h} = l_T + h \bar{b}$$`
+
+where `\(\hat{b}\)` is the mean of the the yearly changes in `\(x\)`, so the mean of `\(x_t - x_{t-1}\)`.
+
+`$$\hat{b} = \sum_{t=2}^T (x_t - x_{t-1})$$`
+
+## Exponential smoothing model with trend
+
+`$$\hat{x}_{T+h} = l_T + h b_T$$`
+
+where `\(b_T\)` is a weighted average with the more recent trends given more weight.
+
+`$$b_t = \sum_{t=2}^T \beta (1-\beta)^{t-2}(x_t - x_{t-1})$$`
+---
+ 
 ## Fit exponential smoothing with trend
 
 
@@ -300,9 +319,10 @@ We will fit an an exponential smoothing model with trend to the training data an
 
 ```r
 fit1 &lt;- ets(traindat, model="AAN")
-fr &lt;- forecast(fit1, h=2)
+h=length(testdat)
+fr &lt;- forecast(fit1, h=h)
 plot(fr)
-points(25:26, testdat, pch=2, col="red")
+points(length(traindat)+1:h, testdat, pch=2, col="red")
 legend("topleft", c("forecast","actual"), pch=c(20,2), col=c("blue","red"))
 ```
 
@@ -336,6 +356,8 @@ Another approach is to use all the data and test a series of forecasts made by f
 
 In this approach, we don't have test data.  Instead we will use all the data for fitting and for forecast testing.
 
+We will redefine `traindat` as all our Anchovy data.
+
 
 
 ---
@@ -350,11 +372,124 @@ far2 &lt;- function(x, h, model){
   fit &lt;- ets(x, model=model)
   forecast(fit, h=h)
   }
-e &lt;- tsCV(traindat, far2, h=1, model="AAN")
 ```
+
+---
+
+Now we can use `tsCV()` to run our `far2()` function to a series of training data sets.  We will specify that a NEW ets model be estimated for each training set.  We are not using the weighting estimated for the whole data set but estimating the weighting new for each set.
 
 The `e` are our forecast errors for all the forecasts that we did with the data.
 
+
+```r
+e &lt;- tsCV(traindat, far2, h=1, model="AAN")
+e
+```
+
+```
+## Time Series:
+## Start = 1 
+## End = 26 
+## Frequency = 1 
+##  [1] -0.245378390  0.366852341  0.419678595 -0.414861770 -0.152727933
+##  [6] -0.183775208 -0.013799590  0.308433377 -0.017680471 -0.329690537
+## [11] -0.353441463  0.266143346 -0.110848616 -0.005227309  0.157821831
+## [16]  0.196184446  0.008135667  0.326024067  0.085160559  0.312668447
+## [21]  0.246437781  0.117274740  0.292601670 -0.300814605 -0.406118961
+## [26]           NA
+```
+
+---
+
+Let's look at the first few `e` so we see exactly with `tsCV()` is doing.
+
+
+```r
+e[2]
+```
+
+```
+## [1] 0.3668523
+```
+
+This uses training data from `\(t=1\)` to `\(t=2\)` so fits an ets to the first two data points alone.  Then it creates a forecast for `\(t=3\)` and compares that forecast to the actual value observed for `\(t=3\)`.
+
+
+```r
+TT &lt;- 2 # end of the temp training data
+temp &lt;- traindat[1:TT]
+fit.temp &lt;- ets(temp, model="AAN")
+fr.temp &lt;- forecast(fit.temp, h=1)
+traindat[TT+1] - fr.temp$mean
+```
+
+```
+## Time Series:
+## Start = 3 
+## End = 3 
+## Frequency = 1 
+## [1] 0.3668523
+```
+
+---
+
+
+```r
+e[3]
+```
+
+```
+## [1] 0.4196786
+```
+
+This uses training data from `\(t=1\)` to `\(t=2\)` so fits an ets to the first two data points alone.  Then it creates a forecast for `\(t=3\)` and compares that forecast to the actual value observed for `\(t=3\)`.
+
+
+```r
+TT &lt;- 3 # end of the temp training data
+temp &lt;- traindat[1:TT]
+fit.temp &lt;- ets(temp, model="AAN")
+fr.temp &lt;- forecast(fit.temp, h=1)
+traindat[TT+1] - fr.temp$mean
+```
+
+```
+## Time Series:
+## Start = 4 
+## End = 4 
+## Frequency = 1 
+## [1] 0.4196786
+```
+
+---
+
+## Testing a specific ets model
+
+By specifying `model="AAN"`, we estimated a new ets model (meaning new weighting) for each training set used.  We might want to specify that we use only the weighting we estimated for the full data set.
+
+We do this by passing in a fit to `model`.
+
+The `e` are our forecast errors for all the forecasts that we did with the data. `fit1` below is the ets estimated from all the data 1964 to 1989.  Note, the code will produce a warning that it is estimating the initial value and just using the weighting.  That is what we want.
+
+
+```r
+fit1 &lt;- ets(traindat, model="AAN")
+e &lt;- tsCV(traindat, far2, h=1, model=fit1)
+e
+```
+
+```
+## Time Series:
+## Start = 1 
+## End = 26 
+## Frequency = 1 
+##  [1]           NA  0.576663901  1.031385937  0.897828249  1.033164616
+##  [6]  0.935274283  0.958914499  1.265427119 -0.017241938 -0.332751184
+## [11] -0.330473144  0.255886314 -0.103926617  0.031206730  0.154727479
+## [16]  0.198328366 -0.020605522  0.297475742  0.005297401  0.264939892
+## [21]  0.196256334  0.129798648  0.335887872 -0.074017535 -0.373267163
+## [26]           NA
+```
 
 ---
 

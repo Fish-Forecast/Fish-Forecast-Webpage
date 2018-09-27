@@ -69,7 +69,7 @@ plot(fr.rwf)
 coef(fit.rwf)
 
 ## ------------------------------------------------------------------------
-(anchovy[24]-anchovy[1])/23
+mean(diff(anchovy))
 
 ## ------------------------------------------------------------------------
 plot(diff(anchovy),ylim=c(-0.3,.3))
@@ -108,9 +108,10 @@ testdat <- subset(test, Species==spp)$log.metric.tons
 
 ## ----fig.height=4--------------------------------------------------------
 fit1 <- ets(traindat, model="AAN")
-fr <- forecast(fit1, h=2)
+h=length(testdat)
+fr <- forecast(fit1, h=h)
 plot(fr)
-points(25:26, testdat, pch=2, col="red")
+points(length(traindat)+1:h, testdat, pch=2, col="red")
 legend("topleft", c("forecast","actual"), pch=c(20,2), col=c("blue","red"))
 
 ## ------------------------------------------------------------------------
@@ -126,7 +127,35 @@ far2 <- function(x, h, model){
   fit <- ets(x, model=model)
   forecast(fit, h=h)
   }
+
+## ------------------------------------------------------------------------
 e <- tsCV(traindat, far2, h=1, model="AAN")
+e
+
+## ------------------------------------------------------------------------
+e[2]
+
+## ------------------------------------------------------------------------
+TT <- 2 # end of the temp training data
+temp <- traindat[1:TT]
+fit.temp <- ets(temp, model="AAN")
+fr.temp <- forecast(fit.temp, h=1)
+traindat[TT+1] - fr.temp$mean
+
+## ------------------------------------------------------------------------
+e[3]
+
+## ------------------------------------------------------------------------
+TT <- 3 # end of the temp training data
+temp <- traindat[1:TT]
+fit.temp <- ets(temp, model="AAN")
+fr.temp <- forecast(fit.temp, h=1)
+traindat[TT+1] - fr.temp$mean
+
+## ---- message=FALSE, warning=FALSE---------------------------------------
+fit1 <- ets(traindat, model="AAN")
+e <- tsCV(traindat, far2, h=1, model=fit1)
+e
 
 ## ------------------------------------------------------------------------
 rmse <- sqrt(mean(e^2, na.rm=TRUE))
