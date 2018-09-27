@@ -1,0 +1,121 @@
+---
+title: ETS Models Lab 1
+output:
+  html_document:
+    toc: true
+    toc_float: true
+---
+
+In this lab, you will fit a series of candidate models and prepare a table for their performance.
+
+# Set-up
+
+We will define the training data as 1964 to 1987 and the test data as 1988 and 1989.
+
+```{r read_data, eval=FALSE}
+load("landings.RData")
+spp <- "Anchovy"
+landings$log.metric.tons <- log(landings$metric.tons)
+landings <- subset(landings, Species==spp)
+traindat <- subset(landings, Year <= 1987)$log.metric.tons
+testdat <- subset(landings, Year == 1988 | Year==1989)$log.metric.tons
+```
+
+Load the necessary packages.
+
+```{r load_forecast}
+library(forecast)
+library(tseries)
+```
+
+## Fit each of our candidate models
+
+We will store these in a list for easy access.
+
+```{r}
+fit.list <- list()
+fr.list <- list()
+```
+
+* Exponential smoothing model with trend
+
+```{r}
+modelname <- "ETSwtrend"
+fit <- ets(traindat, model="AAN")
+fit.list[[modelname]] <- fit
+fr.list[[modelname]] <- forecast(fit, h=1)
+```
+
+* Exponential smoothing model no trend
+```{r}
+modelname <- "ETSnotrend"
+fit <- ets(traindat, model="ANN")
+fit.list[[modelname]] <- fit
+fr.list[[modelname]] <- forecast(fit, h=1)
+```
+
+* ARIMA(0,1,1) with drift (best)
+```{r}
+modelname <- "ARIMA011wdrift"
+fit <- Arima(traindat, order=c(0,1,1), include.drift=TRUE)
+fit.list[[modelname]] <- fit
+fr.list[[modelname]] <- forecast(fit, h=1)
+```
+
+* ARIMA(2,1,0) with drift (within 2 AIC of best)
+```{r}
+modelname <- "ARIMA210wdrift"
+fit <- Arima(traindat, order=c(2,1,0), include.drift=TRUE)
+fit.list[[modelname]] <- fit
+fr.list[[modelname]] <- forecast(fr, h=1)
+```
+
+* Time-varying regression with linear time
+```{r}
+TT <- length(traindat)
+#make a data.frame for lm
+dat <- data.frame(log.metric.tons=traindat, t=1:TT)
+modelname <- "TVreglinear"
+fit <- lm(log.metric.tons ~ t, data=dat)
+fit.list[[modelname]] <- fit
+fr.list[[modelname]] <- forecast(fit, newdata=data.frame(t=TT+1))
+```
+
+* Naive no trend
+```{r}
+modelname <- "Naive"
+fit <- Arima(traindat, order=c(0,1,0))
+fit.list[[modelname]] <- fit
+fr.list[[modelname]] <- forecast(fit, h=1)
+# or simply
+# fr <- rwf(traindat, h=1)
+```
+
+* Naive with trend
+```{r}
+modelname <- "Naivewtrend"
+fit <- Arima(traindat, order=c(0,1,0), include.drift=TRUE)
+fit.list[[modelname]] <- fit
+fr.list[[modelname]] <- forecast(fit)
+# or simply
+# fr <- rwf(traindat, drift=TRUE, h=1)
+```
+
+* Average or mean
+```{r}
+modelname <- "Average"
+fit <- Arima(traindat, order=c(0,0,0))
+fit.list[[modelname]] <- fit
+fr.list[[modelname]] <- forecast(fit)
+```
+
+## Models fit
+
+Now we can use `names()` to see the models that we have fit.  If we want to add more, we use the code above as a template.
+
+```{r}
+modelnames <- names(fit.list)
+modelnames
+```
+
+

@@ -6,8 +6,9 @@ title: "Exponential Smoothing Models"
 
 - Lecture 1 [Exponential Smoothing Models](Forecasting_4-1_-_Exp_Smoothing.html)
 
-- Lab Create forecasts with exponential smoothing models - [R Code from Lecture 1](Labs/R_scripts/Forecasting 4-1 - Exp Smoothing.R)
+- Lab 1 Create forecasts with exponential smoothing models - [R Code from Lecture 1](Labs/R_scripts/Forecasting 4-1 - Exp Smoothing.R)
 
+- Lab 2 Compare a set of models [ETS Lab 1 Evaluation](ETS Lab 1 Evaluation.html) - [Rmd file](Labs/ETS Lab 1 Evaluation.Rmd)
 
 - Lecture 2 Seasonality with exponential smoothing models
 
