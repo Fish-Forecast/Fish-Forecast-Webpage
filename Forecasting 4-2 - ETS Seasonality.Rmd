@@ -1,0 +1,192 @@
+---
+output:
+  xaringan::moon_reader:
+    css: "my-theme.css"
+    lib_dir: libs
+    nature:
+      highlightStyle: github
+      highlightLines: true
+---
+
+```{r setup, include=FALSE, message=FALSE}
+options(htmltools.dir.version = FALSE, servr.daemon = TRUE)
+knitr::opts_chunk$set(fig.height=5, fig.align="center")
+library(huxtable)
+```
+
+layout: true
+
+.hheader[<a href="index.html">`r fontawesome::fa("home", fill = "steelblue")`</a>]
+
+---
+
+class: center, middle, inverse
+# Forecasting Time Series
+## Seasonal Exponential Smoothing Models
+
+.futnote[Eli Holmes, NOAA Fisheries]
+
+.citation[eli.holmes@noaa.gov]
+
+---
+
+To make your introduction to time-series modeling in R a little gentler, I started with non-seasonal models.
+
+To work with seasonal data, we need to turn our data into a ts object, which is a "time-series" object in R. This will allow us to specify the seasonality.  It is important that we do not leave out any data in our time series.  You data should look like so
+
+```
+  Year   Month  metric.tons
+ 2018   1           1
+ 2018   2           2
+ 2018   3           3
+ ...   
+ 2019   1           4
+ 2019   2           6
+ 2019   3          NA
+```
+
+The months are in order and the years are in order.
+
+---
+
+## Load the chinook salmon data set
+
+```{r}
+load("chinook.RData")
+head(chinook)
+```
+
+---
+
+The data are monthly and start in January 1990.  To make this into a ts object do
+
+```{r}
+chinookts <- ts(chinook$log.metric.tons, start=c(1990,1), frequency=12)
+```
+`start` is the year and month and frequency is the number of months in the year.  If we had quarterly data that started in 2nd quarter of 1990, our call would be
+```
+ts(chinook, start=c(1990,2), frequency=4)
+```
+If we had daily data starting on hour 5 of day 10 and each row was an hour, our call would be
+```
+ts(chinook, start=c(10,5), frequency=24)
+```
+
+Use `?ts` to see more examples of how to set up ts objects.
+
+---
+
+## Plot seasonal data
+
+Now that we have specified our seasonal data as a ts object, it is easy to plot because R knows what the season is.
+
+```{r}
+plot(chinookts)
+```
+
+---
+
+## Seasonal Exponential Smoothing Model
+
+Now we add a few more lines to our ETS table of models:
+
+model  | "ZZZ" | alternate function |
+------------- | ------------- | --------- |
+exponential smoothing no trend | "ANN" | `ses()` |
+exponential smoothing with trend  | "AAN" | `holt()` |
+exponential smoothing with season no trend  | "ANA" | NA |
+exponential smoothing with season and trend  | "AAA" | NA |
+estimate best trend and season model | "ZZZ" | NA |
+
+Unfortunately `ets()` will not handle missing values and will find the longest continuous piece of our data and use that.
+
+---
+
+
+```{r}
+library(forecast)
+traindat <- window(chinookts, c(1990,1), c(1999,12))
+fit <- ets(traindat, model="AAA")
+fr <- forecast(fit, h=12)
+plot(fr)
+points(window(chinookts, c(1996,1), c(1996,12)))
+```
+
+---
+
+## Decompose
+
+If we plot the decomposition, we see the the seasonal component is not changing over time, unlike the actual data.  The bar on the right, alerts us that the scale on the 3rd panel is much smaller.
+
+```{r fig.height=4}
+autoplot(fit)
+```
+
+---
+
+## Force seasonality to evolve more
+
+Pass in a high `gamma` (the season weighting) to force the seasonality to evolve.
+```{r fig.height=4}
+fit <- ets(traindat, model="AAA", gamma=0.4)
+autoplot(fit)
+```
+
+---
+
+## Compare to a seasonal ARIMA model
+
+`auto.arima()` will recognize that our data has season and fit a seasonal ARIMA model to our data.  Let's use the data that `ets()` used.  This is shorter than our training data.  The data used by `ets()` is returned in `fit$x`.
+
+---
+
+```{r}
+no_miss_dat <- fit$x
+fit <- auto.arima(no_miss_dat)
+fr <- forecast(fit, h=12)
+plot(fr)
+points(window(chinookts, c(1996,1), c(1996,12)))
+```
+
+---
+
+## Missing values are ok when fitting a seasonal ARIMA model
+
+```{r}
+fit <- auto.arima(traindat)
+fr <- forecast(fit, h=12)
+plot(fr)
+```
+
+---
+
+## Forecast evaluation
+
+We can compute the forecast performance metrics as usual. 
+
+```{r}
+fit <- ets(traindat, model="AAA", gamma=0.4)
+fr <- forecast(fit, h=12)
+```
+Look at the forecast so you know what years and months to include in your test data.  Pull those 12 months out of your data using the `window()` function.
+
+```{r}
+testdat <- window(traindat, c(1996,1), c(1996,12))
+```
+Use `accuracy()` to get the forecast error metrics.
+```{r}
+accuracy(fr, testdat)
+```
+
+---
+
+We can do the same for the ARIMA model.
+
+```{r}
+no_miss_dat <- fit$x
+fit <- auto.arima(no_miss_dat)
+fr <- forecast(fit, h=12)
+accuracy(fr, testdat)
+```
+
+

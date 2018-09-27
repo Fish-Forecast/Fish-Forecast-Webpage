@@ -12,13 +12,14 @@ In this lab, you will fit a series of candidate models and prepare a table for t
 
 We will define the training data as 1964 to 1987 and the test data as 1988 and 1989.
 
-```{r read_data, eval=FALSE}
+```{r read_data}
 load("landings.RData")
 spp <- "Anchovy"
 landings$log.metric.tons <- log(landings$metric.tons)
 landings <- subset(landings, Species==spp)
 traindat <- subset(landings, Year <= 1987)$log.metric.tons
 testdat <- subset(landings, Year == 1988 | Year==1989)$log.metric.tons
+n.fr <- length(testdat)
 ```
 
 Load the necessary packages.
@@ -30,11 +31,12 @@ library(tseries)
 
 ## Fit each of our candidate models
 
-We will store these in a list for easy access.
+We will store these in a list for easy access. `fun.list` is the function to pass to `tsCV()`.
 
 ```{r}
 fit.list <- list()
 fr.list <- list()
+fun.list <- list()
 ```
 
 * Exponential smoothing model with trend
@@ -43,7 +45,8 @@ fr.list <- list()
 modelname <- "ETSwtrend"
 fit <- ets(traindat, model="AAN")
 fit.list[[modelname]] <- fit
-fr.list[[modelname]] <- forecast(fit, h=1)
+fr.list[[modelname]] <- forecast(fit, h=n.fr)
+fun.list[[modelname]] <- function(x, h){ forecast(ets(x, model="AAN"), h=h) }
 ```
 
 * Exponential smoothing model no trend
@@ -51,7 +54,8 @@ fr.list[[modelname]] <- forecast(fit, h=1)
 modelname <- "ETSnotrend"
 fit <- ets(traindat, model="ANN")
 fit.list[[modelname]] <- fit
-fr.list[[modelname]] <- forecast(fit, h=1)
+fr.list[[modelname]] <- forecast(fit, h=n.fr)
+fun.list[[modelname]] <- function(x, h){ forecast(ets(x, model="ANN"), h=h) }
 ```
 
 * ARIMA(0,1,1) with drift (best)
@@ -59,7 +63,8 @@ fr.list[[modelname]] <- forecast(fit, h=1)
 modelname <- "ARIMA011wdrift"
 fit <- Arima(traindat, order=c(0,1,1), include.drift=TRUE)
 fit.list[[modelname]] <- fit
-fr.list[[modelname]] <- forecast(fit, h=1)
+fr.list[[modelname]] <- forecast(fit, h=n.fr)
+fun.list[[modelname]] <- function(x, h){ forecast(Arima(x, order=c(0,1,1), include.drift=TRUE),h=h) }
 ```
 
 * ARIMA(2,1,0) with drift (within 2 AIC of best)
@@ -67,7 +72,8 @@ fr.list[[modelname]] <- forecast(fit, h=1)
 modelname <- "ARIMA210wdrift"
 fit <- Arima(traindat, order=c(2,1,0), include.drift=TRUE)
 fit.list[[modelname]] <- fit
-fr.list[[modelname]] <- forecast(fr, h=1)
+fr.list[[modelname]] <- forecast(fit, h=n.fr)
+fun.list[[modelname]] <- function(x, h){ forecast(Arima(x, order=c(2,1,0), include.drift=TRUE),h=h) }
 ```
 
 * Time-varying regression with linear time
@@ -78,7 +84,12 @@ dat <- data.frame(log.metric.tons=traindat, t=1:TT)
 modelname <- "TVreglinear"
 fit <- lm(log.metric.tons ~ t, data=dat)
 fit.list[[modelname]] <- fit
-fr.list[[modelname]] <- forecast(fit, newdata=data.frame(t=TT+1))
+fr.list[[modelname]] <- forecast(fit, newdata=data.frame(t=TT+1:n.fr))
+fun.list[[modelname]] <- function(x, h){ 
+  TT <- length(x)
+  dat <- data.frame(log.metric.tons=x, t=1:TT)
+  ft <- lm(log.metric.tons ~ t, data=dat)
+  forecast(ft, newdata=data.frame(t=TT+h)) }
 ```
 
 * Naive no trend
@@ -86,9 +97,8 @@ fr.list[[modelname]] <- forecast(fit, newdata=data.frame(t=TT+1))
 modelname <- "Naive"
 fit <- Arima(traindat, order=c(0,1,0))
 fit.list[[modelname]] <- fit
-fr.list[[modelname]] <- forecast(fit, h=1)
-# or simply
-# fr <- rwf(traindat, h=1)
+fr.list[[modelname]] <- forecast(fit, h=n.fr)
+fun.list[[modelname]] <- function(x, h){ rwf(x,h=h) }
 ```
 
 * Naive with trend
@@ -96,9 +106,8 @@ fr.list[[modelname]] <- forecast(fit, h=1)
 modelname <- "Naivewtrend"
 fit <- Arima(traindat, order=c(0,1,0), include.drift=TRUE)
 fit.list[[modelname]] <- fit
-fr.list[[modelname]] <- forecast(fit)
-# or simply
-# fr <- rwf(traindat, drift=TRUE, h=1)
+fr.list[[modelname]] <- forecast(fit, h=n.fr)
+fun.list[[modelname]] <- function(x, h){ rwf(x, drift=TRUE, h=h) }
 ```
 
 * Average or mean
@@ -106,7 +115,8 @@ fr.list[[modelname]] <- forecast(fit)
 modelname <- "Average"
 fit <- Arima(traindat, order=c(0,0,0))
 fit.list[[modelname]] <- fit
-fr.list[[modelname]] <- forecast(fit)
+fr.list[[modelname]] <- forecast(fit, h=n.fr)
+fun.list[[modelname]] <- function(x, h){ forecast(Arima(x, order=c(0,0,0)),h=h) }
 ```
 
 ## Models fit
@@ -118,4 +128,26 @@ modelnames <- names(fit.list)
 modelnames
 ```
 
+## Now we can go through each model
 
+We will run the models and compute the forecast metrics for each and put in a table.
+
+```{r}
+restab <- data.frame(model=modelnames, RMSE=NA, ME=NA, tsCV.RMSE=NA, AIC=NA, BIC=NA)
+for(i in modelnames){
+  fit <- fit.list[[i]]
+  fr <- fr.list[[i]]
+  restab$RMSE[restab$model==i] <- accuracy(fr, testdat)["Test set","RMSE"]
+  restab$ME[restab$model==i] <- accuracy(fr, testdat)["Test set","ME"]
+  e <- tsCV(traindat, fun.list[[i]], h=1)
+  restab$tsCV.RMSE[restab$model==i] <- sqrt(mean(e^2, na.rm=TRUE))
+  restab$AIC[restab$model==i] <- AIC(fit)
+  restab$BIC[restab$model==i] <- BIC(fit)
+}
+```
+
+This is the table of FORECAST performance metrics.  Not how well it fits the data, but how well it forecasts out of the data.  RSME and ME are for the 2 data points in 1988 and 1989 that were held out for testing.  tsCV.RMSE is the RSME for the time-series crossvalidation that makes a series of forecasts for each point in the data.  AIC and BIC are information criteria, which are a measure of data support for each model.
+
+```{r results='asis'}
+knitr::kable(restab, format="html")
+```

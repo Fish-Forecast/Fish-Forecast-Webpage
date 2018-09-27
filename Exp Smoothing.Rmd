@@ -10,7 +10,9 @@ title: "Exponential Smoothing Models"
 
 - Lab 2 Compare a set of models [ETS Lab 1 Evaluation](ETS Lab 1 Evaluation.html) - [Rmd file](Labs/ETS Lab 1 Evaluation.Rmd)
 
-- Lecture 2 Seasonality with exponential smoothing models
+- Lecture 2 [Seasonality with exponential smoothing and ARIMA models](Forecasting_4-2_-_ETS_Seasonality.html)
+
+- Lab 3 Seasonal models - [R Code from Lecture 2](Labs/R_scripts/Forecasting 4-2 - ETS Seasonality.R) - [chinook data](https://fish-forecast.github.io/Catch-Forecasting-INCOIS/chinook.RData)
 
 Reference.  Rob J Hyndman (lead on the forecast package)  and George Athanasopoulos have an excellent online text on practical forecasting and exponential smoothing. Read [their chapter](https://otexts.org/fpp2/expsmooth.html) on exponential smoothing to learn more about these models and how to use them.
 

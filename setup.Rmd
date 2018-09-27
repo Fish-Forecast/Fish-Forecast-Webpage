@@ -26,7 +26,7 @@ files <- str_sub(files,1,-5)
 for(fil in files){
   infil = paste0(fil,".Rmd")
 outfil = paste0(fil,".html")
-render(infil, output_file=outfil)
+rmarkdown::render(infil, output_file=outfil)
 }
 ```
 

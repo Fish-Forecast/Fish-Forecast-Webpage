@@ -1966,43 +1966,49 @@ spp &lt;- &quot;Anchovy&quot;
 landings$log.metric.tons &lt;- log(landings$metric.tons)
 landings &lt;- subset(landings, Species==spp)
 traindat &lt;- subset(landings, Year &lt;= 1987)$log.metric.tons
-testdat &lt;- subset(landings, Year == 1988 | Year==1989)$log.metric.tons</code></pre>
+testdat &lt;- subset(landings, Year == 1988 | Year==1989)$log.metric.tons
+n.fr &lt;- length(testdat)</code></pre>
 <p>Load the necessary packages.</p>
 <pre class="r"><code>library(forecast)
 library(tseries)</code></pre>
 <div id="fit-each-of-our-candidate-models" class="section level2">
 <h2>Fit each of our candidate models</h2>
-<p>We will store these in a list for easy access.</p>
+<p>We will store these in a list for easy access. <code>fun.list</code> is the function to pass to <code>tsCV()</code>.</p>
 <pre class="r"><code>fit.list &lt;- list()
-fr.list &lt;- list()</code></pre>
+fr.list &lt;- list()
+fun.list &lt;- list()</code></pre>
 <ul>
 <li>Exponential smoothing model with trend</li>
 </ul>
 <pre class="r"><code>modelname &lt;- &quot;ETSwtrend&quot;
 fit &lt;- ets(traindat, model=&quot;AAN&quot;)
 fit.list[[modelname]] &lt;- fit
-fr.list[[modelname]] &lt;- forecast(fit, h=1)</code></pre>
+fr.list[[modelname]] &lt;- forecast(fit, h=n.fr)
+fun.list[[modelname]] &lt;- function(x, h){ forecast(ets(x, model=&quot;AAN&quot;), h=h) }</code></pre>
 <ul>
 <li>Exponential smoothing model no trend</li>
 </ul>
 <pre class="r"><code>modelname &lt;- &quot;ETSnotrend&quot;
 fit &lt;- ets(traindat, model=&quot;ANN&quot;)
 fit.list[[modelname]] &lt;- fit
-fr.list[[modelname]] &lt;- forecast(fit, h=1)</code></pre>
+fr.list[[modelname]] &lt;- forecast(fit, h=n.fr)
+fun.list[[modelname]] &lt;- function(x, h){ forecast(ets(x, model=&quot;ANN&quot;), h=h) }</code></pre>
 <ul>
 <li>ARIMA(0,1,1) with drift (best)</li>
 </ul>
 <pre class="r"><code>modelname &lt;- &quot;ARIMA011wdrift&quot;
 fit &lt;- Arima(traindat, order=c(0,1,1), include.drift=TRUE)
 fit.list[[modelname]] &lt;- fit
-fr.list[[modelname]] &lt;- forecast(fit, h=1)</code></pre>
+fr.list[[modelname]] &lt;- forecast(fit, h=n.fr)
+fun.list[[modelname]] &lt;- function(x, h){ forecast(Arima(x, order=c(0,1,1), include.drift=TRUE),h=h) }</code></pre>
 <ul>
 <li>ARIMA(2,1,0) with drift (within 2 AIC of best)</li>
 </ul>
 <pre class="r"><code>modelname &lt;- &quot;ARIMA210wdrift&quot;
 fit &lt;- Arima(traindat, order=c(2,1,0), include.drift=TRUE)
 fit.list[[modelname]] &lt;- fit
-fr.list[[modelname]] &lt;- forecast(fr, h=1)</code></pre>
+fr.list[[modelname]] &lt;- forecast(fit, h=n.fr)
+fun.list[[modelname]] &lt;- function(x, h){ forecast(Arima(x, order=c(2,1,0), include.drift=TRUE),h=h) }</code></pre>
 <ul>
 <li>Time-varying regression with linear time</li>
 </ul>
@@ -2012,32 +2018,36 @@ dat &lt;- data.frame(log.metric.tons=traindat, t=1:TT)
 modelname &lt;- &quot;TVreglinear&quot;
 fit &lt;- lm(log.metric.tons ~ t, data=dat)
 fit.list[[modelname]] &lt;- fit
-fr.list[[modelname]] &lt;- forecast(fit, newdata=data.frame(t=TT+1))</code></pre>
+fr.list[[modelname]] &lt;- forecast(fit, newdata=data.frame(t=TT+1:n.fr))
+fun.list[[modelname]] &lt;- function(x, h){ 
+  TT &lt;- length(x)
+  dat &lt;- data.frame(log.metric.tons=x, t=1:TT)
+  ft &lt;- lm(log.metric.tons ~ t, data=dat)
+  forecast(ft, newdata=data.frame(t=TT+h)) }</code></pre>
 <ul>
 <li>Naive no trend</li>
 </ul>
 <pre class="r"><code>modelname &lt;- &quot;Naive&quot;
 fit &lt;- Arima(traindat, order=c(0,1,0))
 fit.list[[modelname]] &lt;- fit
-fr.list[[modelname]] &lt;- forecast(fit, h=1)
-# or simply
-# fr &lt;- rwf(traindat, h=1)</code></pre>
+fr.list[[modelname]] &lt;- forecast(fit, h=n.fr)
+fun.list[[modelname]] &lt;- function(x, h){ rwf(x,h=h) }</code></pre>
 <ul>
 <li>Naive with trend</li>
 </ul>
 <pre class="r"><code>modelname &lt;- &quot;Naivewtrend&quot;
 fit &lt;- Arima(traindat, order=c(0,1,0), include.drift=TRUE)
 fit.list[[modelname]] &lt;- fit
-fr.list[[modelname]] &lt;- forecast(fit)
-# or simply
-# fr &lt;- rwf(traindat, drift=TRUE, h=1)</code></pre>
+fr.list[[modelname]] &lt;- forecast(fit, h=n.fr)
+fun.list[[modelname]] &lt;- function(x, h){ rwf(x, drift=TRUE, h=h) }</code></pre>
 <ul>
 <li>Average or mean</li>
 </ul>
 <pre class="r"><code>modelname &lt;- &quot;Average&quot;
 fit &lt;- Arima(traindat, order=c(0,0,0))
 fit.list[[modelname]] &lt;- fit
-fr.list[[modelname]] &lt;- forecast(fit)</code></pre>
+fr.list[[modelname]] &lt;- forecast(fit, h=n.fr)
+fun.list[[modelname]] &lt;- function(x, h){ forecast(Arima(x, order=c(0,0,0)),h=h) }</code></pre>
 </div>
 <div id="models-fit" class="section level2">
 <h2>Models fit</h2>
@@ -2046,6 +2056,209 @@ fr.list[[modelname]] &lt;- forecast(fit)</code></pre>
 modelnames</code></pre>
 <pre><code>## [1] &quot;ETSwtrend&quot;      &quot;ETSnotrend&quot;     &quot;ARIMA011wdrift&quot; &quot;ARIMA210wdrift&quot;
 ## [5] &quot;TVreglinear&quot;    &quot;Naive&quot;          &quot;Naivewtrend&quot;    &quot;Average&quot;</code></pre>
+</div>
+<div id="now-we-can-go-through-each-model" class="section level2">
+<h2>Now we can go through each model</h2>
+<p>We will run the models and compute the forecast metrics for each and put in a table.</p>
+<pre class="r"><code>restab &lt;- data.frame(model=modelnames, RMSE=NA, ME=NA, tsCV.RMSE=NA, AIC=NA, BIC=NA)
+for(i in modelnames){
+  fit &lt;- fit.list[[i]]
+  fr &lt;- fr.list[[i]]
+  restab$RMSE[restab$model==i] &lt;- accuracy(fr, testdat)[&quot;Test set&quot;,&quot;RMSE&quot;]
+  restab$ME[restab$model==i] &lt;- accuracy(fr, testdat)[&quot;Test set&quot;,&quot;ME&quot;]
+  e &lt;- tsCV(traindat, fun.list[[i]], h=1)
+  restab$tsCV.RMSE[restab$model==i] &lt;- sqrt(mean(e^2, na.rm=TRUE))
+  restab$AIC[restab$model==i] &lt;- AIC(fit)
+  restab$BIC[restab$model==i] &lt;- BIC(fit)
+}</code></pre>
+<p>This is the table of FORECAST performance metrics. Not how well it fits the data, but how well it forecasts out of the data. RSME and ME are for the 2 data points in 1988 and 1989 that were held out for testing. tsCV.RMSE is the RSME for the time-series crossvalidation that makes a series of forecasts for each point in the data. AIC and BIC are information criteria, which are a measure of data support for each model.</p>
+<pre class="r"><code>knitr::kable(restab, format=&quot;html&quot;)</code></pre>
+<table>
+<thead>
+<tr>
+<th style="text-align:left;">
+model
+</th>
+<th style="text-align:right;">
+RMSE
+</th>
+<th style="text-align:right;">
+ME
+</th>
+<th style="text-align:right;">
+tsCV.RMSE
+</th>
+<th style="text-align:right;">
+AIC
+</th>
+<th style="text-align:right;">
+BIC
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:left;">
+ETSwtrend
+</td>
+<td style="text-align:right;">
+0.5384355
+</td>
+<td style="text-align:right;">
+-0.5001701
+</td>
+<td style="text-align:right;">
+0.2508591
+</td>
+<td style="text-align:right;">
+3.668449
+</td>
+<td style="text-align:right;">
+9.5587183
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+ETSnotrend
+</td>
+<td style="text-align:right;">
+0.3168383
+</td>
+<td style="text-align:right;">
+-0.2889496
+</td>
+<td style="text-align:right;">
+0.2223355
+</td>
+<td style="text-align:right;">
+6.764613
+</td>
+<td style="text-align:right;">
+10.2987745
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+ARIMA011wdrift
+</td>
+<td style="text-align:right;">
+0.3698342
+</td>
+<td style="text-align:right;">
+-0.3324540
+</td>
+<td style="text-align:right;">
+0.2307833
+</td>
+<td style="text-align:right;">
+-6.990860
+</td>
+<td style="text-align:right;">
+-3.5843769
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+ARIMA210wdrift
+</td>
+<td style="text-align:right;">
+0.3806919
+</td>
+<td style="text-align:right;">
+-0.3466221
+</td>
+<td style="text-align:right;">
+0.2244186
+</td>
+<td style="text-align:right;">
+-6.081892
+</td>
+<td style="text-align:right;">
+-1.5399148
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+TVreglinear
+</td>
+<td style="text-align:right;">
+0.1954189
+</td>
+<td style="text-align:right;">
+-0.1135076
+</td>
+<td style="text-align:right;">
+0.2472289
+</td>
+<td style="text-align:right;">
+-6.995291
+</td>
+<td style="text-align:right;">
+-3.4611299
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Naive
+</td>
+<td style="text-align:right;">
+0.4056341
+</td>
+<td style="text-align:right;">
+-0.3842453
+</td>
+<td style="text-align:right;">
+0.2203829
+</td>
+<td style="text-align:right;">
+-2.060243
+</td>
+<td style="text-align:right;">
+-0.9247485
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Naivewtrend
+</td>
+<td style="text-align:right;">
+0.5096293
+</td>
+<td style="text-align:right;">
+-0.4829045
+</td>
+<td style="text-align:right;">
+0.2386116
+</td>
+<td style="text-align:right;">
+-2.182738
+</td>
+<td style="text-align:right;">
+0.0882501
+</td>
+</tr>
+<tr>
+<td style="text-align:left;">
+Average
+</td>
+<td style="text-align:right;">
+0.6559616
+</td>
+<td style="text-align:right;">
+0.6429549
+</td>
+<td style="text-align:right;">
+0.4756759
+</td>
+<td style="text-align:right;">
+33.036330
+</td>
+<td style="text-align:right;">
+35.3924373
+</td>
+</tr>
+</tbody>
+</table>
 </div>
 </div>
 
