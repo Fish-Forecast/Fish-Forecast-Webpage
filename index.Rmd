@@ -22,6 +22,7 @@ This week we will learn a number of standard approaches for forecasting from cat
 # References
 
 You can download the reference papers [here](https://github.com/Fish-Forecast/Catch-Forecasting-INCOIS/tree/master/references).  We are replicating the work in [Stergio and Christou 1997](https://fish-forecast.github.io/Catch-Forecasting-INCOIS/references/Stergiou and Christou 1996 modelling and forecasting annual landings. comparison of regression and ts.pdf).
+
 # Links
 
 - [Main Course Page](https://rverse-tutorials.github.io/Fish-Forecast-Training-Course/)

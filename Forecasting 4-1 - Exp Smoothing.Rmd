@@ -1,0 +1,413 @@
+---
+output:
+  xaringan::moon_reader:
+    css: "my-theme.css"
+    lib_dir: libs
+    nature:
+      highlightStyle: github
+      highlightLines: true
+---
+
+```{r setup, include=FALSE, message=FALSE}
+options(htmltools.dir.version = FALSE, servr.daemon = TRUE)
+knitr::opts_chunk$set(fig.height=5, fig.align="center")
+library(huxtable)
+```
+
+layout: true
+
+.hheader[<a href="index.html">`r fontawesome::fa("home", fill = "steelblue")`</a>]
+
+---
+
+class: center, middle, inverse
+# Forecasting Time Series
+## Simple Exponential Smoothing
+
+.futnote[Eli Holmes, NOAA Fisheries]
+
+.citation[eli.holmes@noaa.gov]
+
+---
+
+## Naive forecast
+
+For a naive forecast of the anchovy landings in 1988, we just use the 1987 landings.
+
+$$\hat{x}_{1988} = x_{1987}$$
+Which is the same as saying that we put 100% of the 'weight' on the most recent value and no weight on any value prior to that.
+
+$$\hat{x}_{1988} = 1 \times x_{1987} + 0 \times x_{1986} + 0 \times x_{1985} + \dots$$
+---
+
+Past values in the time series have information about the current state, but only the most recent past value.
+
+```{r echo=FALSE}
+plot(1987:1964, c(1,rep(0,23)), lwd=2, ylab="weight", xlab="", type="l")
+title("weight put on past values for 1988 forecast")
+```
+
+
+---
+
+That's a bit extreme.  Often the values prior to the last value also have some information about future states.  But the 'information content' should decrease the farther in the past that we go.
+
+```{r echo=FALSE}
+alpha <- 0.8
+plot(1987:1964, alpha^(1:24), lwd=2, ylab="weight", xlab="", type="l")
+title("more weight put on more recent values\nfor 1988 forecast")
+```
+
+---
+
+Simple exponential smoothing uses this type of weighting that falls off exponentially and the objective to estimate the best weighting ( $\alpha$ ):
+
+```{r echo=FALSE}
+alpha <- 1
+wts <- alpha*(1-alpha)^(0:23)
+plot(1987:1964, wts/sum(wts), lwd=2, ylab="weight", xlab="", type="l")
+alpha <- 0.5
+wts <- alpha*(1-alpha)^(0:23)
+lines(1987:1964, wts/sum(wts), lwd=2, col="blue")
+alpha <- 0.05
+wts <- alpha*(1-alpha)^(0:23)
+lines(1987:1964, wts/sum(wts), lwd=2, col="red")
+legend("topleft", c("alpha=1 like naive","alpha=0.5","alpha=0.05 like mean"),lwd=2, col=c("black","blue","red"))
+title("more weight put on more recent values\nfor 1988 forecast")
+```
+
+---
+
+## Fitting exponential smoothing models
+
+The forecast package will fit a wide variety of exponential smoothing models.  The main fitting function is `ets()`:
+
+```
+ets(y, model = "ZZZ", < + many other arguments >)
+```
+
+* y : your data.  A time series of responses.
+
+* model: what type of exponential smoothing model.
+
+---
+
+We are going to `ets()` to fit three simple types of exponential smoothing models:
+
+model  | "ZZZ" | alternate function |
+------------- | ------------- | --------- |
+exponential smoothing no trend | "ANN" | `ses()` |
+exponential smoothing with trend  | "AAN" | `holt()` |
+exponential smoothing choose trend  | "AZN" | NA |
+
+The alternate function does exactly the same fitting.  It is just a 'shortcut'.
+
+---
+
+## Fit exponential smoothing with no trend
+
+This is like the naive model that just uses the last value to make the forecast, but instead of only using the last value it will use values farther in the past also. The weighting fall off exponentially.
+
+Load the data and forecast package.
+
+```{r load_data_exp_smoothing}
+load("landings.RData")
+landings$log.metric.tons = log(landings$metric.tons)
+anchovy <- subset(landings, 
+                  Species=="Anchovy" & Year<=1987)$log.metric.tons
+library(forecast)
+```
+
+```{r}
+fit <- ets(anchovy, model="ANN")
+fr <- forecast(fit, h=5)
+```
+
+---
+
+```{r}
+plot(fr)
+```
+
+---
+
+## Look at the estimates
+
+```{r}
+fit
+```
+
+---
+
+## The weighting function
+
+```{r echo=FALSE}
+alpha <- coef(fit)[1]
+wts <- alpha*(1-alpha)^(0:23)
+plot(1987:1964, wts/sum(wts), lwd=2, ylab="weight", xlab="", type="l")
+title("Weighting for simple exp. smooth of anchovy")
+```
+
+---
+
+## Produce forecast with ets from a previous fit
+
+Say you want to estimate a forecasting model from one dataset and use that model to forecast another dataset or another area.  Here is how to do that.
+
+This is the fit to the 1964-1987 data:
+
+```{r}
+fit1 <- ets(anchovy, model="ANN")
+```
+
+Use that model with the 2000-2007 data and produce a forecast:
+
+```{r}
+dat <- subset(landings, Species=="Anchovy" & Year>=2000 & Year<=2007)
+dat <- dat$log.metric.tons
+fit2 <- ets(dat, model=fit1)
+fr2 <- forecast(fit2, h=5)
+```
+
+---
+
+```{r}
+plot(fr2)
+```
+
+---
+
+## Naive model with drift
+
+Fit a model that uses the last observation as the forecast but includes a trend estimated from ALL the data.  This is what the naive model with drift does.
+
+```{r fig.height=4.5}
+fit.rwf <- Arima(anchovy, order=c(0,1,0), include.drift=TRUE)
+fr.rwf <- forecast(fit.rwf, h=5)
+plot(fr.rwf)
+```
+
+---
+
+The trend seen in the blue line is estimated from the overall trend in ALL the data.
+
+```{r}
+coef(fit.rwf)
+```
+
+The trend from all the data is (last-first)/(number of steps).
+
+```{r}
+(anchovy[24]-anchovy[1])/23
+```
+
+So we only use the latest data to choose the level for our forecast but use all the data to choose the trend?  It would make more sense to weight the more recent trends more heavily.
+
+---
+
+## Exponential smoothing model with trend
+
+The exponential smoothing model with trend does this.  The one-year trend is 
+$$x_t - x_{t-1}$$
+That is how much the data increased or decreased.  
+
+---
+
+```{r}
+plot(diff(anchovy),ylim=c(-0.3,.3))
+abline(h=0, col="blue")
+abline(h=mean(diff(anchovy)),col="red")
+title("0 means no change")
+```
+
+---
+
+If we take the average of all $x_t - x_{t-1}$ we are using the average trend like the naive model with drift.  We put an equal weighting on all trends.
+
+But we could use a weighting that falls off exponentially so that we more recent trends affect the forecast more than trends in the distant past.  That is what an exponential smoothing model with trend does.
+
+```{r echo=FALSE}
+alpha <- 1
+wts <- alpha*(1-alpha)^(0:23)
+plot(1987:1964, wts/sum(wts), lwd=2, ylab="weight", xlab="", type="l")
+alpha <- 0.5
+wts <- alpha*(1-alpha)^(0:23)
+lines(1987:1964, wts/sum(wts), lwd=2, col="blue")
+alpha <- 0.05
+wts <- alpha*(1-alpha)^(0:23)
+lines(1987:1964, wts/sum(wts), lwd=2, col="red")
+legend("topleft", c("beta=1","beta=0.5","beta=0.05 like naive"),lwd=2, col=c("black","blue","red"))
+title("more weight put on more recent values\nfor 1988 forecast")
+```
+
+---
+
+## Fit exponential smoothing with trend
+
+```{r}
+fit <- ets(anchovy, model="AAN")
+fr <- forecast(fit, h=5)
+plot(fr)
+```
+
+---
+
+## Decomposing your model fit
+
+Sometimes you would like to see the smoothed level and smoothed trend that the model estimated. You can see that with `plot(fit)` or `autoplot(fit)`.
+
+```{r fig.height=4}
+autoplot(fit)
+```
+
+---
+
+## Forecast performance
+
+We can evaluate the forecast performance with forecasts of our test data or we can use all the data and use time-series cross-validation.
+
+Let's start with the former.
+
+```{r echo=FALSE}
+spp <- "Anchovy"
+training = subset(landings, Year <= 1987)
+test = subset(landings, Year >= 1988 & Year <= 1989)
+
+traindat <- subset(training, Species==spp)$log.metric.tons
+testdat <- subset(test, Species==spp)$log.metric.tons
+```
+
+---
+
+## Test forecast performance against a test data set
+
+We will fit an an exponential smoothing model with trend to the training data and make a forecast for the years that we 'held out'. 
+
+```{r fig.height=4}
+fit1 <- ets(traindat, model="AAN")
+fr <- forecast(fit1, h=2)
+plot(fr)
+points(25:26, testdat, pch=2, col="red")
+legend("topleft", c("forecast","actual"), pch=c(20,2), col=c("blue","red"))
+```
+
+---
+
+We can calculate a variety of forecast error metrics with
+
+```{r}
+accuracy(fr, testdat)
+```
+
+We would now repeat this for all the models in our candidate set and choose the model with the best forecast performance.
+
+---
+
+## Forecast performance with time-series cross-validation
+
+Another approach is to use all the data and test a series of forecasts made by fitting the model to different lengths of the data.
+
+In this approach, we don't have test data.  Instead we will use all the data for fitting and for forecast testing.
+
+```{r echo=FALSE}
+spp <- "Anchovy"
+training = subset(landings, Year <= 1989)
+traindat <- subset(training, Species==spp)$log.metric.tons
+```
+
+---
+
+## tsCV() function
+
+We will use the `tsCV()` function.  We need to define a function that returns a forecast.
+
+```{r}
+far2 <- function(x, h, model){
+  fit <- ets(x, model=model)
+  forecast(fit, h=h)
+  }
+e <- tsCV(traindat, far2, h=1, model="AAN")
+```
+
+The `e` are our forecast errors for all the forecasts that we did with the data.
+
+
+---
+
+## Forecast accuracy metrics
+
+Now we can compute forecast accuracy metrics from the forecast errors (`e`).
+
+RMSE: root mean squared error
+```{r}
+rmse <- sqrt(mean(e^2, na.rm=TRUE))
+```
+
+MAE: mean absolute error
+```{r}
+mae <- mean(abs(e), na.rm=TRUE)
+```
+
+We would repeat this process for all models in our candidate set and compare forecast fits to choose our forecast model.
+
+---
+
+## Next steps
+
+Now you are ready to compare forecasts from a variety of models and choose a forecast model.  Note when you compare models, you can use both 'training data/test data' and use time-series cross-validation, but report the metrics in separate columns.  Example, 'RMSE from tsCV' and 'RMSE from test data'.
+
+---
+
+## Example candidate set for anchovy
+
+* Exponential smoothing model with trend
+```
+fit <- ets(traindat, model="AAN")
+fr <- forecast(fit, h=1)
+```
+* Exponential smoothing model no trend
+```
+fit <- ets(traindat, model="ANN")
+fr <- forecast(fit, h=1)
+```
+* ARIMA(0,1,1) with drift (best)
+```
+fit <- Arima(traindat, order(0,1,1), include.drift=TRUE)
+fr <- forecast(fit, h=1)
+```
+* ARIMA(2,1,0) with drift (within 2 AIC of best)
+```
+fit <- Arima(traindat, order(2,1,0), include.drift=TRUE)
+fr <- forecast(fr)
+```
+
+---
+
+## Candidata models continued
+
+* Time-varying regression with linear time
+```
+traindat$t <- 1:24
+fit <- lm(log.metric.tons ~ t, data=traindat)
+fr <- forecast(fit, newdata=data.frame(t=25))
+```
+
+* Naive no trend
+```
+fit <- Arima(traindat, order(0,1,0))
+fr <- forecast(fit, h=1)
+# or simply
+fr <- rwf(traindat)
+```
+* Naive with trend
+```
+fit <- Arima(traindat, order(0,1,0), include.drift=TRUE)
+fr <- forecast(fit)
+# or simply
+fr <- rwf(traindat, drift=TRUE)
+```
+* Average or mean
+```
+fit <- Arima(traindat, order(0,0,0))
+fr <- forecast(fit)
+```

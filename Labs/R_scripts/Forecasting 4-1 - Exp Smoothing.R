@@ -1,0 +1,136 @@
+## ----setup, include=FALSE, message=FALSE---------------------------------
+options(htmltools.dir.version = FALSE, servr.daemon = TRUE)
+knitr::opts_chunk$set(fig.height=5, fig.align="center")
+library(huxtable)
+
+## ----echo=FALSE----------------------------------------------------------
+plot(1987:1964, c(1,rep(0,23)), lwd=2, ylab="weight", xlab="", type="l")
+title("weight put on past values for 1988 forecast")
+
+## ----echo=FALSE----------------------------------------------------------
+alpha <- 0.8
+plot(1987:1964, alpha^(1:24), lwd=2, ylab="weight", xlab="", type="l")
+title("more weight put on more recent values\nfor 1988 forecast")
+
+## ----echo=FALSE----------------------------------------------------------
+alpha <- 1
+wts <- alpha*(1-alpha)^(0:23)
+plot(1987:1964, wts/sum(wts), lwd=2, ylab="weight", xlab="", type="l")
+alpha <- 0.5
+wts <- alpha*(1-alpha)^(0:23)
+lines(1987:1964, wts/sum(wts), lwd=2, col="blue")
+alpha <- 0.05
+wts <- alpha*(1-alpha)^(0:23)
+lines(1987:1964, wts/sum(wts), lwd=2, col="red")
+legend("topleft", c("alpha=1 like naive","alpha=0.5","alpha=0.05 like mean"),lwd=2, col=c("black","blue","red"))
+title("more weight put on more recent values\nfor 1988 forecast")
+
+## ----load_data_exp_smoothing---------------------------------------------
+load("landings.RData")
+landings$log.metric.tons = log(landings$metric.tons)
+anchovy <- subset(landings, 
+                  Species=="Anchovy" & Year<=1987)$log.metric.tons
+library(forecast)
+
+## ------------------------------------------------------------------------
+fit <- ets(anchovy, model="ANN")
+fr <- forecast(fit, h=5)
+
+## ------------------------------------------------------------------------
+plot(fr)
+
+## ------------------------------------------------------------------------
+fit
+
+## ----echo=FALSE----------------------------------------------------------
+alpha <- coef(fit)[1]
+wts <- alpha*(1-alpha)^(0:23)
+plot(1987:1964, wts/sum(wts), lwd=2, ylab="weight", xlab="", type="l")
+title("Weighting for simple exp. smooth of anchovy")
+
+## ------------------------------------------------------------------------
+fit1 <- ets(anchovy, model="ANN")
+
+## ------------------------------------------------------------------------
+dat <- subset(landings, Species=="Anchovy" & Year>=2000 & Year<=2007)
+dat <- dat$log.metric.tons
+fit2 <- ets(dat, model=fit1)
+fr2 <- forecast(fit2, h=5)
+
+## ------------------------------------------------------------------------
+plot(fr2)
+
+## ----fig.height=4.5------------------------------------------------------
+fit.rwf <- Arima(anchovy, order=c(0,1,0), include.drift=TRUE)
+fr.rwf <- forecast(fit.rwf, h=5)
+plot(fr.rwf)
+
+## ------------------------------------------------------------------------
+coef(fit.rwf)
+
+## ------------------------------------------------------------------------
+(anchovy[24]-anchovy[1])/23
+
+## ------------------------------------------------------------------------
+plot(diff(anchovy),ylim=c(-0.3,.3))
+abline(h=0, col="blue")
+abline(h=mean(diff(anchovy)),col="red")
+title("0 means no change")
+
+## ----echo=FALSE----------------------------------------------------------
+alpha <- 1
+wts <- alpha*(1-alpha)^(0:23)
+plot(1987:1964, wts/sum(wts), lwd=2, ylab="weight", xlab="", type="l")
+alpha <- 0.5
+wts <- alpha*(1-alpha)^(0:23)
+lines(1987:1964, wts/sum(wts), lwd=2, col="blue")
+alpha <- 0.05
+wts <- alpha*(1-alpha)^(0:23)
+lines(1987:1964, wts/sum(wts), lwd=2, col="red")
+legend("topleft", c("beta=1","beta=0.5","beta=0.05 like naive"),lwd=2, col=c("black","blue","red"))
+title("more weight put on more recent values\nfor 1988 forecast")
+
+## ------------------------------------------------------------------------
+fit <- ets(anchovy, model="AAN")
+fr <- forecast(fit, h=5)
+plot(fr)
+
+## ----fig.height=4--------------------------------------------------------
+autoplot(fit)
+
+## ----echo=FALSE----------------------------------------------------------
+spp <- "Anchovy"
+training = subset(landings, Year <= 1987)
+test = subset(landings, Year >= 1988 & Year <= 1989)
+
+traindat <- subset(training, Species==spp)$log.metric.tons
+testdat <- subset(test, Species==spp)$log.metric.tons
+
+## ----fig.height=4--------------------------------------------------------
+fit1 <- ets(traindat, model="AAN")
+fr <- forecast(fit1, h=2)
+plot(fr)
+points(25:26, testdat, pch=2, col="red")
+legend("topleft", c("forecast","actual"), pch=c(20,2), col=c("blue","red"))
+
+## ------------------------------------------------------------------------
+accuracy(fr, testdat)
+
+## ----echo=FALSE----------------------------------------------------------
+spp <- "Anchovy"
+training = subset(landings, Year <= 1989)
+traindat <- subset(training, Species==spp)$log.metric.tons
+
+## ------------------------------------------------------------------------
+far2 <- function(x, h, model){
+  fit <- ets(x, model=model)
+  forecast(fit, h=h)
+  }
+e <- tsCV(traindat, far2, h=1, model="AAN")
+
+## ------------------------------------------------------------------------
+rmse <- sqrt(mean(e^2, na.rm=TRUE))
+
+## ------------------------------------------------------------------------
+mae <- mean(abs(e), na.rm=TRUE)
+
