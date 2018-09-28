@@ -17,7 +17,7 @@ plot(chinookts)
 library(forecast)
 traindat <- window(chinookts, c(1990,1), c(1999,12))
 fit <- ets(traindat, model="AAA")
-fr <- forecast(fit, h=12)
+fr <- forecast(fit, h=24)
 plot(fr)
 points(window(chinookts, c(1996,1), c(1996,12)))
 
