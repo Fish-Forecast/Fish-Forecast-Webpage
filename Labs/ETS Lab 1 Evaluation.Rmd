@@ -13,7 +13,7 @@ In this lab, you will fit a series of candidate models and prepare a table for t
 We will define the training data as 1964 to 1987 and the test data as 1988 and 1989.
 
 ```{r read_data}
-load("landings.RData")
+load("../landings.RData")
 spp <- "Anchovy"
 landings$log.metric.tons <- log(landings$metric.tons)
 landings <- subset(landings, Species==spp)
@@ -26,7 +26,7 @@ Load the necessary packages.
 
 ```{r load_forecast}
 library(forecast)
-library(tseries)
+library(stringr)
 ```
 
 ## Fit each of our candidate models
@@ -133,7 +133,7 @@ modelnames
 We will run the models and compute the forecast metrics for each and put in a table.
 
 ```{r}
-restab <- data.frame(model=modelnames, RMSE=NA, ME=NA, tsCV.RMSE=NA, AIC=NA, BIC=NA)
+restab <- data.frame(model=modelnames, RMSE=NA, ME=NA, tsCV.RMSE=NA, AIC=NA, BIC=NA, stringsAsFactors = FALSE)
 for(i in modelnames){
   fit <- fit.list[[i]]
   fr <- fr.list[[i]]
@@ -146,8 +146,26 @@ for(i in modelnames){
 }
 ```
 
+Add on $\Delta$AIC and $\Delta$BIC.  Sort by $\Delta$AIC and format to have 3 digits.
+```{r}
+restab$DeltaAIC <- restab$AIC-min(restab$AIC)
+restab$DeltaBIC <- restab$BIC-min(restab$BIC)
+restab <- restab[order(restab$DeltaAIC),]
+resfor <- format(restab, digits=3, trim=TRUE)
+```
+
+Bold the minimum values in each column so they are easy to spot.
+```{r}
+for(i in colnames(resfor)){
+  if(class(restab[,i])=="character") next
+  if(i!="ME") testval <- restab[,i] else testval <- abs(restab[,i])
+  theminrow <- which(testval==min(testval))
+  resfor[theminrow, i] <- paste0("**",resfor[theminrow,i],"**")
+}
+```
+
 This is the table of FORECAST performance metrics.  Not how well it fits the data, but how well it forecasts out of the data.  RSME and ME are for the 2 data points in 1988 and 1989 that were held out for testing.  tsCV.RMSE is the RSME for the time-series crossvalidation that makes a series of forecasts for each point in the data.  AIC and BIC are information criteria, which are a measure of data support for each model.
 
-```{r results='asis'}
-knitr::kable(restab, format="html")
+```{r}
+knitr::kable(resfor)
 ```
