@@ -1,4 +1,4 @@
-# Forecasting
+# Forecasting Webpage
 
 This is based on Mark's slide templates (present) for presentations written in R Markdown using **[xaringan](https://github.com/yihui/xaringan)**, an R package for creating slideshows with **[remark.js](http://remarkjs.com)**.
 
