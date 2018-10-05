@@ -41,7 +41,7 @@ library(forecast)
 ## Load in the data and covariates
 
 We will load in the covariates from the NOAA ERDDAP server:
-```{r, echo=FALSE}
+```{r, echo=FALSE, eval=FALSE}
 library(RCurl)
 library(XML)
 library(stringr)
@@ -78,45 +78,31 @@ save(landings, covs, covsmean.mon, covsmean.year, file="landings.RData")
 load("landings.RData")
 ```
 
-## `xreg` argument for `arima()` function
+## Multivariate linear regression with ARMA errors
 
-The `xreg` argument in the `arima()` function allows you 
+The `stats::arima()` and `forecast::auto.arima()` functions with argument `xreg` fit a multivariate linear regression with ARMA errors.  Note, this is not what is termed a ARMAX model. ARMAX models will be addressed separately.  
 
----
+The model fitted when `xreg` is passed in is:
 
-## Time-series cross-validation with forecast
+\begin{equation}
+\begin{gathered}
+x_t = \alpha + \phi_1 c_{t,1} + \phi_2 c_{t,2} + \dots + z_t \\
+z_t = \beta_1 z_{t-1} + \dots + \beta_p z_{t-p} + e_t + \theta_1 e_{t-1} + \dots + \theta_q e_{t-q}\\
+e_t \sim N(0,\sigma)
+\end{gathered}
+\end{equation}
+where `xreg` is  matrix with $c_{t,1}$ in column 1, $c_{t-2}$ in column 2, etc.  $z_t$ are the ARMA errors.
 
-```{r}
-far2 <- function(x, h, order){
-  forecast(Arima(x, order=order), h=h)
-  }
-e <- tsCV(traindat, far2, h=1, order=c(0,1,1))
-#RMSE
-tsrmse1 <- sqrt(mean(e^2, na.rm=TRUE))
-tsrmse1
-```
+## Multivariate regression of first or second differences
 
-Compare to RMSE from just the 2 test data points.
-```{r}
-test1
-```
+In the multivariate regression with ARMA errors, the response variable $x_t$ is not necessarily stationary since the covariates $c_t$'s need not be stationary.  If we wish to model the first or second differences of $x_t$, then we are potentially modeling a stationary process if differencing leads to a stationary process.
+We need to think carefully about how we set up a multivariate regression if our response variable is stationary.
 
----
+One recommendation is if $x_t$ is differenced, the same differencing is applied to the covariates.  The idea is if the response variable is stationary, we want to make sure that the independent variables are also stationary.  However, in a fisheries application $x_t - x_{t-1}$ often has a biological meaning, the yearly (or monthly or hourly) rate of change, and that rate of change is what one is trying explain with a covariate.  One would not necessarily expect the first difference to be stationary and one is trying to explain any trend in the one-step rate of change with some set of covariates.  On the other hand, if the response variable, the raw data or the first or second difference, is stationary then trying to explain its variability via a non-stationary covariate will clearly lead to the effect size of the covariates being zero.  We don't need to fit a model to tell us that.
+$x_t - x_{t-1}$.
 
-## Cross-validation farther in future
 
-![](figs/tsCV4.png)
+If $x_t-x_{t-1}$ is the response variable, see section below as there are some subtleties in fitting these types of models.
 
----
 
-Compare accuracy of forecasts 1 year out versus 4 years out
-
-```{r}
-e <- tsCV(traindat, far2, h=4, order=c(0,1,1))
-#RMSE
-tsrmse4 <- sqrt(mean(e^2, na.rm=TRUE))
-c(tsrmse1, tsrmse4)
-```
-
----
 

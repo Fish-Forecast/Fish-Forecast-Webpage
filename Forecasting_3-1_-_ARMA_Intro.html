@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Forecasting_3-1_-_ARMA_Intro.utf8.md</title>
+    <title></title>
     <meta charset="utf-8">
     <link rel="stylesheet" href="my-theme.css" type="text/css" />
   </head>
@@ -109,7 +109,7 @@ cor(dat[2:TT], dat[1:(TT-1)])
 ```
 
 ```
-## [1] 0.7219924
+## [1] 0.7053221
 ```
 
 ```r
@@ -117,7 +117,7 @@ cor(dat[11:TT], dat[1:(TT-10)])
 ```
 
 ```
-## [1] 0.2412852
+## [1] 0.120448
 ```
 
 &lt;img src="Forecasting_3-1_-_ARMA_Intro_files/figure-html/acf2-1.png" style="display: block; margin: auto;" /&gt;
@@ -205,23 +205,12 @@ if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
   d.head.appendChild(s);
 })();</script>
 
-<script>
-(function() {
-  var i, text, code, codes = document.getElementsByTagName('code');
-  for (i = 0; i < codes.length;) {
-    code = codes[i];
-    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
-      text = code.textContent;
-      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
-          /^\$\$(.|\s)+\$\$$/.test(text) ||
-          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
-        code.outerHTML = code.innerHTML;  // remove <code></code>
-        continue;
-      }
-    }
-    i++;
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+  tex2jax: {
+    skipTags: ['script', 'noscript', 'style', 'textarea', 'pre']
   }
-})();
+});
 </script>
 <!-- dynamically load mathjax for compatibility with self-contained -->
 <script>

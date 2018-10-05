@@ -246,17 +246,20 @@ $(document).ready(function () {
 <h2>Multivariate linear regression with ARMA errors</h2>
 <p>The <code>stats::arima()</code> and <code>forecast::auto.arima()</code> functions with argument <code>xreg</code> fit a multivariate linear regression with ARMA errors. Note, this is not what is termed a ARMAX model. ARMAX models will be addressed separately.</p>
 <p>The model fitted when <code>xreg</code> is passed in is:</p>
-<p><span class="math display">\[\begin{equation}
+<span class="math display">\[\begin{equation}
 \begin{gathered}
 x_t = \alpha + \phi_1 c_{t,1} + \phi_2 c_{t,2} + \dots + z_t \\
 z_t = \beta_1 z_{t-1} + \dots + \beta_p z_{t-p} + e_t + \theta_1 e_{t-1} + \dots + \theta_q e_{t-q}\\
 e_t \sim N(0,\sigma)
 \end{gathered}
-\end{equation}\]</span> where <code>xreg</code> is matrix with <span class="math inline">\(c_{t,1}\)</span> in column 1, <span class="math inline">\(c_{t-2}\)</span> in column 2, etc. <span class="math inline">\(z_t\)</span> are the ARMA errors.</p>
+\end{equation}\]</span>
+<p>where <code>xreg</code> is matrix with <span class="math inline">\(c_{t,1}\)</span> in column 1, <span class="math inline">\(c_{t-2}\)</span> in column 2, etc. <span class="math inline">\(z_t\)</span> are the ARMA errors.</p>
 </div>
 <div id="multivariate-regression-of-first-or-second-differences" class="section level2">
 <h2>Multivariate regression of first or second differences</h2>
-<p>If the model includes differencing, thus <span class="math inline">\(x_t-x_{t-1}\)</span> is the response variable, see section below as there are some subtleties in fitting these types of models.</p>
+<p>In the multivariate regression with ARMA errors, the response variable <span class="math inline">\(x_t\)</span> is not necessarily stationary since the covariates <span class="math inline">\(c_t\)</span>’s need not be stationary. If we wish to model the first or second differences of <span class="math inline">\(x_t\)</span>, then we are potentially modeling a stationary process if differencing leads to a stationary process. We need to think carefully about how we set up a multivariate regression if our response variable is stationary.</p>
+<p>One recommendation is if <span class="math inline">\(x_t\)</span> is differenced, the same differencing is applied to the covariates. The idea is if the response variable is stationary, we want to make sure that the independent variables are also stationary. However, in a fisheries application <span class="math inline">\(x_t - x_{t-1}\)</span> often has a biological meaning, the yearly (or monthly or hourly) rate of change, and that rate of change is what one is trying explain with a covariate. One would not necessarily expect the first difference to be stationary and one is trying to explain any trend in the one-step rate of change with some set of covariates. On the other hand, if the response variable, the raw data or the first or second difference, is stationary then trying to explain its variability via a non-stationary covariate will clearly lead to the effect size of the covariates being zero. We don’t need to fit a model to tell us that. <span class="math inline">\(x_t - x_{t-1}\)</span>.</p>
+<p>If <span class="math inline">\(x_t-x_{t-1}\)</span> is the response variable, see section below as there are some subtleties in fitting these types of models.</p>
 </div>
 
 

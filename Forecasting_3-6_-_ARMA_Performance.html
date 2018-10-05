@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Forecasting_3-6_-_ARMA_Performance.utf8.md</title>
+    <title></title>
     <meta charset="utf-8">
     <link rel="stylesheet" href="my-theme.css" type="text/css" />
   </head>
@@ -234,11 +234,23 @@ test3 &lt;- accuracy(fr3, testdat)[2,1:5]
 
 ## Cross-Validation
 
-![](figs/tsCV1.png)
+An alternate approach to testing a model's forecast accuracy is to use cross-validation.  This approach uses windows or shorter segments of the whole time series to make a series of single forecasts.  We can use either a sliding or a fixed window.  For example for the Anchovy time series, we could fit the model 1964-1973 and forecast 1974, then 1964-1974 and forecast 1975, then 1964-1975 and forecast 1976, and continue up to 1964-1988 and forecast 1989.  This would create 16 forecasts to test.  The window is 'sliding' because the length of the time series used for fitting the model, keeps increasing by 1.
 
 ---
 
-## Time-series cross-validation with forecast
+&lt;img src="Forecasting_3-6_-_ARMA_Performance_files/figure-html/cv.sliding-1.png" style="display: block; margin: auto;" /&gt;
+
+---
+
+Another approach uses a fixed window.  For example, a 10-year window.
+
+---
+
+&lt;img src="Forecasting_3-6_-_ARMA_Performance_files/figure-html/cv.fixed-1.png" style="display: block; margin: auto;" /&gt;
+
+---
+
+## Time-series cross-validation with the forecast package
 
 
 ```r
@@ -246,47 +258,85 @@ far2 &lt;- function(x, h, order){
   forecast(Arima(x, order=order), h=h)
   }
 e &lt;- tsCV(traindat, far2, h=1, order=c(0,1,1))
-#RMSE
-tsrmse1 &lt;- sqrt(mean(e^2, na.rm=TRUE))
-tsrmse1
+tscv1 &lt;- c(ME=mean(e, na.rm=TRUE), RMSE=sqrt(mean(e^2, na.rm=TRUE)), MAE=mean(abs(e), na.rm=TRUE))
+tscv1
 ```
 
 ```
-## [1] 0.2261706
+##        ME      RMSE       MAE 
+## 0.1128788 0.2261706 0.1880392
 ```
 
 Compare to RMSE from just the 2 test data points.
 
 ```r
-test1
+test1[c("ME","RMSE","MAE")]
 ```
 
 ```
-##         ME       RMSE        MAE        MPE       MAPE 
-## -0.2925326  0.3201093  0.2925326 -3.0243381  3.0243381
+##         ME       RMSE        MAE 
+## -0.2925326  0.3201093  0.2925326
 ```
 
 ---
 
 ## Cross-validation farther in future
 
-![](figs/tsCV4.png)
+&lt;img src="Forecasting_3-6_-_ARMA_Performance_files/figure-html/cv.sliding.4plot-1.png" style="display: block; margin: auto;" /&gt;
+
 
 ---
 
-Compare accuracy of forecasts 1 year out versus 4 years out
+Compare accuracy of forecasts 1 year out versus 4 years out.  If `h` is greater than 1, then the errors are returned as a matrix with each `h` in a column.  Column 4 is the forecast, 4 years out.
 
 
 ```r
-e &lt;- tsCV(traindat, far2, h=4, order=c(0,1,1))
+e &lt;- tsCV(traindat, far2, h=4, order=c(0,1,1))[,4]
 #RMSE
-tsrmse4 &lt;- sqrt(mean(e^2, na.rm=TRUE))
-c(tsrmse1, tsrmse4)
+tscv4 &lt;- c(ME=mean(e, na.rm=TRUE), RMSE=sqrt(mean(e^2, na.rm=TRUE)), MAE=mean(abs(e), na.rm=TRUE))
+rbind(tscv1, tscv4)
 ```
 
 ```
-## [1] 0.2261706 0.3031262
+##              ME      RMSE       MAE
+## tscv1 0.1128788 0.2261706 0.1880392
+## tscv4 0.2839064 0.3812815 0.3359689
 ```
+
+---
+
+Compare accuracy of forecasts with a fixed 10-year window and 1-year out forecasts.
+
+
+```r
+e &lt;- tsCV(traindat, far2, h=1, order=c(0,1,1), window=10)
+#RMSE
+tscvf1 &lt;- c(ME=mean(e, na.rm=TRUE), RMSE=sqrt(mean(e^2, na.rm=TRUE)), MAE=mean(abs(e), na.rm=TRUE))
+tscvf1
+```
+
+```
+##        ME      RMSE       MAE 
+## 0.1387670 0.2286572 0.1942840
+```
+
+---
+
+
+```r
+comp.tab &lt;- rbind(test1=test1[c("ME","RMSE","MAE")],
+      slide1=tscv1,
+      slide4=tscv4,
+      fixed1=tscvf1)
+knitr::kable(comp.tab)
+```
+
+                  ME        RMSE         MAE
+-------  -----------  ----------  ----------
+test1     -0.2925326   0.3201093   0.2925326
+slide1     0.1128788   0.2261706   0.1880392
+slide4     0.2839064   0.3812815   0.3359689
+fixed1     0.1387670   0.2286572   0.1942840
 
 ---
     </textarea>
@@ -305,23 +355,12 @@ if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
   d.head.appendChild(s);
 })();</script>
 
-<script>
-(function() {
-  var i, text, code, codes = document.getElementsByTagName('code');
-  for (i = 0; i < codes.length;) {
-    code = codes[i];
-    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
-      text = code.textContent;
-      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
-          /^\$\$(.|\s)+\$\$$/.test(text) ||
-          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
-        code.outerHTML = code.innerHTML;  // remove <code></code>
-        continue;
-      }
-    }
-    i++;
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+  tex2jax: {
+    skipTags: ['script', 'noscript', 'style', 'textarea', 'pre']
   }
-})();
+});
 </script>
 <!-- dynamically load mathjax for compatibility with self-contained -->
 <script>

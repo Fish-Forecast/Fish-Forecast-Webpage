@@ -40,7 +40,6 @@ library(forecast)
 
 ```{r load_data2, message=FALSE, warning=FALSE, echo=FALSE}
 load("landings.RData")
-landings$log.metric.tons = log(landings$metric.tons)
 ```
 
 ## Measures of forecast fit
@@ -174,42 +173,108 @@ knitr::kable(sum.tests, format="html")
 
 ## Cross-Validation
 
-![](figs/tsCV1.png)
+An alternate approach to testing a model's forecast accuracy is to use cross-validation.  This approach uses windows or shorter segments of the whole time series to make a series of single forecasts.  We can use either a sliding or a fixed window.  For example for the Anchovy time series, we could fit the model 1964-1973 and forecast 1974, then 1964-1974 and forecast 1975, then 1964-1975 and forecast 1976, and continue up to 1964-1988 and forecast 1989.  This would create 16 forecasts to test.  The window is 'sliding' because the length of the time series used for fitting the model, keeps increasing by 1.
 
 ---
 
-## Time-series cross-validation with forecast
+```{r cv.sliding, echo=FALSE}
+p <- list()
+for(i in 1:9){
+  p[[i]]<-ggplot(subset(landings, Species=="Anchovy"&Year<1974+i), aes(x=Year, y=log.metric.tons))+geom_point()+ylab("landings")+xlab("")+xlim(1964,1990)+ylim(8,12)+
+    geom_point(data=subset(landings, Species=="Anchovy"&Year==1974+i),aes(x=Year,y=log.metric.tons),color="red") +
+    ggtitle(paste0("forecast ",i))
+}
+gridExtra::grid.arrange(
+  p[[1]],p[[2]],p[[3]],p[[4]],p[[5]],p[[6]],p[[7]],p[[8]],p[[9]],nrow=3,
+  top = grid::textGrob("Cross-validation: sliding window", gp=grid::gpar(fontsize=20,font=3))
+)
+```
+
+---
+
+Another approach uses a fixed window.  For example, a 10-year window.
+
+---
+
+```{r cv.fixed, echo=FALSE}
+p <- list()
+for(i in 1:9){
+  p[[i]]<-ggplot(subset(landings, Species=="Anchovy"&Year>=1964+i-1&Year<1974+i), aes(x=Year, y=log.metric.tons))+geom_point()+ylab("landings")+xlab("")+xlim(1964,1990)+ylim(8,12)+
+    geom_point(data=subset(landings, Species=="Anchovy"&Year==1974+i),aes(x=Year,y=log.metric.tons),color="red") +
+    ggtitle(paste0("forecast ",i))
+}
+gridExtra::grid.arrange(
+  p[[1]],p[[2]],p[[3]],p[[4]],p[[5]],p[[6]],p[[7]],p[[8]],p[[9]],nrow=3,
+  top = grid::textGrob("Cross-validation: fixed window", gp=grid::gpar(fontsize=20,font=3))
+)
+```
+
+---
+
+## Time-series cross-validation with the forecast package
 
 ```{r}
 far2 <- function(x, h, order){
   forecast(Arima(x, order=order), h=h)
   }
 e <- tsCV(traindat, far2, h=1, order=c(0,1,1))
-#RMSE
-tsrmse1 <- sqrt(mean(e^2, na.rm=TRUE))
-tsrmse1
+tscv1 <- c(ME=mean(e, na.rm=TRUE), RMSE=sqrt(mean(e^2, na.rm=TRUE)), MAE=mean(abs(e), na.rm=TRUE))
+tscv1
 ```
 
 Compare to RMSE from just the 2 test data points.
 ```{r}
-test1
+test1[c("ME","RMSE","MAE")]
 ```
 
 ---
 
 ## Cross-validation farther in future
 
-![](figs/tsCV4.png)
+```{r cv.sliding.4plot, echo=FALSE}
+p <- list()
+for(i in 1:9){
+  p[[i]]<-ggplot(subset(landings, Species=="Anchovy"&Year<1974+i), aes(x=Year, y=log.metric.tons))+geom_point()+ylab("landings")+xlab("")+xlim(1964,1990)+ylim(8,12)+
+    geom_point(data=subset(landings, Species=="Anchovy"&Year==1974+i+3),aes(x=Year,y=log.metric.tons),color="red") +
+    ggtitle(paste0("forecast ",i))
+}
+gridExtra::grid.arrange(
+  p[[1]],p[[2]],p[[3]],p[[4]],p[[5]],p[[6]],p[[7]],p[[8]],p[[9]],nrow=3,
+  top = grid::textGrob("Cross-validation: 4 step ahead forecast", gp=grid::gpar(fontsize=20,font=3))
+)
+```
+
 
 ---
 
-Compare accuracy of forecasts 1 year out versus 4 years out
+Compare accuracy of forecasts 1 year out versus 4 years out.  If `h` is greater than 1, then the errors are returned as a matrix with each `h` in a column.  Column 4 is the forecast, 4 years out.
 
-```{r}
-e <- tsCV(traindat, far2, h=4, order=c(0,1,1))
+```{r cv.sliding.4}
+e <- tsCV(traindat, far2, h=4, order=c(0,1,1))[,4]
 #RMSE
-tsrmse4 <- sqrt(mean(e^2, na.rm=TRUE))
-c(tsrmse1, tsrmse4)
+tscv4 <- c(ME=mean(e, na.rm=TRUE), RMSE=sqrt(mean(e^2, na.rm=TRUE)), MAE=mean(abs(e), na.rm=TRUE))
+rbind(tscv1, tscv4)
+```
+
+---
+
+Compare accuracy of forecasts with a fixed 10-year window and 1-year out forecasts.
+
+```{r fixed.cv.1}
+e <- tsCV(traindat, far2, h=1, order=c(0,1,1), window=10)
+#RMSE
+tscvf1 <- c(ME=mean(e, na.rm=TRUE), RMSE=sqrt(mean(e^2, na.rm=TRUE)), MAE=mean(abs(e), na.rm=TRUE))
+tscvf1
+```
+
+---
+
+```{r results='asis'}
+comp.tab <- rbind(test1=test1[c("ME","RMSE","MAE")],
+      slide1=tscv1,
+      slide4=tscv4,
+      fixed1=tscvf1)
+knitr::kable(comp.tab)
 ```
 
 ---
