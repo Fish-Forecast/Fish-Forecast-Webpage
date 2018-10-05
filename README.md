@@ -51,3 +51,12 @@ cd New-Repo
 git push upstream master
 ```
 
+Or just a file or two
+```
+cd New-Repo
+git status
+git add file1
+git commit file1 -m "my message"
+git status
+git push upstream
+```
