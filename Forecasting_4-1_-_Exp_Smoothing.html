@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Forecasting_4-1_-_Exp_Smoothing.utf8.md</title>
+    <title></title>
     <meta charset="utf-8">
     <link rel="stylesheet" href="my-theme.css" type="text/css" />
   </head>
@@ -110,7 +110,7 @@ fr &lt;- forecast(fit, h=5)
 plot(fr)
 ```
 
-&lt;img src="Forecasting_4-1_-_Exp_Smoothing_files/figure-html/unnamed-chunk-5-1.png" style="display: block; margin: auto;" /&gt;
+&lt;img src="Forecasting_4-1_-_Exp_Smoothing_files/figure-html/unnamed-chunk-4-1.png" style="display: block; margin: auto;" /&gt;
 
 ---
 
@@ -143,7 +143,7 @@ fit
 
 ## The weighting function
 
-&lt;img src="Forecasting_4-1_-_Exp_Smoothing_files/figure-html/unnamed-chunk-7-1.png" style="display: block; margin: auto;" /&gt;
+&lt;img src="Forecasting_4-1_-_Exp_Smoothing_files/figure-html/ann.weighting-1.png" style="display: block; margin: auto;" /&gt;
 
 ---
 
@@ -183,7 +183,7 @@ fr2 &lt;- forecast(fit2, h=5)
 plot(fr2)
 ```
 
-&lt;img src="Forecasting_4-1_-_Exp_Smoothing_files/figure-html/unnamed-chunk-10-1.png" style="display: block; margin: auto;" /&gt;
+&lt;img src="Forecasting_4-1_-_Exp_Smoothing_files/figure-html/unnamed-chunk-7-1.png" style="display: block; margin: auto;" /&gt;
 
 ---
 
@@ -198,7 +198,7 @@ fr.rwf &lt;- forecast(fit.rwf, h=5)
 plot(fr.rwf)
 ```
 
-&lt;img src="Forecasting_4-1_-_Exp_Smoothing_files/figure-html/unnamed-chunk-11-1.png" style="display: block; margin: auto;" /&gt;
+&lt;img src="Forecasting_4-1_-_Exp_Smoothing_files/figure-html/unnamed-chunk-8-1.png" style="display: block; margin: auto;" /&gt;
 
 ---
 
@@ -245,7 +245,7 @@ abline(h=mean(diff(anchovy)),col="red")
 title("0 means no change")
 ```
 
-&lt;img src="Forecasting_4-1_-_Exp_Smoothing_files/figure-html/unnamed-chunk-14-1.png" style="display: block; margin: auto;" /&gt;
+&lt;img src="Forecasting_4-1_-_Exp_Smoothing_files/figure-html/unnamed-chunk-11-1.png" style="display: block; margin: auto;" /&gt;
 
 ---
 
@@ -253,7 +253,7 @@ If we take the average of all `\(x_t - x_{t-1}\)` we are using the average trend
 
 But we could use a weighting that falls off exponentially so that we more recent trends affect the forecast more than trends in the distant past.  That is what an exponential smoothing model with trend does.
 
-&lt;img src="Forecasting_4-1_-_Exp_Smoothing_files/figure-html/unnamed-chunk-15-1.png" style="display: block; margin: auto;" /&gt;
+&lt;img src="Forecasting_4-1_-_Exp_Smoothing_files/figure-html/unnamed-chunk-12-1.png" style="display: block; margin: auto;" /&gt;
 
 ---
 
@@ -285,7 +285,7 @@ fr &lt;- forecast(fit, h=5)
 plot(fr)
 ```
 
-&lt;img src="Forecasting_4-1_-_Exp_Smoothing_files/figure-html/unnamed-chunk-16-1.png" style="display: block; margin: auto;" /&gt;
+&lt;img src="Forecasting_4-1_-_Exp_Smoothing_files/figure-html/unnamed-chunk-13-1.png" style="display: block; margin: auto;" /&gt;
 
 ---
 
@@ -298,7 +298,7 @@ Sometimes you would like to see the smoothed level and smoothed trend that the m
 autoplot(fit)
 ```
 
-&lt;img src="Forecasting_4-1_-_Exp_Smoothing_files/figure-html/unnamed-chunk-17-1.png" style="display: block; margin: auto;" /&gt;
+&lt;img src="Forecasting_4-1_-_Exp_Smoothing_files/figure-html/unnamed-chunk-14-1.png" style="display: block; margin: auto;" /&gt;
 
 ---
 
@@ -326,7 +326,7 @@ points(length(traindat)+1:h, testdat, pch=2, col="red")
 legend("topleft", c("forecast","actual"), pch=c(20,2), col=c("blue","red"))
 ```
 
-&lt;img src="Forecasting_4-1_-_Exp_Smoothing_files/figure-html/unnamed-chunk-19-1.png" style="display: block; margin: auto;" /&gt;
+&lt;img src="Forecasting_4-1_-_Exp_Smoothing_files/figure-html/unnamed-chunk-16-1.png" style="display: block; margin: auto;" /&gt;
 
 ---
 
@@ -588,23 +588,12 @@ if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
   d.head.appendChild(s);
 })();</script>
 
-<script>
-(function() {
-  var i, text, code, codes = document.getElementsByTagName('code');
-  for (i = 0; i < codes.length;) {
-    code = codes[i];
-    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
-      text = code.textContent;
-      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
-          /^\$\$(.|\s)+\$\$$/.test(text) ||
-          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
-        code.outerHTML = code.innerHTML;  // remove <code></code>
-        continue;
-      }
-    }
-    i++;
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+  tex2jax: {
+    skipTags: ['script', 'noscript', 'style', 'textarea', 'pre']
   }
-})();
+});
 </script>
 <!-- dynamically load mathjax for compatibility with self-contained -->
 <script>

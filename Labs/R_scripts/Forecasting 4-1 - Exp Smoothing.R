@@ -32,7 +32,7 @@ anchovy <- subset(landings,
                   Species=="Anchovy" & Year<=1987)$log.metric.tons
 library(forecast)
 
-## ------------------------------------------------------------------------
+## ----fit.ann-------------------------------------------------------------
 fit <- ets(anchovy, model="ANN")
 fr <- forecast(fit, h=5)
 
@@ -42,7 +42,7 @@ plot(fr)
 ## ------------------------------------------------------------------------
 fit
 
-## ----echo=FALSE----------------------------------------------------------
+## ----ann.weighting, echo=FALSE-------------------------------------------
 alpha <- coef(fit)[1]
 wts <- alpha*(1-alpha)^(0:23)
 plot(1987:1964, wts/sum(wts), lwd=2, ylab="weight", xlab="", type="l")
@@ -51,7 +51,7 @@ title("Weighting for simple exp. smooth of anchovy")
 ## ------------------------------------------------------------------------
 fit1 <- ets(anchovy, model="ANN")
 
-## ------------------------------------------------------------------------
+## ----fit.new.ann---------------------------------------------------------
 dat <- subset(landings, Species=="Anchovy" & Year>=2000 & Year<=2007)
 dat <- dat$log.metric.tons
 fit2 <- ets(dat, model=fit1)
@@ -117,12 +117,12 @@ legend("topleft", c("forecast","actual"), pch=c(20,2), col=c("blue","red"))
 ## ------------------------------------------------------------------------
 accuracy(fr, testdat)
 
-## ----echo=FALSE----------------------------------------------------------
+## ----subset.anch, echo=FALSE---------------------------------------------
 spp <- "Anchovy"
 training = subset(landings, Year <= 1989)
 traindat <- subset(training, Species==spp)$log.metric.tons
 
-## ------------------------------------------------------------------------
+## ----def.far2------------------------------------------------------------
 far2 <- function(x, h, model){
   fit <- ets(x, model=model)
   forecast(fit, h=h)
@@ -157,9 +157,9 @@ fit1 <- ets(traindat, model="AAN")
 e <- tsCV(traindat, far2, h=1, model=fit1)
 e
 
-## ------------------------------------------------------------------------
+## ----rmse----------------------------------------------------------------
 rmse <- sqrt(mean(e^2, na.rm=TRUE))
 
-## ------------------------------------------------------------------------
+## ----mae-----------------------------------------------------------------
 mae <- mean(abs(e), na.rm=TRUE)
 

@@ -194,8 +194,6 @@ gridExtra::grid.arrange(
 
 Another approach uses a fixed window.  For example, a 10-year window.
 
----
-
 ```{r cv.fixed, echo=FALSE}
 p <- list()
 for(i in 1:9){
@@ -274,8 +272,7 @@ comp.tab <- rbind(test1=test1[c("ME","RMSE","MAE")],
       slide1=tscv1,
       slide4=tscv4,
       fixed1=tscvf1)
-knitr::kable(comp.tab)
+knitr::kable(comp.tab, format="html")
 ```
 
----
 

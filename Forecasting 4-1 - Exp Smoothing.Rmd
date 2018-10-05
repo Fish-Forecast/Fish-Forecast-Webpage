@@ -118,7 +118,7 @@ anchovy <- subset(landings,
 library(forecast)
 ```
 
-```{r}
+```{r fit.ann}
 fit <- ets(anchovy, model="ANN")
 fr <- forecast(fit, h=5)
 ```
@@ -141,7 +141,7 @@ fit
 
 ## The weighting function
 
-```{r echo=FALSE}
+```{r ann.weighting, echo=FALSE}
 alpha <- coef(fit)[1]
 wts <- alpha*(1-alpha)^(0:23)
 plot(1987:1964, wts/sum(wts), lwd=2, ylab="weight", xlab="", type="l")
@@ -162,7 +162,7 @@ fit1 <- ets(anchovy, model="ANN")
 
 Use that model with the 2000-2007 data and produce a forecast:
 
-```{r}
+```{r fit.new.ann}
 dat <- subset(landings, Species=="Anchovy" & Year>=2000 & Year<=2007)
 dat <- dat$log.metric.tons
 fit2 <- ets(dat, model=fit1)
@@ -331,7 +331,7 @@ In this approach, we don't have test data.  Instead we will use all the data for
 
 We will redefine `traindat` as all our Anchovy data.
 
-```{r echo=FALSE}
+```{r subset.anch, echo=FALSE}
 spp <- "Anchovy"
 training = subset(landings, Year <= 1989)
 traindat <- subset(training, Species==spp)$log.metric.tons
@@ -343,7 +343,7 @@ traindat <- subset(training, Species==spp)$log.metric.tons
 
 We will use the `tsCV()` function.  We need to define a function that returns a forecast.
 
-```{r}
+```{r def.far2}
 far2 <- function(x, h, model){
   fit <- ets(x, model=model)
   forecast(fit, h=h)
@@ -418,12 +418,12 @@ e
 Now we can compute forecast accuracy metrics from the forecast errors (`e`).
 
 RMSE: root mean squared error
-```{r}
+```{r rmse}
 rmse <- sqrt(mean(e^2, na.rm=TRUE))
 ```
 
 MAE: mean absolute error
-```{r}
+```{r mae}
 mae <- mean(abs(e), na.rm=TRUE)
 ```
 

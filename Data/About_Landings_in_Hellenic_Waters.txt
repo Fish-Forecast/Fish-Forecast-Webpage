@@ -11,3 +11,9 @@ In the table, sardine is denoted ' Pilchard'
 
 I saved all the ones I took data from.
 
+library(reshape2)
+test <- read.csv("Data/Landings_in_Hellenic_Waters.csv", stringsAsFactors = FALSE)
+test <- melt(test, id="Year", value.name="metric.tons", variable.name="Species")
+test$log.metric.tons <- log(test$metric.tons)
+landings <- test
+save(landings, file="test.RData")

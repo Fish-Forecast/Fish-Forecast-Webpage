@@ -244,8 +244,6 @@ An alternate approach to testing a model's forecast accuracy is to use cross-val
 
 Another approach uses a fixed window.  For example, a 10-year window.
 
----
-
 &lt;img src="Forecasting_3-6_-_ARMA_Performance_files/figure-html/cv.fixed-1.png" style="display: block; margin: auto;" /&gt;
 
 ---
@@ -328,17 +326,45 @@ comp.tab &lt;- rbind(test1=test1[c("ME","RMSE","MAE")],
       slide1=tscv1,
       slide4=tscv4,
       fixed1=tscvf1)
-knitr::kable(comp.tab)
+knitr::kable(comp.tab, format="html")
 ```
 
-                  ME        RMSE         MAE
--------  -----------  ----------  ----------
-test1     -0.2925326   0.3201093   0.2925326
-slide1     0.1128788   0.2261706   0.1880392
-slide4     0.2839064   0.3812815   0.3359689
-fixed1     0.1387670   0.2286572   0.1942840
-
----
+&lt;table&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:left;"&gt;   &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; ME &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; RMSE &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; MAE &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; test1 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; -0.2925326 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0.3201093 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0.2925326 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; slide1 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0.1128788 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0.2261706 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0.1880392 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; slide4 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0.2839064 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0.3812815 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0.3359689 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; fixed1 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0.1387670 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0.2286572 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0.1942840 &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
     </textarea>
 <script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
 <script>var slideshow = remark.create({
