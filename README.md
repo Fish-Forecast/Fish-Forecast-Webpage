@@ -1,5 +1,9 @@
 # Forecasting Webpage
 
+This is a webpage for the Fish Forecasting lectures and labs.  To use is as a template for a specific course, see notes below on how to copy into another repository.
+
+## Lecture slides
+
 This is based on Mark's slide templates (present) for presentations written in R Markdown using **[xaringan](https://github.com/yihui/xaringan)**, an R package for creating slideshows with **[remark.js](http://remarkjs.com)**.
 
 Put external (meaning not produced by R within the Rmarkdown file) figures and pictures in directory 'figs'.
@@ -56,13 +60,16 @@ git push origin master
 
 If you make changes in New-Repo and want to merge into Fish-Forecast-Webpage...  Oh dear, that's probably a recipe for a slew of merge conflicts but here's the code.
 
+Push everything into upstream. Make sure that is what you really want to do.
+
 ```
 # make sure at New-Repo
 cd New-Repo
 git push upstream master
 ```
 
-Or just a file or two
+Or just a file or two. Use `git status` to double-check what is going to be pushed.
+
 ```
 cd New-Repo
 git status
