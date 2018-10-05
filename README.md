@@ -41,6 +41,17 @@ cd New-Repo
 git pull upstream master
 ```
 
+Updating just one file, file1, from upstream. Something like this might work.
+
+```
+cd New-Repo
+git fetch upstream
+git checkout -m upstream/master -- file1
+git add file1
+git commit -m "my message"
+git push origin master
+```
+
 ## Merge changes from New-Repo back into the original
 
 If you make changes in New-Repo and want to merge into Fish-Forecast-Webpage...  Oh dear, that's probably a recipe for a slew of merge conflicts but here's the code.
