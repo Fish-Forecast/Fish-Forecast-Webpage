@@ -27,8 +27,7 @@ To clone this for another course. Do this once.
   * push the local master branch to the remote called origin
 
 ```
-cd New-Repo
-git clone https://github.com/Fish-Forecast/Fish-Forecast-Webpage 
+git clone https://github.com/Fish-Forecast/Fish-Forecast-Webpage New-Repo
 cd New-Repo
 git remote set-url origin https://github.com/Fish-Forecast/New-Repo
 git remote add upstream https://github.com/Fish-Forecast/Fish-Forecast-Webpage
