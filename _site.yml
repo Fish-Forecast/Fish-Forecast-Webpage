@@ -15,13 +15,11 @@ navbar:
       href: Exp_Smoothing.html
   right:
     - icon: fa-home
-      href: https://rverse-tutorials.github.io/Fish-Forecast-Training-Course/
-    - icon: fa-wrench
-      href: https://rverse-tutorials.github.io/RWorkflow-Workshop
+      href: https://fish-forecast.github.io/
     - icon: fa-line-chart
-      href: https://fish-forecast.github.io/Catch-Forecasting-INCOIS/
+      href: https://fish-forecast.github.io/Fish-Forecast-Webpage/
     - icon: fa-github
-      href: https://github.com/Fish-Forecast/Catch-Forecasting-INCOIS
+      href: https://github.com/Fish-Forecast/Fish-Forecast-Webpage
 output:
   html_document:
     theme: readable
