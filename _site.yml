@@ -16,8 +16,6 @@ navbar:
   right:
     - icon: fa-home
       href: https://fish-forecast.github.io/
-    - icon: fa-line-chart
-      href: https://fish-forecast.github.io/Fish-Forecast-Webpage/
     - icon: fa-github
       href: https://github.com/Fish-Forecast/Fish-Forecast-Webpage
 output:

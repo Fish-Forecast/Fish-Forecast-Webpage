@@ -11,7 +11,7 @@
 
 
 
-<title>Set-up</title>
+<title></title>
 
 <script src="site_libs/jquery/jquery.min.js"></script>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -305,12 +305,6 @@ $(document).ready(function () {
   </a>
 </li>
 <li>
-  <a href="https://fish-forecast.github.io/Fish-Forecast-Webpage/">
-    <span class="fa fa-line-chart"></span>
-     
-  </a>
-</li>
-<li>
   <a href="https://github.com/Fish-Forecast/Fish-Forecast-Webpage">
     <span class="fa fa-github"></span>
      
@@ -325,26 +319,71 @@ $(document).ready(function () {
 
 
 
-<h1 class="title toc-ignore">Set-up</h1>
 
 </div>
 
 
-<p>For full set-up including R and RStudio, go to <a href="https://rverse-tutorials.github.io/Fish-Forecast-Training-Course/set-up.html">full setup</a></p>
-<p>Set-up:</p>
+<div id="install-r-and-rstudio" class="section level2">
+<h2>Install R and RStudio</h2>
+<ul>
+<li><p><strong>R:</strong> Make sure you have the latest version of R.<br />
+Go to <a href="https://cran.r-project.org/" class="uri">https://cran.r-project.org/</a> and find the download link for your computer system.</p></li>
+<li><p><strong>RStudio:</strong> Install the latest version of RStudio. Get it from <a href="https://www.rstudio.com/products/rstudio/download" class="uri">https://www.rstudio.com/products/rstudio/download</a> and install the appropriate one for your OS.</p></li>
+</ul>
+<p>For full set-up instructions including Git and GitHub (optional), go to <a href="https://rverse-tutorials.github.io/Fish-Forecast-Training-Course/set-up.html">full setup</a></p>
+</div>
+<div id="download-files-and-packages" class="section level2">
+<h2>Download Files and Packages</h2>
 <ol style="list-style-type: decimal">
-<li>Go to <a href="https://github.com/eeholmes/Catch-Forecasting-Files" class="uri">https://github.com/eeholmes/Catch-Forecasting-Files</a> and copy all the files into a directory.</li>
+<li>Go to <a href="https://github.com/Fish-Forecast/Catch-Forecasting-Files" class="uri">https://github.com/Fish-Forecast/Catch-Forecasting-Files</a> and copy all the files into a directory.</li>
 </ol>
 <ul>
 <li><p>If GitHub Desktop works for you, then you can click ‘Clone or download’ and then click open in Desktop.</p></li>
 <li><p>If GitHub Desktop is not working for you, then click ‘Clone or download’ and then download a zip file and unzip on your computer.</p></li>
 </ul>
 <ol start="2" style="list-style-type: decimal">
-<li><p>Open RStudio and ‘New Project’ in the upper right. Then select ‘From Existing Directory’ and select the directory where the ‘Catch-Forecasting-Files’ files are.</p></li>
+<li><p>Open RStudio and ‘New Project’ in the upper right. Then select ‘From Existing Directory’ and select the directory where you put the ‘Catch-Forecasting-Files’ files are.</p></li>
 <li><p>Next time you open RStudio, you can select your project from the upper right..</p></li>
 <li><p>Install <strong>other packages</strong> that we are going to be need. I have created a package on GitHub that will install the packages you need. This will probably take <strong>awhile</strong> as the first time you do it, many packages will be loaded.</p></li>
 </ol>
-<pre class="r"><code>devtools::install_github(&quot;RVerse-Tutorials/RWorkflowsetup&quot;)</code></pre>
+<pre class="r"><code>if(!(&quot;devtools&quot; %in% installed.packages()))
+  install.packages(&quot;devtools&quot;)
+devtools::install_github(&quot;RVerse-Tutorials/RWorkflowsetup&quot;)</code></pre>
+The RWorkflowsetup package will install the packages listed under “Imports:”
+<pre>
+Package: RWorkflowsetup
+Title: Loads Needed Packages
+Version: 1.0
+Author: Eli Holmes
+Maintainer: <eli.holmes@noaa.gov>
+Description: This is a dummy package that will load the needed packages for the short course when students install from GitHub.
+Depends: R (>= 3.4.1)
+Imports: 
+  devtools,
+  dplyr (>= 0.7.5),
+  forecast (>= 8.4),
+  ggplot2 (>= 3.0.0),
+  grid (>= 3.4.1),
+  gridExtra (>= 2.3),
+  knitr (>= 1.20),
+  magrittr (>= 1.5),
+  png (>= 0.1-7),
+  reshape2 (>= 1.4.3),
+  RCurl,
+  roxygen2 (>= 6.1.0),
+  stringr (>= 1.3.1),
+  tseries (>= 0.10-45),
+  urca (>= 1.3-0),
+  kableExtra (>= 0.9.0),
+  xaringan,
+  huxtable,
+  rmarkdown (>= 1.10)
+License: GPL-2
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 6.1.0
+</pre>
+</div>
 
 
 

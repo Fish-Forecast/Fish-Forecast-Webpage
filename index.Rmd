@@ -7,7 +7,7 @@ title: "Forecasting Catch Time Series"
 library(fontawesome)
 ```
 
-This course will teach a number of standard approaches for forecasting from catch time series using the data and methods discussed in Stergiou and Christou (1996) Modelling and forecasting annual fisheries catches: comparison of regression, univariate and multivariate time series methods. Fisheries Research 25: 105-136.
+This course will teach a number of standard approaches for forecasting from catch time series using the data and methods discussed in Stergiou and Christou (1996) *Modelling and forecasting annual fisheries catches: comparison of regression, univariate and multivariate time series methods.* Fisheries Research 25: 105-136.
 
 # Course Syllabus
 
@@ -18,6 +18,10 @@ This course will teach a number of standard approaches for forecasting from catc
 - Exponential smoothing
 - Modelling time series with seasonality
 - Forecast diagnostics and accuracy metrics
+
+# e-Text and other courses
+
+An online book of the material is [Fisheries Catch Forecasting](https://fish-forecast.github.io/Fish-Forecast-Bookdown/).  Links to our other workshops and courses on similar material can be found at the [NWFSC Applied Time Series Analysis](https://nwfsc-timeseries.github.io/) website.
 
 # References
 

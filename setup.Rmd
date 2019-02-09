@@ -1,5 +1,5 @@
 ---
-title: "Set-up"
+title: ""
 ---
 
 ```{r tangle_R_files, include=FALSE, echo=FALSE}
@@ -30,22 +30,40 @@ rmarkdown::render(infil, output_file=outfil)
 }
 ```
 
-For full set-up including R and RStudio, go to [full setup](https://rverse-tutorials.github.io/Fish-Forecast-Training-Course/set-up.html)
+## Install R and RStudio
 
-Set-up:
+* **R:**  Make sure you have the latest version of R.  
+Go to [https://cran.r-project.org/](https://cran.r-project.org/) and find the download link for your computer system.
 
-1. Go to https://github.com/eeholmes/Catch-Forecasting-Files and copy all the files into a directory.
+* **RStudio:** Install the latest version of RStudio.  Get it from [https://www.rstudio.com/products/rstudio/download](https://www.rstudio.com/products/rstudio/download) and install the appropriate one for your OS.
+
+For full set-up instructions including Git and GitHub (optional), go to [full setup](https://rverse-tutorials.github.io/Fish-Forecast-Training-Course/set-up.html)
+
+##Download Files and Packages
+
+1. Go to https://github.com/Fish-Forecast/Catch-Forecasting-Files and copy all the files into a directory.
 
 - If GitHub Desktop works for you, then you can click 'Clone or download' and then click open in Desktop.
 
 - If GitHub Desktop is not working for you, then click 'Clone or download' and then download a zip file and unzip on your computer.
 
-2. Open RStudio and 'New Project' in the upper right.  Then select 'From Existing Directory' and select the directory where the 'Catch-Forecasting-Files' files are.
+2. Open RStudio and 'New Project' in the upper right.  Then select 'From Existing Directory' and select the directory where you put the 'Catch-Forecasting-Files' files are.
 
 3. Next time you open RStudio, you can select your project from the upper right..
 
 2. Install **other packages** that we are going to be need. I have created a package on GitHub that will install the packages you need.  This will probably take **awhile** as the first time you do it, many packages will be loaded.
 
 ```{r get-packages, eval=FALSE}
+if(!("devtools" %in% installed.packages()))
+  install.packages("devtools")
 devtools::install_github("RVerse-Tutorials/RWorkflowsetup")
 ```
+
+The RWorkflowsetup package will install the packages listed under "Imports:"
+<pre>
+```{r get-DESC, results='asis', echo=FALSE}
+desc <- RCurl::getURL("https://raw.githubusercontent.com/RVerse-Tutorials/RWorkflowsetup/master/DESCRIPTION")
+#desc <- stringr::str_replace_all(desc, "\n", "</br>\n")
+cat(desc)
+```
+</pre>
