@@ -331,14 +331,13 @@ $(document).ready(function () {
 <h2>Multivariate linear regression with ARMA errors</h2>
 <p>The <code>stats::arima()</code> and <code>forecast::auto.arima()</code> functions with argument <code>xreg</code> fit a multivariate linear regression with ARMA errors. Note, this is not what is termed a ARMAX model. ARMAX models will be addressed separately.</p>
 <p>The model fitted when <code>xreg</code> is passed in is:</p>
-<span class="math display">\[\begin{equation}
+<p><span class="math display">\[\begin{equation}
 \begin{gathered}
 x_t = \alpha + \phi_1 c_{t,1} + \phi_2 c_{t,2} + \dots + z_t \\
 z_t = \beta_1 z_{t-1} + \dots + \beta_p z_{t-p} + e_t + \theta_1 e_{t-1} + \dots + \theta_q e_{t-q}\\
 e_t \sim N(0,\sigma)
 \end{gathered}
-\end{equation}\]</span>
-<p>where <code>xreg</code> is matrix with <span class="math inline">\(c_{t,1}\)</span> in column 1, <span class="math inline">\(c_{t-2}\)</span> in column 2, etc. <span class="math inline">\(z_t\)</span> are the ARMA errors.</p>
+\end{equation}\]</span> where <code>xreg</code> is matrix with <span class="math inline">\(c_{t,1}\)</span> in column 1, <span class="math inline">\(c_{t-2}\)</span> in column 2, etc. <span class="math inline">\(z_t\)</span> are the ARMA errors.</p>
 </div>
 <div id="multivariate-regression-of-first-or-second-differences" class="section level2">
 <h2>Multivariate regression of first or second differences</h2>

@@ -1,0 +1,161 @@
+---
+output:
+  xaringan::moon_reader:
+    css: "my-theme.css"
+    lib_dir: libs
+    nature:
+      highlightStyle: github
+      highlightLines: true
+---
+
+layout: true
+
+.hheader[<a href="index.html">`r fontawesome::fa("home", fill = "steelblue")`</a>]
+
+---
+
+```{r setup, include=FALSE, message=FALSE}
+options(htmltools.dir.version = FALSE, servr.daemon = TRUE)
+knitr::opts_chunk$set(fig.height=5)
+library(huxtable)
+```
+
+class: center, middle, inverse
+# Developing Forecasting Models for Fisheries Time Series with R
+## PSAW 2019 --- 11 Feb 2019
+
+.futnote[Eli Holmes, NOAA Fisheries]
+
+.citation[eli.holmes@noaa.gov]
+
+---
+
+## Today's objective
+
+* Learn the Box-Jenkins method for developing a ARIMA forecasting model in R
+
+* Learn how to develop an exponential smoothing (ETS) model for forecasting in R
+
+* Main R package you will learn is **forecast** by Rob Hyndman, Monash University, Australia.  You will also use the base time series functions in R but we will focus on **forecast**.
+
+* You will be working with univariate data with no covariates.
+
+---
+
+## Non-seasonal Data
+
+No season. All years. If data are missing, then they are entered as NA.
+
+```{r}
+load("landings.RData")
+class(landings)
+head( subset(landings, Species=="Anchovy") )
+```
+
+---
+
+## Seasonal Data
+
+No season. All years and seasons (months, quarters, hours). If data are missing, then they are entered as NA.  Only one season.  So not daily plus monthly cycle.
+
+```{r}
+load("chinook.RData")
+head( subset(chinook, Species=="Chinook") )
+```
+
+---
+
+## State-space time series models (Mark's workshop) vs ARIMA
+
+Let's imagine that we can describe our data as a combination of the mean trend and error.
+
+$$x_t = m_t + e_t$$
+
+What if our main goal is to predict $x_{t+1}$?  
+
+Note we (fisheries biologists and ecologists) often want to know $m_t$. In fact, that is often our main and sole goal.  But let's say our goal is to predict $x_{t+1}$.
+
+---
+
+## Approach #1 State-space models as applied in Mark's workshop
+
+[Time Series Analysis, PSAW II AM](https://mdscheuerell.github.io/PSAW2/)
+
+We estimate $m_t$ from the data.  Once we have an estimate of $m_t$, we have an estimate of $e_t$.  We can model that error (think AR and MA) to help us predict future $x_t$ from $x_{t-1}$.
+
+We will have a model for the $m_t$ and we will fit
+$$x_t = m_t + e_t$$ 
+directly.  We will get an estimate of the model that produced $m_t$.   The $x_t$ and $m_t$ models will have a biological interpretation.
+
+---
+
+So for example if our model is
+
+$$m_t = m_{t-1}+\mu \\ x_t = m_t + e_t, \,\, e_t \sim N(0,\sigma)$$
+
+Then we fit that model without taking any transforming our data.  
+
+Note the above is just a linear deterministic trend observed with error, i.e. a linear regression against time.
+
+---
+
+## Approach #2 Box-Jenkins
+
+The Box-Jenkins approach is different. In this approach to predicting $x_{t+1}$, we remove $m_t$ from our data using differencing.  We don't have to worry about a model for $m_t$ because we have removed it!  
+
+And we don't actually need $m_t$ to predict $x_{t+1}$ since we have $x_{t}$, $x_{t-1}$, etc.  
+
+We model $\Delta x_t$ and then predict $\Delta x_{t+1}$. $\Delta x_t$ is $x_t-x_{t-1}$. Once we have that we can predict $x_{t+1}$ by using $x_t$, $x_{t-1}$, etc with some algebra.
+
+*We might also use a d-th difference.
+
+---
+
+The error structure of $\Delta x_{t+1}$ is NOT the same as $e_t$. 
+$$\Delta x_{t} = \phi_1\Delta x_{t-1} + \phi_2\Delta x_{t-2} + \dots + z_t$$
+
+This is a model for the DIFFERENCES and $z_t$ is the error of the differences. It is more difficult to make a biological interpretation of the ARMA model.  But remember, the objective was to predict $x_{t+1}$ not to fit a model with a biological interpretation.
+
+---
+
+## Examples of differencing, linear trend
+
+$m_t$ is linear and deterministic.
+
+$$x_t = \mu t + w_t$$
+
+```{r, echo=FALSE}
+set.seed(123)
+n=100
+sd=sqrt(.1)
+mu=0.02
+mt=mu*(1:n)
+et=rnorm(n,0,sd)
+xt=mt+et
+plot(xt[1:100],type="l")
+```
+
+---
+
+When we take the first difference, we get
+$$\Delta x_t = \mu (t - (t-1)) + w_t - w_{t-1} = \mu + w_t - w_{t-1}$$
+
+$w_t - w_{t-1}$ are now the errors in the model.
+
+---
+
+## More resources
+
+Rob Hyndman book on forecasting and the **forecast** package: [Forecasting Principals and Practice](https://otexts.org/fpp2/)
+
+NWFSC Time Series Analysis: https://nwfsc-timeseries.github.io/  (PIs: Eli Holmes, Mark Scheurell, Eric Ward)
+
+* Courses on multivariate and univariate time series analysis applied to messy fisheries and ecological data.
+
+* R packages for fitting time series models.  Bayesian and maximum-likelihood.
+
+* online books:
+
+  - [Applied Time-Series Analysis for Fisheries and Environmental Data](https://nwfsc-timeseries.github.io/atsa-labs/)
+  
+  - [Fisheries Catch Forecasting](https://fish-forecast.github.io/Fish-Forecast-Bookdown/)

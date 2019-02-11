@@ -183,7 +183,9 @@ A. Model form selection
   2. Selection of the differencing level (d)
   3. Selection of the AR level (p)
   4. Selection of the MA level (q)
+
 B. Parameter estimation
+
 C. Model checking
 
 ---

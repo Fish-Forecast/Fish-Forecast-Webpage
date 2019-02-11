@@ -25,3 +25,10 @@ title: "ARMA Models"
 - Lecture 6 [Cross Validation](Forecasting_3-6_-_ARMA_Performance.html)
 
 - Lab 5 Test your forecasts [R Code from Lecture 6](Labs/R_scripts/Forecasting 3-6 - ARMA Performance.R)
+
+- Lecture 7 [Seasonal ARMA Models](Forecasting_3-7_-_ARMA_Seasonal_Models.html)
+
+- Lab 6 Seasonal models [R Code from Lecture 6](Labs/R_scripts/Forecasting 3-7 - ARMA Seasonal Models.R)
+
+
+

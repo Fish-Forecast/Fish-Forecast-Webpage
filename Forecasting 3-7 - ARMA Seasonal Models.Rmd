@@ -1,0 +1,294 @@
+---
+output:
+  xaringan::moon_reader:
+    css: "my-theme.css"
+    lib_dir: libs
+    nature:
+      highlightStyle: github
+      highlightLines: true
+---
+
+layout: true
+
+.hheader[<a href="index.html">`r fontawesome::fa("home", fill = "steelblue")`</a>]
+
+---
+
+```{r setup, include=FALSE, message=FALSE}
+options(htmltools.dir.version = FALSE, servr.daemon = TRUE)
+knitr::opts_chunk$set(fig.height=5, fig.align="center")
+library(huxtable)
+```
+
+class: center, middle, inverse
+# Seasonal ARIMA Models
+
+.futnote[Eli Holmes, NOAA Fisheries]
+
+.citation[eli.holmes@noaa.gov]
+
+---
+
+```{r load_data, echo=FALSE, message=FALSE, warning=FALSE}
+library(ggplot2)
+library(gridExtra)
+library(reshape2)
+library(tseries)
+library(forecast)
+```
+
+## Seasonality
+
+Load the chinook salmon data set
+
+```{r}
+load("chinook.RData")
+head(chinook)
+```
+
+---
+
+The data are monthly and start in January 1990.  To make this into a ts object do
+
+```{r}
+chinookts <- ts(chinook$log.metric.tons, start=c(1990,1), 
+                frequency=12)
+```
+`start` is the year and month and frequency is the number of months in the year.  
+
+Use `?ts` to see more examples of how to set up ts objects.
+
+---
+
+## Plot seasonal data
+
+```{r}
+plot(chinookts)
+```
+
+---
+
+## Seasonal ARIMA model
+
+Seasonally differenced data:
+
+$$z_t = x_t - x_{t+s} - m$$
+
+Basic structure of a seasonal AR model
+
+$z_t$ = AR(p) + AR(season) + AR(p+season)
+
+
+Example AR(1) non-seasonal part + AR(1) seasonal part
+
+$$z_t = \phi_1 z_{t-1} + \Phi_1 z_{t-12} - \phi_1\Phi_1 z_{t-13}$$
+
+---
+
+## Notation
+
+ARIMA (p,d,q)(ps,ds,qs)S
+
+
+ARIMA (1,0,0)(1,1,0)[12]
+
+Notice we are modeling $x$ this year in Jan (say) as a function of $x$ in Jan last year.
+
+---
+
+## Seasonal models
+
+Let's imagine that we can describe our data as a combination of the mean trend, a seasonal term, and error.
+
+$$x_t = \mu t+ s_t + w_t$$
+Let's imagine that the seasonal term is just a constant based on month and doesn't change with time.
+
+$$s_t = f(month)$$
+
+---
+
+We want to remove the $s_t$ with differencing so that we can model $e_t$.  We can solve for $x_{t+1}$ by using $x_{t-s}$ where $s$ is the seasonal length (e.g. 12 if season is yearly).
+
+When we take the first seasonal difference, we get
+$$\Delta_s x_t = \mu(t-(t-s)) + s_t - s_{t-s} + w_t - w_{t-s} = \mu s + w_t - w_{t-s}$$
+The $s_t-s_{t-s}$ disappears because $s_t = s_{t-s}$ when the seasonal effect is just a function of the month.  Depending on what $m_t$ is, we might be done or we might have to do a first difference.  Notice that the error term is a moving average in the seasonal part.
+
+---
+
+```{r, echo=FALSE}
+set.seed(123)
+yr=10
+s=12
+sd=sqrt(.1)
+mu=0.05
+st=sin(pi*(1:(s*yr))/(s/2))
+mt=mu*(1:(s*yr))
+et=rnorm(s*yr,0,sd)
+xt=mt+st+et
+xt=ts(xt,start=1,frequency=12)
+plot(xt)
+```
+
+```{r}
+plot(diff(xt,lag=12))
+```
+
+---
+
+We can recover the model parameters with `Arima()`. Note the drift term is returned at $\mu$ not $\mu s$.
+```{r}
+forecast::Arima(xt, seasonal=c(0,1,1), include.drift=TRUE)
+```
+
+---
+
+`auto.arima()` identifies a ARIMA(0,0,0)(0,1,2)[12].
+```{r}
+forecast::auto.arima(xt, stepwise=FALSE)
+```
+
+---
+
+## Seasonal model with changing season
+
+Let's imagine that our seasonality is increasing over time.
+
+$$s_t = \beta \times year \times f(month)\times$$
+When we take the first seasonal difference, we get
+$$\Delta_s x_t = \mu(t-(t-s)) + \beta f(month)\times (year - (year-1)) + w_t - w_{t-s} \\ = \mu s + \beta f(month) + w_t - w_{t-s}$$
+
+---
+
+We need to take another seasonal difference to get rid of the $f(month)$ which is not a constant; it is different for different months as it is our seasonality.
+$$\Delta^2_{s} x_t = w_t - w_{t-s} - w_{t-s} + w_{t-2s}=w_t - 2w_{t-s} + w_{t-2s}$$
+So our ARIMA model should be ARIMA(0,0,0)(0,2,2)
+
+---
+
+```{r, echo=FALSE}
+set.seed(123)
+yr=10
+s=12
+sd=sqrt(.1)
+mu=0.05
+beta=.2
+st=(1+beta*rep(1:yr, each=s))*sin(pi*(1:(s*yr))/(s/2))
+st=beta*rep(1:yr, each=s)*sin(pi*(1:(s*yr))/(s/2))
+mt=mu*(1:(s*yr))
+et=rnorm(s*yr,0,sd)
+xt=mt+st+et
+xt=ts(xt,start=1,frequency=12)
+plot(xt)
+```
+
+---
+
+But we can recover the model with `Arima()`. Note the drift term is returned at $\mu$ not $\mu s$.
+```{r}
+forecast::Arima(xt, seasonal=c(0,2,2))
+```
+
+---
+
+`auto.arima()` again has problems and returns many Infs; turn on `trace=TRUE` to see the problem.
+```{r}
+forecast::auto.arima(xt, stepwise=FALSE)
+```
+
+---
+
+## Seasonal model with changing season #2
+
+Let's imagine that our seasonality increases and then decreases.
+
+$$s_t = (a y^2-b y+h) f(month)$$
+```{r, echo=FALSE}
+set.seed(100)
+yr=10
+s=12
+sd=sqrt(.1)
+mu=0.05
+beta=.1*(rep(1:yr, each=s)^2-2*5*rep(1:yr, each=s)+30)
+st=beta*sin(pi*(1:(s*yr))/(s/2))
+mt=mu*(1:(s*yr))
+et=rnorm(s*yr,0,sd)
+xt=mt+st+et
+xt=ts(xt,start=1,frequency=12)
+plot(xt)
+```
+
+---
+
+Then we need to take 3 seasonal differences to get rid of the seasonality. The first will get rid of the $h f(month)$, the next will get rid of $by$ (year) terms and $y^2$ terms, the third will get rid of extra $y$ terms introduced by the 2nd difference.  The seasonal differences will get rid of the linear trend also.
+
+$$\Delta^3_{s} x_t = w_t - 2w_{t-s} + w_{t-2s}-w_{t-s}+2w_{t-2s}-w_{t-3s}=w_t - 3w_{t-s} + 3w_{t-2s}-w_{t-3s}$$
+
+So our ARIMA model should be ARIMA(0,0,0)(0,3,3).
+
+---
+
+## `auto.arima()` for seasonal ts
+
+`auto.arima()` will recognize that our data has season and fit a seasonal ARIMA model to our data by default.  We will define the training data up to 1998 and use 1999 as the test data.
+
+```{r}
+traindat <- window(chinookts, c(1990,10), c(1998,12))
+testdat <- window(chinookts, c(1999,1), c(1999,12))
+fit <- forecast::auto.arima(traindat)
+fit
+```
+
+---
+
+## Forecast using seasonal model
+
+```{r}
+fr <- forecast::forecast(fit, h=12)
+plot(fr)
+points(testdat)
+```
+
+---
+
+## Missing values
+
+Missing values are ok when fitting a seasonal ARIMA model
+
+```{r echo=FALSE}
+plot(fr)
+```
+
+---
+
+## Summary
+
+Basic steps for identifying a seasonal model.  **forecast** automates most of this.
+
+* Check that you have specified your season correctly in your ts object.
+
+* Plot your data.  Look for trend, seasonality and random walks.
+
+---
+
+## Summary
+
+* Use differencing to remove season and trend.
+
+    * Season and no trend.  Take a difference of lag = season
+    * No seasonality but a trend.  Try a first difference
+    * Both. Do both types of differences
+    * Neither. No differencing.
+    * Random walk. First difference.
+    * Parametric looking curve. Tranform.
+    
+---
+
+## Summary
+
+* Examine the ACF and PACF of the differenced data.
+    * Look for patterns (spikes) at seasonal lags
+
+* Estimate likely models and compare with model selection criteria (or cross-validation). Use `TRACE=TRUE`
+
+* Do residual checks. 
+
