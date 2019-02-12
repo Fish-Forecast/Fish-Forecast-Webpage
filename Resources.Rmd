@@ -1,0 +1,17 @@
+---
+title: "Resources"
+---
+
+Rob Hyndman book on forecasting and the **forecast** package: [Forecasting Principals and Practice](https://otexts.org/fpp2/)
+
+NWFSC Time Series Analysis: https://nwfsc-timeseries.github.io/  (PIs: Eli Holmes, Mark Scheurell, Eric Ward)
+
+* Courses on multivariate and univariate time series analysis applied to messy fisheries and ecological data.
+
+* R packages for fitting time series models.  Bayesian and maximum-likelihood.
+
+* online books:
+
+  - [Applied Time-Series Analysis for Fisheries and Environmental Data](https://nwfsc-timeseries.github.io/atsa-labs/)
+  
+  - [Fisheries Catch Forecasting](https://fish-forecast.github.io/Fish-Forecast-Bookdown/)

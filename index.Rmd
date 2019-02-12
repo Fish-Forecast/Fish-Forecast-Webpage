@@ -5,11 +5,10 @@ title: "Forecasting Catch Time Series"
 ```{r echo=FALSE, warnings=FALSE, include=FALSE}
 # devtools::install_github("rstudio/fontawesome")
 library(fontawesome)
+knitr::opts_chunk$set(cache = TRUE)
 ```
 
 This course will teach a number of standard approaches for forecasting from catch time series using the data and methods discussed in Stergiou and Christou (1996) *Modelling and forecasting annual fisheries catches: comparison of regression, univariate and multivariate time series methods.* Fisheries Research 25: 105-136.
-
-# [PSAW Overview](psaw_2019_overview.html)
 
 # Course Syllabus
 

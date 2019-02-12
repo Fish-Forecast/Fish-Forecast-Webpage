@@ -3,6 +3,8 @@ output_dir: "."
 navbar:
   title: fish forecast
   left:
+    - text: "About"
+      href: About.html
     - text: "Set-up"
       href: setup.html
     - text: "Introduction"

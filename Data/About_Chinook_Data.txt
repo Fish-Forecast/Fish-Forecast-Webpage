@@ -1,5 +1,24 @@
 About the chinook landings data
+Monthly Commercial Landing Statistics
+The NOAA Fisheries, Fisheries Statistics Division has automated data summary programs that anyone can use to rapidly and easily summarize U.S. commercial fisheries landings.
 
-From
+https://www.st.nmfs.noaa.gov/commercial-fisheries/commercial-landings/monthly-landings/index
 
-https://www.st.nmfs.noaa.gov/pls/webpls/FT_HELP.SPECIES
+Commercial Landings
+We maintain a national database of U.S. commercial fishery landings data dating back to 1950. Updated weekly, this dataset includes landings made by the domestic fishing fleet in the United States. Landings made by U.S. vessels in territories and foreign ports are not included. You can search annual landings data by region, state, and species.
+
+About
+https://www.fisheries.noaa.gov/national/commercial-fishing/commercial-fisheries-landings
+
+We have automated programs that anyone can use to get a quick summary of U.S. commercial fisheries landings.
+
+These programs allow users to query our databases and summarize domestic fishery landings—that is, fish and shellfish that are landed and sold in the 50 states by U.S. fishermen. (Domestic fishery landings do not include landings made in U.S. territories or by foreign fishermen.) You can summarize the pounds and dollar value of commercial landings by years, months, states, or species for 1990 onwards. For 1950 onwards, you can get a summary of the volume and value of landings by years, states, and species; years, states, species, and fishing gears; or years, states, species, finfish or shellfish groups, and price per pound.
+
+NOAA Fisheries and the agencies that came before it—the U.S. Fish Commission and the Bureau of Commercial Fisheries—began collecting fisheries landings data in 1880. Between 1880 and 1951, they only took surveys in some states, during some years. After 1951 they took surveys for each year in all states.
+
+Collecting the data
+Collecting these data is a joint state and federal responsibility. State-federal systems gather landings data from state-mandated fishery or mollusk trip-tickets, landing weighout reports from seafood dealers, federal logbooks of fishery catch and effort, and shipboard and portside interviews and biological sampling of catches. State fishery agencies are usually the main collectors of these data, though they and NOAA Fisheries gather data jointly in some states. Surveys are done differently in different states; NOAA Fisheries takes supplemental surveys to ensure that the data from different states and years are comparable.
+
+Statistics for each state represent a census of the volume and value of finfish and shellfish landed and sold at the dock, not an expanded estimate of landings based on sampling data. The main statistics collected are the pounds and ex-vessel dollar value of landings identified by species, year, month, state, county, port, water, and fishing gear. Most states get their landings data from seafood dealers who submit monthly reports of the weight and value of landings by vessel. Increasingly, though, states are getting landings data from mandatory trip-tickets—filled out by seafood dealers and fishermen at the end of every fishing trip, indicating their landings by species. (Trip-trickets may also include other data, such as fishing effort and area fished.)
+
+
