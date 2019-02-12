@@ -39,7 +39,7 @@ Go to [https://cran.r-project.org/](https://cran.r-project.org/) and find the do
 
 For full set-up instructions including Git and GitHub (optional), go to [full setup](https://rverse-tutorials.github.io/Fish-Forecast-Training-Course/set-up.html)
 
-##Download Files and Packages
+## Download Files and Packages
 
 1. Go to https://github.com/Fish-Forecast/Catch-Forecasting-Files and copy all the files into a directory.
 
