@@ -327,7 +327,9 @@ $(document).ready(function () {
 </div>
 
 
-<p><em>For labs</em>: Click the ‘Rmd file’ link and download to your RWorkflow folder. Open RStudio. Switch to your RWorkflow project, by clicking button in top right (click create a new project if you did not do this step before). If you need the landings data, download here <a href="https://fish-forecast.github.io/Catch-Forecasting-INCOIS/landings.RData">here</a>.</p>
+<p><em>For labs</em>: Click the ‘Rmd file’ link and download to your lab folder. Open RStudio. Switch to your lab project, by clicking button in top right (click create a new project if you did not do this step before). The <code>greeklandings</code> and <code>chinook</code> datasets are in the <strong>FishForecast</strong> package. Install that package if you have not already:</p>
+<pre><code>library(devtools)
+devtools::install_github(&quot;Fish-Forecast/FishForecast&quot;)</code></pre>
 <ul>
 <li><p>Lecture 1 <a href="Forecasting_4-1_-_Exp_Smoothing.html">Exponential Smoothing Models</a></p></li>
 <li><p>Lab 1 Create forecasts with exponential smoothing models - <a href="Labs/R_scripts/Forecasting%204-1%20-%20Exp%20Smoothing.R">R Code from Lecture 1</a></p></li>

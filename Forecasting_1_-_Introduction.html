@@ -113,15 +113,17 @@ Stergiou and Christou used the data from 1964-1989.  We have the data up to 2007
 Load the data as follows and use only the 1964-1989 data.
 
 ```r
-load("landings.RData")
-landings$log.metric.tons = log(landings$metric.tons)
-landings = subset(landings, Year &lt;= 1989)
-landings = subset(landings, Species %in% c("Anchovy","Sardine"))
+data(greeklandings, package="FishForecast")
+landings = subset(greeklandings, Year &lt;= 1989 &amp; Species %in% c("Anchovy","Sardine"))
 ggplot(landings, aes(x=Year, y=log.metric.tons)) +
   geom_line() + facet_wrap(~Species)
 ```
 
 &lt;img src="Forecasting_1_-_Introduction_files/figure-html/load_data-1.png" style="display: block; margin: auto;" /&gt;
+
+---
+
+Stergiou and Christou (1996) used 1964-1987 to fit (train) their models and held out 1988-1989 for testing forecasts.  We will follow this and will use 1964-1987 when fitting the models.
     </textarea>
 <script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
 <script>var slideshow = remark.create({

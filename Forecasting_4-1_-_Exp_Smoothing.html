@@ -29,7 +29,7 @@ class: center, middle, inverse
 
 ## Naive forecast
 
-For a naive forecast of the anchovy landings in 1988, we just use the 1987 landings.
+For a naive forecast of the anchovy catch in 1988, we just use the 1987 catch.
 
 `$$\hat{x}_{1988} = x_{1987}$$`
 Which is the same as saying that we put 100% of the 'weight' on the most recent value and no weight on any value prior to that.
@@ -86,14 +86,14 @@ The alternate function does exactly the same fitting.  It is just a 'shortcut'.
 
 This is like the naive model that just uses the last value to make the forecast, but instead of only using the last value it will use values farther in the past also. The weighting fall off exponentially.
 
-Load the data and forecast package.
+Load the data and **forecast** package.
 
 
 ```r
-load("landings.RData")
-landings$log.metric.tons = log(landings$metric.tons)
-anchovy &lt;- subset(landings, 
+data(greeklandings, package="FishForecast")
+anchovy &lt;- subset(greeklandings, 
                   Species=="Anchovy" &amp; Year&lt;=1987)$log.metric.tons
+anchovy &lt;- ts(anchovy, start=1964)
 library(forecast)
 ```
 
@@ -163,7 +163,7 @@ Use that model with the 2000-2007 data and produce a forecast:
 
 ```r
 dat &lt;- subset(landings, Species=="Anchovy" &amp; Year&gt;=2000 &amp; Year&lt;=2007)
-dat &lt;- dat$log.metric.tons
+dat &lt;- ts(dat$log.metric.tons, start=2000)
 fit2 &lt;- ets(dat, model=fit1)
 ```
 
@@ -322,7 +322,7 @@ fit1 &lt;- ets(traindat, model="AAN")
 h=length(testdat)
 fr &lt;- forecast(fit1, h=h)
 plot(fr)
-points(length(traindat)+1:h, testdat, pch=2, col="red")
+points(end(traindat)[1]+1:h, testdat, pch=2, col="red")
 legend("topleft", c("forecast","actual"), pch=c(20,2), col=c("blue","red"))
 ```
 
@@ -341,9 +341,9 @@ accuracy(fr, testdat)
 ##                      ME      RMSE       MAE        MPE     MAPE      MASE
 ## Training set  0.0155561 0.1788989 0.1442712  0.1272938 1.600532 0.7720807
 ## Test set     -0.5001701 0.5384355 0.5001701 -5.1678506 5.167851 2.6767060
-##                      ACF1
-## Training set -0.008371542
-## Test set               NA
+##                      ACF1 Theil's U
+## Training set -0.008371542        NA
+## Test set     -0.500000000  2.690911
 ```
 
 We would now repeat this for all the models in our candidate set and choose the model with the best forecast performance.

@@ -10,22 +10,13 @@ In this lab, you will fit data with the `auto.arima()` function in the forecast 
 
 # Set-up
 
-
-If you have not loaded the setup package with the Greek landings data, do so now.  You would have needed this for the TV Regression lab, so you should not need to do this again.
-
-```
-library(devtools)
-devtools::install_github("RVerse-Tutorials/RWorkflowsetup")
-```
-
-We will use the data before 1987 for the lab and you will look at the later data in the problems.
+We will use the anchovy and sardine log metric ton catch before 1988.
 
 ```{r read_data}
-load("landings.RData")
-landings$log.metric.tons <- log(landings$metric.tons)
-landings <- subset(landings, Year <= 1987)
-anchovy <- subset(landings, Species=="Anchovy")
-sardine <- subset(landings, Species=="Sardine")
+data(greeklandings, package="FishForecast")
+landings <- subset(greeklandings, Year <= 1987)
+anchovy <- ts(subset(landings, Species=="Anchovy")$log.metric.tons, start=1964)
+sardine <- ts(subset(landings, Species=="Sardine")$log.metric.tons, start=1964)
 ```
 
 Load the necessary packages.
@@ -107,7 +98,7 @@ Arima(a1, order = c(2,0,0))
 ## Fit to the Anchovy landing data
 
 ```{r}
-fit <- auto.arima(anchovy$log.metric.tons)
+fit <- auto.arima(anchovy)
 fit
 ```
 
@@ -157,7 +148,7 @@ checkresiduals(fit)
 I am not sure how Stergiou and Christou selected the amount of differencing to use.  `auto.arima()` uses the KPSS test by default.  Let's try the Augmented Dickey-Fuller test instead.  Specify this by passing in `test="adf"`.
 
 ```{r, results="hide"}
-auto.arima(sardine$log.metric.tons, test="adf")
+auto.arima(sardine, test="adf")
 ```
 
   - Is the selected model the same?
@@ -165,9 +156,9 @@ auto.arima(sardine$log.metric.tons, test="adf")
 2. Now fit to the anchovy data 1989-2007
 
 ```{r}
-load("landings.RData")
-landings$log.metric.tons <- log(landings$metric.tons)
-anchovy <- subset(landings, Species=="Anchovy" & Year>=1989)
+data(greeklandings, package="FishForecast")
+anchovy <- subset(greeklandings, Species=="Anchovy" & Year>=1989)$log.metric.tons
+anchovy <- ts(anchovy, start=1989)
 ```
 
   - First plot the data.
@@ -175,7 +166,7 @@ anchovy <- subset(landings, Species=="Anchovy" & Year>=1989)
   - Force a fit of ARIMA(0,1,1) with drift using `Arima()`.  This is the best fit model with `auto.arima()`.
   
 ```{r}
-Arima(anchovy$log.metric.tons, order=c(0,1,1), include.drift=TRUE)
+Arima(anchovy, order=c(0,1,1), include.drift=TRUE)
 ```
    - Compare the estimates of `ma1`.
    

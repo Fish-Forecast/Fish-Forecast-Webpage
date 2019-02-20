@@ -2,7 +2,12 @@
 title: "ARMA Models"
 ---
 
-*For labs*: Click the 'Rmd file' link and download to your RWorkflow folder.  Open RStudio.  Switch to your RWorkflow project, by clicking button in top right (create a new project if you did not do this step before).  If you need the landings data, download  [landings.RData](https://fish-forecast.github.io/Catch-Forecasting-INCOIS/landings.RData). If you need the landings data, download  [chinook.RData](https://fish-forecast.github.io/Catch-Forecasting-INCOIS/chinook.RData).
+*For labs*: Click the 'Rmd file' link and download to your lab folder.  Open RStudio.  Switch to your lab project, by clicking button in top right (click create a new project if you did not do this step before).  The `greeklandings` and `chinook` datasets are in the **FishForecast** package. Install that package if you have not already:
+
+```
+library(devtools)
+devtools::install_github("Fish-Forecast/FishForecast")
+```
 
 - Lecture 1 [Introduction to ARMA Models](Forecasting_3-1_-_ARMA_Intro.html)
 

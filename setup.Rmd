@@ -39,30 +39,28 @@ Go to [https://cran.r-project.org/](https://cran.r-project.org/) and find the do
 
 For full set-up instructions including Git and GitHub (optional), go to [full setup](https://rverse-tutorials.github.io/Fish-Forecast-Training-Course/set-up.html)
 
-## Download Files and Packages
+## Set up a folder and RStudio project for the labs
 
-1. Go to https://github.com/Fish-Forecast/Catch-Forecasting-Files and copy all the files into a directory.
+2. Open RStudio and 'New Project' in the upper right.  Select 'From Existing Directory' if you have previously created a folder for the course and select 'New Directory' if you have not.
 
-- If GitHub Desktop works for you, then you can click 'Clone or download' and then click open in Desktop.
+2. To work on a lab, copy the Rmd or R file to this folder.
 
-- If GitHub Desktop is not working for you, then click 'Clone or download' and then download a zip file and unzip on your computer.
+3. Next time you open RStudio, you can select your project from the upper right.
 
-2. Open RStudio and 'New Project' in the upper right.  Then select 'From Existing Directory' and select the directory where you put the 'Catch-Forecasting-Files' files are.
+## Download FishForecast Package
 
-3. Next time you open RStudio, you can select your project from the upper right..
-
-2. Install **other packages** that we are going to be need. I have created a package on GitHub that will install the packages you need.  This will probably take **awhile** as the first time you do it, many packages will be loaded.
+1. I have created a package on GitHub that will install the packages you need and the data files for the labs.  Installing the package will probably take **awhile** as the first time you do it, many packages will be loaded.
 
 ```{r get-packages, eval=FALSE}
 if(!("devtools" %in% installed.packages()))
   install.packages("devtools")
-devtools::install_github("RVerse-Tutorials/RWorkflowsetup")
+devtools::install_github("Fish-Forecast/FishForecast")
 ```
 
-The RWorkflowsetup package will install the packages listed under "Imports:"
+The FishForecast package will install the packages listed under "Imports:"
 <pre>
 ```{r get-DESC, results='asis', echo=FALSE}
-desc <- RCurl::getURL("https://raw.githubusercontent.com/RVerse-Tutorials/RWorkflowsetup/master/DESCRIPTION")
+desc <- RCurl::getURL("https://raw.githubusercontent.com/Fish-Forecast/FishForecast/master/DESCRIPTION")
 #desc <- stringr::str_replace_all(desc, "\n", "</br>\n")
 cat(desc)
 ```

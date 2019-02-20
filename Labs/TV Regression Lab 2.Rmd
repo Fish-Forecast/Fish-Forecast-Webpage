@@ -8,10 +8,11 @@ output:
 
 # Load the data
 
-```{r load_data, fig.align = "center", fig.height = 4, fig.width = 8}
-load("landings.RData")
-landings$log.metric.tons = log(landings$metric.tons)
-landings = subset(landings, Year <= 1987)
+Load data and create a subset dataset `landings` with the years 1964 to 1987.
+
+```{r load_data}
+data(greeklandings, package="FishForecast")
+landings = subset(greeklandings, Year <= 1987)
 ```
 
 Add `t` to the data.  This is Year minus first Year.

@@ -8,13 +8,10 @@ output:
 
 This goes into some of the material in Lab 2 in more depth.
 
-
-
 ```{r load_data_Lab2_Extras}
-load("landings.RData")
-landings$log.metric.tons = log(landings$metric.tons)
-landings = subset(landings, Year <= 1989)
-anchovy = subset(landings, Species=="Anchovy")$log.metric.tons
+data(greeklandings, package="FishForecast")
+landings = subset(greeklandings, Year <= 1987)
+anchovy = ts(subset(landings, Species=="Anchovy")$log.metric.tons, start=1964)
 ```
 
 ```{r load_packages}

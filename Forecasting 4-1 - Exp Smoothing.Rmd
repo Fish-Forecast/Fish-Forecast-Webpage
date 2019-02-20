@@ -32,7 +32,7 @@ class: center, middle, inverse
 
 ## Naive forecast
 
-For a naive forecast of the anchovy landings in 1988, we just use the 1987 landings.
+For a naive forecast of the anchovy catch in 1988, we just use the 1987 catch.
 
 $$\hat{x}_{1988} = x_{1987}$$
 Which is the same as saying that we put 100% of the 'weight' on the most recent value and no weight on any value prior to that.
@@ -108,13 +108,13 @@ The alternate function does exactly the same fitting.  It is just a 'shortcut'.
 
 This is like the naive model that just uses the last value to make the forecast, but instead of only using the last value it will use values farther in the past also. The weighting fall off exponentially.
 
-Load the data and forecast package.
+Load the data and **forecast** package.
 
 ```{r load_data_exp_smoothing}
-load("landings.RData")
-landings$log.metric.tons = log(landings$metric.tons)
-anchovy <- subset(landings, 
+data(greeklandings, package="FishForecast")
+anchovy <- subset(greeklandings, 
                   Species=="Anchovy" & Year<=1987)$log.metric.tons
+anchovy <- ts(anchovy, start=1964)
 library(forecast)
 ```
 
@@ -164,7 +164,7 @@ Use that model with the 2000-2007 data and produce a forecast:
 
 ```{r fit.new.ann}
 dat <- subset(landings, Species=="Anchovy" & Year>=2000 & Year<=2007)
-dat <- dat$log.metric.tons
+dat <- ts(dat$log.metric.tons, start=2000)
 fit2 <- ets(dat, model=fit1)
 fr2 <- forecast(fit2, h=5)
 ```
@@ -289,11 +289,11 @@ Let's start with the former.
 
 ```{r echo=FALSE}
 spp <- "Anchovy"
-training = subset(landings, Year <= 1987)
-test = subset(landings, Year >= 1988 & Year <= 1989)
+training = subset(greeklandings, Year <= 1987)
+test = subset(greeklandings, Year >= 1988 & Year <= 1989)
 
-traindat <- subset(training, Species==spp)$log.metric.tons
-testdat <- subset(test, Species==spp)$log.metric.tons
+traindat <- ts(subset(training, Species==spp)$log.metric.tons, start=1964)
+testdat <- ts(subset(test, Species==spp)$log.metric.tons, start=1988)
 ```
 
 ---
@@ -307,7 +307,7 @@ fit1 <- ets(traindat, model="AAN")
 h=length(testdat)
 fr <- forecast(fit1, h=h)
 plot(fr)
-points(length(traindat)+1:h, testdat, pch=2, col="red")
+points(end(traindat)[1]+1:h, testdat, pch=2, col="red")
 legend("topleft", c("forecast","actual"), pch=c(20,2), col=c("blue","red"))
 ```
 

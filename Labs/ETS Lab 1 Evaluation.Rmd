@@ -13,12 +13,11 @@ In this lab, you will fit a series of candidate models and prepare a table for t
 We will define the training data as 1964 to 1987 and the test data as 1988 and 1989.
 
 ```{r read_data}
-load("../landings.RData")
+data(greeklandings, package="FishForecast")
 spp <- "Anchovy"
-landings$log.metric.tons <- log(landings$metric.tons)
-landings <- subset(landings, Species==spp)
-traindat <- subset(landings, Year <= 1987)$log.metric.tons
-testdat <- subset(landings, Year == 1988 | Year==1989)$log.metric.tons
+landings <- subset(greeklandings, Species==spp)
+traindat <- ts(subset(landings, Year <= 1987)$log.metric.tons, start=1964)
+testdat <- ts(subset(landings, Year == 1988 | Year==1989)$log.metric.tons, start=1988)
 n.fr <- length(testdat)
 ```
 

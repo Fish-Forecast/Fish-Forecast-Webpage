@@ -73,11 +73,10 @@ When just getting started, we will focus just on a few of these.
 
 
 ```r
-load("landings.RData")
-landings$log.metric.tons = log(landings$metric.tons)
-landings = subset(landings, Year &lt;= 1987)
-anchovy = subset(landings, Species=="Anchovy")$log.metric.tons
-sardine = subset(landings, Species=="Sardine")$log.metric.tons
+data(greeklandings, package="FishForecast")
+landings &lt;- subset(greeklandings, Year &lt;= 1987)
+anchovy &lt;- ts(subset(landings, Species=="Anchovy")$log.metric.tons, start=1964)
+sardine &lt;- ts(subset(landings, Species=="Sardine")$log.metric.tons, start=1964)
 ```
 
 
@@ -371,7 +370,7 @@ Ideally your response variable will be unimodal.  If not, you are using an ARIMA
 
 ## Plot of anchovy data
 
-&lt;img src="Forecasting_3-4_-_ARMA_Fitting_Models_files/figure-html/unnamed-chunk-12-1.png" style="display: block; margin: auto;" /&gt;
+&lt;img src="Forecasting_3-4_-_ARMA_Fitting_Models_files/figure-html/plot.anchovy.hist-1.png" style="display: block; margin: auto;" /&gt;
 
 ---
 
@@ -382,7 +381,7 @@ fit &lt;- auto.arima(anchovy)
 checkresiduals(fit)
 ```
 
-&lt;img src="Forecasting_3-4_-_ARMA_Fitting_Models_files/figure-html/unnamed-chunk-13-1.png" style="display: block; margin: auto;" /&gt;
+&lt;img src="Forecasting_3-4_-_ARMA_Fitting_Models_files/figure-html/fit.anchovy.checkresiduals-1.png" style="display: block; margin: auto;" /&gt;
 
 ```
 ## 

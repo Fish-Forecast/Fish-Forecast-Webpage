@@ -17,7 +17,6 @@ layout: true
 ```{r setup, include=FALSE, message=FALSE}
 options(htmltools.dir.version = FALSE, servr.daemon = TRUE)
 knitr::opts_chunk$set(fig.height=5, fig.align="center")
-library(huxtable)
 ```
 
 class: center, middle, inverse
@@ -81,11 +80,10 @@ When just getting started, we will focus just on a few of these.
 ## Load the data
 
 ```{r load_data2, message=FALSE, warning=FALSE}
-load("landings.RData")
-landings$log.metric.tons = log(landings$metric.tons)
-landings = subset(landings, Year <= 1987)
-anchovy = subset(landings, Species=="Anchovy")$log.metric.tons
-sardine = subset(landings, Species=="Sardine")$log.metric.tons
+data(greeklandings, package="FishForecast")
+landings <- subset(greeklandings, Year <= 1987)
+anchovy <- ts(subset(landings, Species=="Anchovy")$log.metric.tons, start=1964)
+sardine <- ts(subset(landings, Species=="Sardine")$log.metric.tons, start=1964)
 ```
 
 
@@ -112,7 +110,8 @@ LB <- Box.test(res, type="Ljung-Box", lag=12, fitdf=2)$statistic
 meany <- mean(anchovy, na.rm=TRUE)
 r2 <- 1- sum(resid(fit)^2,na.rm=TRUE)/sum((anchovy-meany)^2,na.rm=TRUE)
 
-df <- data.frame(Model="(0,1,1)", theta1=-1*coef(fit)[1], drift=coef(fit)[2], R2 = r2, BIC=fit$bic, LB=LB)
+df <- data.frame(Model="(0,1,1)", theta1=-1*coef(fit)[1], 
+                 drift=coef(fit)[2], R2 = r2, BIC=fit$bic, LB=LB)
 ```
 
 ```{r echo=FALSE, results = 'asis'}
@@ -152,7 +151,7 @@ r2 <- 1- sum(res^2,na.rm=TRUE)/sum((anchovy-meany)^2,na.rm=TRUE)
 ```{r}
 LB <- Box.test(res, type="Ljung-Box", lag=12, fitdf=2)$statistic
 ```
-fitdf=2 is from the number of parameters estimated.
+`fitdf=2` is from the number of parameters estimated.
 
 ### BIC
 
@@ -179,7 +178,7 @@ $$x_t = x_{t-1}+e_t$$
 The model selected by `auto.arima()` is ARIMA(0,0,1):
 $$x_t = e_t + \theta_1 e_{t-1}$$
 
-```{r}
+```{r fit.sardine.trace}
 auto.arima(sardine)
 ```
 
@@ -192,7 +191,7 @@ Why?  Stergiou and Christou used the Augmented Dickey-Fuller test to determine t
 
 Now the selected model is the same.
 
-```{r}
+```{r fit.sardine.adf}
 fit <- auto.arima(sardine, test="adf")
 fit
 ```
@@ -207,13 +206,14 @@ Model  | $\theta_1$ | drift (c) | R2 | BIC | LB
 
 versus from `auto.arima()`
 
-```{r echo=FALSE}
+```{r fit.sardine.LB.test, echo=FALSE}
 res <- resid(fit)
 LB <- Box.test(res, type="Ljung-Box", lag=12, fitdf=0)$statistic
 meany <- mean(sardine, na.rm=TRUE)
 r2 <- 1- sum(resid(fit)^2,na.rm=TRUE)/sum((sardine-meany)^2,na.rm=TRUE)
 
-df <- data.frame(Model="(0,1,0)", theta1=-1*coef(fit)[1], drift=coef(fit)[2], R2 = r2, BIC=fit$bic, LB=LB)
+df <- data.frame(Model="(0,1,0)", theta1=-1*coef(fit)[1], 
+                 drift=coef(fit)[2], R2 = r2, BIC=fit$bic, LB=LB)
 ```
 
 ```{r echo=FALSE, results = 'asis'}
@@ -226,7 +226,7 @@ knitr::kable(df, row.names=FALSE, format='html')
 
 These functions work fine with missing values.  Missing values are denoted NA.
 
-```{r}
+```{r fit.anchovy.miss}
 anchovy.miss <- anchovy
 anchovy.miss[10:14] <- NA
 fit <- auto.arima(anchovy.miss)
@@ -241,7 +241,7 @@ Sometimes you don't want to search, but rather fit an ARIMA model with a specifi
 $$x_t = \beta_1 x_{t-1} + \beta_2 x_{t-2} + e_t$$
 For that you can use `Arima()` in the forecast package:
 
-```{r}
+```{r fit.anchovy.2.0.0}
 fit.AR2 <- Arima(anchovy, order=c(2,0,0))
 fit.AR2
 ```
@@ -266,16 +266,17 @@ Ideally your response variable will be unimodal.  If not, you are using an ARIMA
 
 ## Plot of anchovy data
 
-```{r fig.width=10, echo=FALSE, fig.align="center"}
+```{r plot.anchovy.hist, fig.width=10, echo=FALSE, fig.align="center"}
 par(mfrow=c(1,2))
-hist(subset(landings, Species=="Anchovy")$metric.tons, main="metric.tons", xlab="anchovy")
-hist(anchovy, main="log.metric.tons",xlab="log anchovy")
+landings <- subset(greeklandings, Year<=1987 & Species=="Anchovy")
+hist(landings$metric.tons, main="metric.tons", xlab="anchovy")
+hist(landings$log.metric.tons, main="log.metric.tons",xlab="log anchovy")
 ```
 
 ---
 
 
-```{r fig.align="center"}
+```{r fit.anchovy.checkresiduals, fig.align="center"}
 fit <- auto.arima(anchovy)
 checkresiduals(fit)
 ```

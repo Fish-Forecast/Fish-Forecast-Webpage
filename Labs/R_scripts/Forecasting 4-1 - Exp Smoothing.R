@@ -26,10 +26,10 @@ legend("topleft", c("alpha=1 like naive","alpha=0.5","alpha=0.05 like mean"),lwd
 title("more weight put on more recent values\nfor 1988 forecast")
 
 ## ----load_data_exp_smoothing---------------------------------------------
-load("landings.RData")
-landings$log.metric.tons = log(landings$metric.tons)
-anchovy <- subset(landings, 
+data(greeklandings, package="FishForecast")
+anchovy <- subset(greeklandings, 
                   Species=="Anchovy" & Year<=1987)$log.metric.tons
+anchovy <- ts(anchovy, start=1964)
 library(forecast)
 
 ## ----fit.ann-------------------------------------------------------------
@@ -53,7 +53,7 @@ fit1 <- ets(anchovy, model="ANN")
 
 ## ----fit.new.ann---------------------------------------------------------
 dat <- subset(landings, Species=="Anchovy" & Year>=2000 & Year<=2007)
-dat <- dat$log.metric.tons
+dat <- ts(dat$log.metric.tons, start=2000)
 fit2 <- ets(dat, model=fit1)
 fr2 <- forecast(fit2, h=5)
 
@@ -100,18 +100,18 @@ autoplot(fit)
 
 ## ----echo=FALSE----------------------------------------------------------
 spp <- "Anchovy"
-training = subset(landings, Year <= 1987)
-test = subset(landings, Year >= 1988 & Year <= 1989)
+training = subset(greeklandings, Year <= 1987)
+test = subset(greeklandings, Year >= 1988 & Year <= 1989)
 
-traindat <- subset(training, Species==spp)$log.metric.tons
-testdat <- subset(test, Species==spp)$log.metric.tons
+traindat <- ts(subset(training, Species==spp)$log.metric.tons, start=1964)
+testdat <- ts(subset(test, Species==spp)$log.metric.tons, start=1988)
 
 ## ----fig.height=4--------------------------------------------------------
 fit1 <- ets(traindat, model="AAN")
 h=length(testdat)
 fr <- forecast(fit1, h=h)
 plot(fr)
-points(length(traindat)+1:h, testdat, pch=2, col="red")
+points(end(traindat)[1]+1:h, testdat, pch=2, col="red")
 legend("topleft", c("forecast","actual"), pch=c(20,2), col=c("blue","red"))
 
 ## ------------------------------------------------------------------------
