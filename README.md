@@ -16,6 +16,16 @@ Click 'knit' in RStudio to create the html file.  To print to pdf, use Chrome.
 
 ## Using this as a template for a course website
 
+If you use GitHub Desktop, clone the repository or fork and clone your fork.
+
+This website was built using RStudio 'Build Website' which issues the code
+```
+rmarkdown::render_site(encoding = 'UTF-8')
+```
+This makes all the html files.  You only need to change the Rmd files.  For the navigation bar at the top edit `_site.yml`.  To change style, edit `style.css` and `my-theme.css`.  Once the website it built, push to GitHub.  If you have enabled GitHub Pages then you'll see the website.
+
+## Git instructions
+
 To clone this for another course. Do this once.
 
 1. Create the repo New-Repo (or whatever you want to name) on GitHub

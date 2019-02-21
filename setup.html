@@ -335,31 +335,30 @@ Go to <a href="https://cran.r-project.org/" class="uri">https://cran.r-project.o
 </ul>
 <p>For full set-up instructions including Git and GitHub (optional), go to <a href="https://rverse-tutorials.github.io/Fish-Forecast-Training-Course/set-up.html">full setup</a></p>
 </div>
-<div id="download-files-and-packages" class="section level2">
-<h2>Download Files and Packages</h2>
-<ol style="list-style-type: decimal">
-<li>Go to <a href="https://github.com/Fish-Forecast/Catch-Forecasting-Files" class="uri">https://github.com/Fish-Forecast/Catch-Forecasting-Files</a> and copy all the files into a directory.</li>
-</ol>
-<ul>
-<li><p>If GitHub Desktop works for you, then you can click ‘Clone or download’ and then click open in Desktop.</p></li>
-<li><p>If GitHub Desktop is not working for you, then click ‘Clone or download’ and then download a zip file and unzip on your computer.</p></li>
-</ul>
+<div id="set-up-a-folder-and-rstudio-project-for-the-labs" class="section level2">
+<h2>Set up a folder and RStudio project for the labs</h2>
 <ol start="2" style="list-style-type: decimal">
-<li><p>Open RStudio and ‘New Project’ in the upper right. Then select ‘From Existing Directory’ and select the directory where you put the ‘Catch-Forecasting-Files’ files are.</p></li>
-<li><p>Next time you open RStudio, you can select your project from the upper right..</p></li>
-<li><p>Install <strong>other packages</strong> that we are going to be need. I have created a package on GitHub that will install the packages you need. This will probably take <strong>awhile</strong> as the first time you do it, many packages will be loaded.</p></li>
+<li><p>Open RStudio and ‘New Project’ in the upper right. Select ‘From Existing Directory’ if you have previously created a folder for the course and select ‘New Directory’ if you have not.</p></li>
+<li><p>To work on a lab, copy the Rmd or R file to this folder.</p></li>
+<li><p>Next time you open RStudio, you can select your project from the upper right.</p></li>
+</ol>
+</div>
+<div id="download-fishforecast-package" class="section level2">
+<h2>Download FishForecast Package</h2>
+<ol style="list-style-type: decimal">
+<li>I have created a package on GitHub that will install the packages you need and the data files for the labs. Installing the package will probably take <strong>awhile</strong> as the first time you do it, many packages will be loaded.</li>
 </ol>
 <pre class="r"><code>if(!(&quot;devtools&quot; %in% installed.packages()))
   install.packages(&quot;devtools&quot;)
-devtools::install_github(&quot;RVerse-Tutorials/RWorkflowsetup&quot;)</code></pre>
-The RWorkflowsetup package will install the packages listed under “Imports:”
+devtools::install_github(&quot;Fish-Forecast/FishForecast&quot;)</code></pre>
+The FishForecast package will install the packages listed under “Imports:”
 <pre>
-Package: RWorkflowsetup
-Title: Loads Needed Packages
+Package: FishForecast
+Title: Packages, data and scripts for Fisheries Catch Forecasting with R
 Version: 1.0
 Author: Eli Holmes
 Maintainer: <eli.holmes@noaa.gov>
-Description: This is a dummy package that will load the needed packages for the short course when students install from GitHub.
+Description: This package that will load the needed packages and data files for the Fish Forecast course material when students install from GitHub.
 Depends: R (>= 3.4.1)
 Imports: 
   devtools,
@@ -370,21 +369,17 @@ Imports:
   gridExtra (>= 2.3),
   knitr (>= 1.20),
   magrittr (>= 1.5),
-  png (>= 0.1-7),
   reshape2 (>= 1.4.3),
-  RCurl,
-  roxygen2 (>= 6.1.0),
   stringr (>= 1.3.1),
   tseries (>= 0.10-45),
   urca (>= 1.3-0),
   kableExtra (>= 0.9.0),
-  xaringan,
-  huxtable,
-  rmarkdown (>= 1.10)
+  rmarkdown (>= 1.10),
+  MARSS (>= 3.10.8)
 License: GPL-2
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 6.1.0
+RoxygenNote: 6.1.1
 </pre>
 </div>
 
