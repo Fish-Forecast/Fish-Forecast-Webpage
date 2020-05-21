@@ -24,9 +24,9 @@ class: center, middle, inverse
 # Developing Forecasting Models for Fisheries Time Series with R
 ## PSAW 2019 --- 11 Feb 2019
 
-.futnote[Eli Holmes, NOAA Fisheries]
+.futnote[Eli Holmes, UW SAFS]
 
-.citation[eli.holmes@noaa.gov]
+.citation[eeholmes@uw.edu]
 
 ---
 

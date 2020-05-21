@@ -5,11 +5,10 @@ This is material for our short courses on forecasting univariate fisheries data.
 *Contact*:
 
 Eli Holmes, PhD
-Northwest Fisheries Science Center
-National Marine Fisheries Service
-2725 Montlake Blvd East
+University of Washington
+School of Aquatic and Fisheries Sciences
 Seattle, WA USA
-eli.holmes@noaa.gov
+eeholmes@uw.edu
 www.faculty.washington.edu/eeholmes
 
 # Resources

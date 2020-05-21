@@ -1,10 +1,11 @@
-## ----setup, include=FALSE, message=FALSE---------------------------------
+## ----setup, include=FALSE, message=FALSE--------------------------------------
 options(htmltools.dir.version = FALSE, servr.daemon = TRUE)
 library(huxtable)
 library(ggplot2)
 library(forecast)
 
-## ----load_data_TV_Regression_Forecasting, echo=FALSE---------------------
+
+## ----load_data_TV_Regression_Forecasting, echo=FALSE--------------------------
 load("landings.RData")
 landings$log.metric.tons = log(landings$metric.tons)
 landings = subset(landings, Year <= 1989)
@@ -12,29 +13,36 @@ landings$t = landings$Year-landings$Year[1]
 anchovy = subset(landings, Species=="Anchovy" & Year <= 1987)
 sardine = subset(landings, Species=="Sardine" & Year <= 1987)
 
-## ----tvreg.anchovy2------------------------------------------------------
+
+## ----tvreg.anchovy2-----------------------------------------------------------
 model <- lm(log.metric.tons ~ t, data=anchovy)
 coef(model)
 
-## ----tvreg.forecast1-----------------------------------------------------
+
+## ----tvreg.forecast1----------------------------------------------------------
 coef(model)[1]+coef(model)[2]*24
 
-## ----TVregression.forecast2----------------------------------------------
+
+## ----TVregression.forecast2---------------------------------------------------
 library(forecast)
 fr <- forecast(model, newdata = data.frame(t=24:28))
 
-## ----plot.TVreg.forecast, fig.align = "center"---------------------------
+
+## ----plot.TVreg.forecast, fig.align = "center"--------------------------------
 plot(fr)
 
-## ----tvreg.sardine2------------------------------------------------------
+
+## ----tvreg.sardine2-----------------------------------------------------------
 model <- lm(log.metric.tons ~ t + I(t^2) + I(t^3) + I(t^4), data=anchovy)
 fr <- forecast(model, newdata = data.frame(t=24:28))
 fr
 
-## ----plot.TVreg.forecast.bad---------------------------------------------
+
+## ----plot.TVreg.forecast.bad--------------------------------------------------
 try(plot(fr))
 
-## ----plot.TVreg.func, echo=FALSE-----------------------------------------
+
+## ----plot.TVreg.func, echo=FALSE----------------------------------------------
 plotforecasttv <- function(object, h=10, ylims=NULL){
   dat <- object$model
   dat$fitted <- object$fitted.values
@@ -55,12 +63,15 @@ plotforecasttv <- function(object, h=10, ylims=NULL){
     geom_line(aes(x=t, y=fit), pr95)
 }
 
-## ----plot.TVreg.forecast2, fig.align = "center"--------------------------
+
+## ----plot.TVreg.forecast2, fig.align = "center"-------------------------------
 plotforecasttv(model, ylims=c(8,17))
 
-## ----tvreg.lm1-----------------------------------------------------------
+
+## ----tvreg.lm1----------------------------------------------------------------
 model <- lm(log.metric.tons ~ t + I(t^2), data=sardine)
 
-## ----plot.TVreg.lm1, fig.align = "center"--------------------------------
+
+## ----plot.TVreg.lm1, fig.align = "center"-------------------------------------
 plotforecasttv(model, ylims=c(8,17))
 

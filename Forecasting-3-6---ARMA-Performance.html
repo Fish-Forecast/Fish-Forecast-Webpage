@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Forecasting-3-6---ARMA-Performance.utf8</title>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="my-theme.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+
+
+layout: true
+
+.hheader[&lt;a href="index.html"&gt;&lt;svg style="height:0.8em;top:.04em;position:relative;fill:steelblue;" viewBox="0 0 576 512"&gt;&lt;path d="M280.37 148.26L96 300.11V464a16 16 0 0 0 16 16l112.06-.29a16 16 0 0 0 15.92-16V368a16 16 0 0 1 16-16h64a16 16 0 0 1 16 16v95.64a16 16 0 0 0 16 16.05L464 480a16 16 0 0 0 16-16V300L295.67 148.26a12.19 12.19 0 0 0-15.3 0zM571.6 251.47L488 182.56V44.05a12 12 0 0 0-12-12h-56a12 12 0 0 0-12 12v72.61L318.47 43a48 48 0 0 0-61 0L4.34 251.47a12 12 0 0 0-1.6 16.9l25.5 31A12 12 0 0 0 45.15 301l235.22-193.74a12.19 12.19 0 0 1 15.3 0L530.9 301a12 12 0 0 0 16.9-1.6l25.5-31a12 12 0 0 0-1.7-16.93z"/&gt;&lt;/svg&gt;&lt;/a&gt;]
+
+---
+
+
+
+class: center, middle, inverse
+# ARIMA Models
+## Cross Validation
+
+.futnote[Eli Holmes, UW SAFS]
+
+.citation[eeholmes@uw.edu]
+
+---
+
+
+
+
+
+## Measures of forecast fit
+
+To measure the forecast fit, we fit a model to training data and test a forecast against data in a test set.  We 'held out' the test data and did not use it at all in our fitting.
+
+&lt;img src="Forecasting-3-6---ARMA-Performance_files/figure-html/unnamed-chunk-1-1.png" style="display: block; margin: auto;" /&gt;
+
+---
+
+We will fit to the training data and make a forecast.
+
+
+```r
+fit1 &lt;- auto.arima(traindat)
+fr &lt;- forecast(fit1, h=2)
+fr
+```
+
+```
+##    Point Forecast    Lo 80    Hi 80    Lo 95    Hi 95
+## 25       10.03216 9.789577 10.27475 9.661160 10.40317
+## 26       10.09625 9.832489 10.36001 9.692861 10.49964
+```
+
+&lt;img src="Forecasting-3-6---ARMA-Performance_files/figure-html/unnamed-chunk-3-1.png" style="display: block; margin: auto;" /&gt;
+
+---
+
+How to we quantify the difference between the forecast and the actual values?
+
+
+```r
+fr.err &lt;- testdat - fr$mean
+fr.err
+```
+
+```
+## Time Series:
+## Start = 25 
+## End = 26 
+## Frequency = 1 
+## [1] -0.1704302 -0.4944778
+```
+
+There are many metrics.  The `accuracy()` function in forecast provides many different metrics: mean error, root mean square error, mean absolute error, mean percentage error, mean absolute percentage error.
+
+---
+
+### ME Mean err
+
+
+```r
+me &lt;- mean(fr.err)
+me
+```
+
+```
+## [1] -0.332454
+```
+
+### RMSE Root mean squared error
+
+
+```r
+rmse &lt;- sqrt(mean(fr.err^2))
+rmse
+```
+
+```
+## [1] 0.3698342
+```
+
+### MAE Mean absolute error
+
+
+```r
+mae &lt;- mean(abs(fr.err))
+mae
+```
+
+```
+## [1] 0.332454
+```
+
+---
+
+### MPE Mean percentage error
+
+
+```r
+fr.pe &lt;- 100*fr.err/testdat
+mpe &lt;- mean(fr.pe)
+mpe
+```
+
+```
+## [1] -3.439028
+```
+
+### MAPE Mean absolute percentage error
+
+
+```r
+mape &lt;- mean(abs(fr.pe))
+mape
+```
+
+```
+## [1] 3.439028
+```
+
+---
+
+
+```r
+accuracy(fr, testdat)[,1:5]
+```
+
+```
+##                       ME      RMSE       MAE        MPE     MAPE
+## Training set -0.00473511 0.1770653 0.1438523 -0.1102259 1.588409
+## Test set     -0.33245398 0.3698342 0.3324540 -3.4390277 3.439028
+```
+
+
+```r
+c(me, rmse, mae, mpe, mape)
+```
+
+```
+## [1] -0.3324540  0.3698342  0.3324540 -3.4390277  3.4390277
+```
+
+---
+
+## Test all the models in your candidate model
+
+Now that you have some metrics for forecast accuracy, you can compute these for all the models in your candidate set.
+
+
+```r
+# The model picked by auto.arima
+fit1 &lt;- Arima(traindat, order=c(0,1,1))
+fr1 &lt;- forecast(fit1, h=2)
+test1 &lt;- accuracy(fr1, testdat)[2,1:5]
+
+# AR-1
+fit2 &lt;- Arima(traindat, order=c(1,1,0))
+fr2 &lt;- forecast(fit2, h=2)
+test2 &lt;- accuracy(fr2, testdat)[2,1:5]
+
+# Naive model with drift
+fit3 &lt;- rwf(traindat, drift=TRUE)
+fr3 &lt;- forecast(fit3, h=2)
+test3 &lt;- accuracy(fr3, testdat)[2,1:5]
+```
+
+---
+
+## Show a summary
+
+&lt;table&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:left;"&gt;   &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; ME &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; RMSE &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; MAE &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; MPE &lt;/th&gt;
+   &lt;th style="text-align:left;"&gt; MAPE &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; (0,1,1) &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; -0.293 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 0.320 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 0.293 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; -3.024 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 3.024 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; (1,1,0) &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; -0.309 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 0.341 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 0.309 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; -3.200 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 3.200 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; Naive &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; -0.483 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 0.510 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 0.483 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; -4.985 &lt;/td&gt;
+   &lt;td style="text-align:left;"&gt; 4.985 &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+
+---
+
+## Cross-Validation
+
+An alternate approach to testing a model's forecast accuracy is to use cross-validation.  This approach uses windows or shorter segments of the whole time series to make a series of single forecasts.  We can use either a sliding or a fixed window.  For example for the Anchovy time series, we could fit the model 1964-1973 and forecast 1974, then 1964-1974 and forecast 1975, then 1964-1975 and forecast 1976, and continue up to 1964-1988 and forecast 1989.  This would create 16 forecasts to test.  The window is 'sliding' because the length of the time series used for fitting the model, keeps increasing by 1.
+
+---
+
+&lt;img src="Forecasting-3-6---ARMA-Performance_files/figure-html/cv.sliding-1.png" style="display: block; margin: auto;" /&gt;
+
+---
+
+Another approach uses a fixed window.  For example, a 10-year window.
+
+&lt;img src="Forecasting-3-6---ARMA-Performance_files/figure-html/cv.fixed-1.png" style="display: block; margin: auto;" /&gt;
+
+---
+
+## Time-series cross-validation with the forecast package
+
+
+```r
+far2 &lt;- function(x, h, order){
+  forecast(Arima(x, order=order), h=h)
+  }
+e &lt;- tsCV(traindat, far2, h=1, order=c(0,1,1))
+tscv1 &lt;- c(ME=mean(e, na.rm=TRUE), RMSE=sqrt(mean(e^2, na.rm=TRUE)), MAE=mean(abs(e), na.rm=TRUE))
+tscv1
+```
+
+```
+##        ME      RMSE       MAE 
+## 0.1128788 0.2261706 0.1880392
+```
+
+Compare to RMSE from just the 2 test data points.
+
+```r
+test1[c("ME","RMSE","MAE")]
+```
+
+```
+##         ME       RMSE        MAE 
+## -0.2925326  0.3201093  0.2925326
+```
+
+---
+
+## Cross-validation farther in future
+
+&lt;img src="Forecasting-3-6---ARMA-Performance_files/figure-html/cv.sliding.4plot-1.png" style="display: block; margin: auto;" /&gt;
+
+
+---
+
+Compare accuracy of forecasts 1 year out versus 4 years out.  If `h` is greater than 1, then the errors are returned as a matrix with each `h` in a column.  Column 4 is the forecast, 4 years out.
+
+
+```r
+e &lt;- tsCV(traindat, far2, h=4, order=c(0,1,1))[,4]
+#RMSE
+tscv4 &lt;- c(ME=mean(e, na.rm=TRUE), RMSE=sqrt(mean(e^2, na.rm=TRUE)), MAE=mean(abs(e), na.rm=TRUE))
+rbind(tscv1, tscv4)
+```
+
+```
+##              ME      RMSE       MAE
+## tscv1 0.1128788 0.2261706 0.1880392
+## tscv4 0.2839064 0.3812815 0.3359689
+```
+
+---
+
+Compare accuracy of forecasts with a fixed 10-year window and 1-year out forecasts.
+
+
+```r
+e &lt;- tsCV(traindat, far2, h=1, order=c(0,1,1), window=10)
+#RMSE
+tscvf1 &lt;- c(ME=mean(e, na.rm=TRUE), RMSE=sqrt(mean(e^2, na.rm=TRUE)), MAE=mean(abs(e), na.rm=TRUE))
+tscvf1
+```
+
+```
+##        ME      RMSE       MAE 
+## 0.1387670 0.2286572 0.1942840
+```
+
+---
+
+
+```r
+comp.tab &lt;- rbind(test1=test1[c("ME","RMSE","MAE")],
+      slide1=tscv1,
+      slide4=tscv4,
+      fixed1=tscvf1)
+knitr::kable(comp.tab, format="html")
+```
+
+&lt;table&gt;
+ &lt;thead&gt;
+  &lt;tr&gt;
+   &lt;th style="text-align:left;"&gt;   &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; ME &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; RMSE &lt;/th&gt;
+   &lt;th style="text-align:right;"&gt; MAE &lt;/th&gt;
+  &lt;/tr&gt;
+ &lt;/thead&gt;
+&lt;tbody&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; test1 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; -0.2925326 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0.3201093 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0.2925326 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; slide1 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0.1128788 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0.2261706 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0.1880392 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; slide4 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0.2839064 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0.3812815 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0.3359689 &lt;/td&gt;
+  &lt;/tr&gt;
+  &lt;tr&gt;
+   &lt;td style="text-align:left;"&gt; fixed1 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0.1387670 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0.2286572 &lt;/td&gt;
+   &lt;td style="text-align:right;"&gt; 0.1942840 &lt;/td&gt;
+  &lt;/tr&gt;
+&lt;/tbody&gt;
+&lt;/table&gt;
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"highlightLines": true
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

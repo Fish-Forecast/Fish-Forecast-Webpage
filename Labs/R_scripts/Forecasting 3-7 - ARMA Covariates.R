@@ -1,16 +1,18 @@
-## ----setup, include=FALSE, message=FALSE---------------------------------
+## ----setup, include=FALSE, message=FALSE--------------------------------------
 options(htmltools.dir.version = FALSE, servr.daemon = TRUE)
 knitr::opts_chunk$set(fig.height=5, fig.align="center")
 library(huxtable)
 
-## ----load_packages, echo=FALSE, message=FALSE, warning=FALSE-------------
+
+## ----load_packages, echo=FALSE, message=FALSE, warning=FALSE------------------
 library(ggplot2)
 library(gridExtra)
 library(reshape2)
 library(tseries)
 library(forecast)
 
-## ---- echo=FALSE, eval=FALSE---------------------------------------------
+
+## ---- echo=FALSE, eval=FALSE--------------------------------------------------
 ## library(RCurl)
 ## library(XML)
 ## library(stringr)
@@ -42,6 +44,7 @@ library(forecast)
 ## colnames(covsmean.year) <- c("Year",colnames(covsmean)[2:(dim(covsmean)[2]-1)])
 ## save(landings, covs, covsmean.mon, covsmean.year, file="landings.RData")
 
-## ----load_data2, message=FALSE, warning=FALSE, echo=FALSE----------------
+
+## ----load_data2, message=FALSE, warning=FALSE, echo=FALSE---------------------
 load("landings.RData")
 

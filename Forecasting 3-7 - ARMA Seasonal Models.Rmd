@@ -23,9 +23,9 @@ library(huxtable)
 class: center, middle, inverse
 # Seasonal ARIMA Models
 
-.futnote[Eli Holmes, NOAA Fisheries]
+.futnote[Eli Holmes, UW SAFS]
 
-.citation[eli.holmes@noaa.gov]
+.citation[eeholmes@uw.edu]
 
 ---
 

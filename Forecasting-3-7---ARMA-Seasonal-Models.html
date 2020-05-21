@@ -1,0 +1,484 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Forecasting-3-7---ARMA-Seasonal-Models.utf8</title>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="my-theme.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+
+
+layout: true
+
+.hheader[&lt;a href="index.html"&gt;&lt;svg style="height:0.8em;top:.04em;position:relative;fill:steelblue;" viewBox="0 0 576 512"&gt;&lt;path d="M280.37 148.26L96 300.11V464a16 16 0 0 0 16 16l112.06-.29a16 16 0 0 0 15.92-16V368a16 16 0 0 1 16-16h64a16 16 0 0 1 16 16v95.64a16 16 0 0 0 16 16.05L464 480a16 16 0 0 0 16-16V300L295.67 148.26a12.19 12.19 0 0 0-15.3 0zM571.6 251.47L488 182.56V44.05a12 12 0 0 0-12-12h-56a12 12 0 0 0-12 12v72.61L318.47 43a48 48 0 0 0-61 0L4.34 251.47a12 12 0 0 0-1.6 16.9l25.5 31A12 12 0 0 0 45.15 301l235.22-193.74a12.19 12.19 0 0 1 15.3 0L530.9 301a12 12 0 0 0 16.9-1.6l25.5-31a12 12 0 0 0-1.7-16.93z"/&gt;&lt;/svg&gt;&lt;/a&gt;]
+
+---
+
+
+
+class: center, middle, inverse
+# Seasonal ARIMA Models
+
+.futnote[Eli Holmes, UW SAFS]
+
+.citation[eeholmes@uw.edu]
+
+---
+
+
+
+## Seasonality
+
+Load the chinook salmon data set
+
+
+```r
+load("chinook.RData")
+head(chinook)
+```
+
+<table class="huxtable" style="border-collapse: collapse; margin-bottom: 2em; margin-top: 2em; width: 38.8888888888889%; margin-left: 0%; margin-right: auto;  ">
+<col><col><col><col><col><tr>
+<td style="vertical-align: top; text-align: right; white-space: nowrap; border-style: solid solid solid solid; border-width: 0.4pt 0pt 0.4pt 0.4pt; padding: 4pt 4pt 4pt 4pt; font-weight: bold;">Year</td>
+<td style="vertical-align: top; text-align: left; white-space: nowrap; border-style: solid solid solid solid; border-width: 0.4pt 0pt 0.4pt 0pt; padding: 4pt 4pt 4pt 4pt; font-weight: bold;">Month</td>
+<td style="vertical-align: top; text-align: left; white-space: nowrap; border-style: solid solid solid solid; border-width: 0.4pt 0pt 0.4pt 0pt; padding: 4pt 4pt 4pt 4pt; font-weight: bold;">Species</td>
+<td style="vertical-align: top; text-align: right; white-space: nowrap; border-style: solid solid solid solid; border-width: 0.4pt 0pt 0.4pt 0pt; padding: 4pt 4pt 4pt 4pt; font-weight: bold;">log.metric.tons</td>
+<td style="vertical-align: top; text-align: right; white-space: nowrap; border-style: solid solid solid solid; border-width: 0.4pt 0.4pt 0.4pt 0pt; padding: 4pt 4pt 4pt 4pt; font-weight: bold;">metric.tons</td>
+</tr>
+<tr>
+<td style="vertical-align: top; text-align: right; white-space: nowrap; border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0.4pt; padding: 4pt 4pt 4pt 4pt; background-color: rgb(242, 242, 242);">1990</td>
+<td style="vertical-align: top; text-align: left; white-space: nowrap; padding: 4pt 4pt 4pt 4pt; background-color: rgb(242, 242, 242);">Jan</td>
+<td style="vertical-align: top; text-align: left; white-space: nowrap; padding: 4pt 4pt 4pt 4pt; background-color: rgb(242, 242, 242);">Chinook</td>
+<td style="vertical-align: top; text-align: right; white-space: normal; padding: 4pt 4pt 4pt 4pt; background-color: rgb(242, 242, 242);">3.4&nbsp;</td>
+<td style="vertical-align: top; text-align: right; white-space: nowrap; border-style: solid solid solid solid; border-width: 0pt 0.4pt 0pt 0pt; padding: 4pt 4pt 4pt 4pt; background-color: rgb(242, 242, 242);">29.9</td>
+</tr>
+<tr>
+<td style="vertical-align: top; text-align: right; white-space: nowrap; border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0.4pt; padding: 4pt 4pt 4pt 4pt;">1990</td>
+<td style="vertical-align: top; text-align: left; white-space: nowrap; padding: 4pt 4pt 4pt 4pt;">Feb</td>
+<td style="vertical-align: top; text-align: left; white-space: nowrap; padding: 4pt 4pt 4pt 4pt;">Chinook</td>
+<td style="vertical-align: top; text-align: right; white-space: normal; padding: 4pt 4pt 4pt 4pt;">3.81</td>
+<td style="vertical-align: top; text-align: right; white-space: nowrap; border-style: solid solid solid solid; border-width: 0pt 0.4pt 0pt 0pt; padding: 4pt 4pt 4pt 4pt;">45.1</td>
+</tr>
+<tr>
+<td style="vertical-align: top; text-align: right; white-space: nowrap; border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0.4pt; padding: 4pt 4pt 4pt 4pt; background-color: rgb(242, 242, 242);">1990</td>
+<td style="vertical-align: top; text-align: left; white-space: nowrap; padding: 4pt 4pt 4pt 4pt; background-color: rgb(242, 242, 242);">Mar</td>
+<td style="vertical-align: top; text-align: left; white-space: nowrap; padding: 4pt 4pt 4pt 4pt; background-color: rgb(242, 242, 242);">Chinook</td>
+<td style="vertical-align: top; text-align: right; white-space: normal; padding: 4pt 4pt 4pt 4pt; background-color: rgb(242, 242, 242);">3.51</td>
+<td style="vertical-align: top; text-align: right; white-space: nowrap; border-style: solid solid solid solid; border-width: 0pt 0.4pt 0pt 0pt; padding: 4pt 4pt 4pt 4pt; background-color: rgb(242, 242, 242);">33.5</td>
+</tr>
+<tr>
+<td style="vertical-align: top; text-align: right; white-space: nowrap; border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0.4pt; padding: 4pt 4pt 4pt 4pt;">1990</td>
+<td style="vertical-align: top; text-align: left; white-space: nowrap; padding: 4pt 4pt 4pt 4pt;">Apr</td>
+<td style="vertical-align: top; text-align: left; white-space: nowrap; padding: 4pt 4pt 4pt 4pt;">Chinook</td>
+<td style="vertical-align: top; text-align: right; white-space: normal; padding: 4pt 4pt 4pt 4pt;">4.25</td>
+<td style="vertical-align: top; text-align: right; white-space: nowrap; border-style: solid solid solid solid; border-width: 0pt 0.4pt 0pt 0pt; padding: 4pt 4pt 4pt 4pt;">70&nbsp;&nbsp;</td>
+</tr>
+<tr>
+<td style="vertical-align: top; text-align: right; white-space: nowrap; border-style: solid solid solid solid; border-width: 0pt 0pt 0pt 0.4pt; padding: 4pt 4pt 4pt 4pt; background-color: rgb(242, 242, 242);">1990</td>
+<td style="vertical-align: top; text-align: left; white-space: nowrap; padding: 4pt 4pt 4pt 4pt; background-color: rgb(242, 242, 242);">May</td>
+<td style="vertical-align: top; text-align: left; white-space: nowrap; padding: 4pt 4pt 4pt 4pt; background-color: rgb(242, 242, 242);">Chinook</td>
+<td style="vertical-align: top; text-align: right; white-space: normal; padding: 4pt 4pt 4pt 4pt; background-color: rgb(242, 242, 242);">5.2&nbsp;</td>
+<td style="vertical-align: top; text-align: right; white-space: nowrap; border-style: solid solid solid solid; border-width: 0pt 0.4pt 0pt 0pt; padding: 4pt 4pt 4pt 4pt; background-color: rgb(242, 242, 242);">181&nbsp;&nbsp;</td>
+</tr>
+<tr>
+<td style="vertical-align: top; text-align: right; white-space: nowrap; border-style: solid solid solid solid; border-width: 0pt 0pt 0.4pt 0.4pt; padding: 4pt 4pt 4pt 4pt;">1990</td>
+<td style="vertical-align: top; text-align: left; white-space: nowrap; border-style: solid solid solid solid; border-width: 0pt 0pt 0.4pt 0pt; padding: 4pt 4pt 4pt 4pt;">Jun</td>
+<td style="vertical-align: top; text-align: left; white-space: nowrap; border-style: solid solid solid solid; border-width: 0pt 0pt 0.4pt 0pt; padding: 4pt 4pt 4pt 4pt;">Chinook</td>
+<td style="vertical-align: top; text-align: right; white-space: normal; border-style: solid solid solid solid; border-width: 0pt 0pt 0.4pt 0pt; padding: 4pt 4pt 4pt 4pt;">4.37</td>
+<td style="vertical-align: top; text-align: right; white-space: nowrap; border-style: solid solid solid solid; border-width: 0pt 0.4pt 0.4pt 0pt; padding: 4pt 4pt 4pt 4pt;">79.2</td>
+</tr>
+</table>
+
+
+---
+
+The data are monthly and start in January 1990.  To make this into a ts object do
+
+
+```r
+chinookts &lt;- ts(chinook$log.metric.tons, start=c(1990,1), 
+                frequency=12)
+```
+`start` is the year and month and frequency is the number of months in the year.  
+
+Use `?ts` to see more examples of how to set up ts objects.
+
+---
+
+## Plot seasonal data
+
+
+```r
+plot(chinookts)
+```
+
+&lt;img src="Forecasting-3-7---ARMA-Seasonal-Models_files/figure-html/unnamed-chunk-3-1.png" style="display: block; margin: auto;" /&gt;
+
+---
+
+## Seasonal ARIMA model
+
+Seasonally differenced data:
+
+`$$z_t = x_t - x_{t+s} - m$$`
+
+Basic structure of a seasonal AR model
+
+`\(z_t\)` = AR(p) + AR(season) + AR(p+season)
+
+
+Example AR(1) non-seasonal part + AR(1) seasonal part
+
+`$$z_t = \phi_1 z_{t-1} + \Phi_1 z_{t-12} - \phi_1\Phi_1 z_{t-13}$$`
+
+---
+
+## Notation
+
+ARIMA (p,d,q)(ps,ds,qs)S
+
+
+ARIMA (1,0,0)(1,1,0)[12]
+
+Notice we are modeling `\(x\)` this year in Jan (say) as a function of `\(x\)` in Jan last year.
+
+---
+
+## Seasonal models
+
+Let's imagine that we can describe our data as a combination of the mean trend, a seasonal term, and error.
+
+`$$x_t = \mu t+ s_t + w_t$$`
+Let's imagine that the seasonal term is just a constant based on month and doesn't change with time.
+
+`$$s_t = f(month)$$`
+
+---
+
+We want to remove the `\(s_t\)` with differencing so that we can model `\(e_t\)`.  We can solve for `\(x_{t+1}\)` by using `\(x_{t-s}\)` where `\(s\)` is the seasonal length (e.g. 12 if season is yearly).
+
+When we take the first seasonal difference, we get
+`$$\Delta_s x_t = \mu(t-(t-s)) + s_t - s_{t-s} + w_t - w_{t-s} = \mu s + w_t - w_{t-s}$$`
+The `\(s_t-s_{t-s}\)` disappears because `\(s_t = s_{t-s}\)` when the seasonal effect is just a function of the month.  Depending on what `\(m_t\)` is, we might be done or we might have to do a first difference.  Notice that the error term is a moving average in the seasonal part.
+
+---
+
+&lt;img src="Forecasting-3-7---ARMA-Seasonal-Models_files/figure-html/unnamed-chunk-4-1.png" style="display: block; margin: auto;" /&gt;
+
+
+```r
+plot(diff(xt,lag=12))
+```
+
+&lt;img src="Forecasting-3-7---ARMA-Seasonal-Models_files/figure-html/unnamed-chunk-5-1.png" style="display: block; margin: auto;" /&gt;
+
+---
+
+We can recover the model parameters with `Arima()`. Note the drift term is returned at `\(\mu\)` not `\(\mu s\)`.
+
+```r
+forecast::Arima(xt, seasonal=c(0,1,1), include.drift=TRUE)
+```
+
+```
+## Series: xt 
+## ARIMA(0,0,0)(0,1,1)[12] with drift 
+## 
+## Coefficients:
+##          sma1   drift
+##       -1.0000  0.0496
+## s.e.   0.1845  0.0008
+## 
+## sigma^2 estimated as 0.08162:  log likelihood=-30.74
+## AIC=67.49   AICc=67.72   BIC=75.53
+```
+
+---
+
+`auto.arima()` identifies a ARIMA(0,0,0)(0,1,2)[12].
+
+```r
+forecast::auto.arima(xt, stepwise=FALSE)
+```
+
+```
+## Series: xt 
+## ARIMA(0,0,0)(0,1,2)[12] with drift 
+## 
+## Coefficients:
+##          sma1    sma2   drift
+##       -1.0488  0.1765  0.0496
+## s.e.   0.1606  0.1148  0.0007
+## 
+## sigma^2 estimated as 0.08705:  log likelihood=-29.56
+## AIC=67.12   AICc=67.51   BIC=77.85
+```
+
+---
+
+## Seasonal model with changing season
+
+Let's imagine that our seasonality is increasing over time.
+
+`$$s_t = \beta \times year \times f(month)\times$$`
+When we take the first seasonal difference, we get
+`$$\Delta_s x_t = \mu(t-(t-s)) + \beta f(month)\times (year - (year-1)) + w_t - w_{t-s} \\ = \mu s + \beta f(month) + w_t - w_{t-s}$$`
+
+---
+
+We need to take another seasonal difference to get rid of the `\(f(month)\)` which is not a constant; it is different for different months as it is our seasonality.
+`$$\Delta^2_{s} x_t = w_t - w_{t-s} - w_{t-s} + w_{t-2s}=w_t - 2w_{t-s} + w_{t-2s}$$`
+So our ARIMA model should be ARIMA(0,0,0)(0,2,2)
+
+---
+
+&lt;img src="Forecasting-3-7---ARMA-Seasonal-Models_files/figure-html/unnamed-chunk-8-1.png" style="display: block; margin: auto;" /&gt;
+
+---
+
+But we can recover the model with `Arima()`. Note the drift term is returned at `\(\mu\)` not `\(\mu s\)`.
+
+```r
+forecast::Arima(xt, seasonal=c(0,2,2))
+```
+
+```
+## Series: xt 
+## ARIMA(0,0,0)(0,2,2)[12] 
+## 
+## Coefficients:
+##          sma1    sma2
+##       -1.7745  0.9994
+## s.e.   0.4178  0.4624
+## 
+## sigma^2 estimated as 0.1045:  log likelihood=-55.1
+## AIC=116.2   AICc=116.46   BIC=123.9
+```
+
+---
+
+`auto.arima()` again has problems and returns many Infs; turn on `trace=TRUE` to see the problem.
+
+```r
+forecast::auto.arima(xt, stepwise=FALSE)
+```
+
+```
+## Series: xt 
+## ARIMA(4,0,0)(1,1,0)[12] with drift 
+## 
+## Coefficients:
+##          ar1      ar2     ar3      ar4     sar1   drift
+##       0.2548  -0.0245  0.2166  -0.2512  -0.5393  0.0492
+## s.e.  0.0945   0.0947  0.0943   0.0966   0.0868  0.0025
+## 
+## sigma^2 estimated as 0.1452:  log likelihood=-48.2
+## AIC=110.41   AICc=111.53   BIC=129.18
+```
+
+---
+
+## Seasonal model with changing season #2
+
+Let's imagine that our seasonality increases and then decreases.
+
+`$$s_t = (a y^2-b y+h) f(month)$$`
+&lt;img src="Forecasting-3-7---ARMA-Seasonal-Models_files/figure-html/unnamed-chunk-11-1.png" style="display: block; margin: auto;" /&gt;
+
+---
+
+Then we need to take 3 seasonal differences to get rid of the seasonality. The first will get rid of the `\(h f(month)\)`, the next will get rid of `\(by\)` (year) terms and `\(y^2\)` terms, the third will get rid of extra `\(y\)` terms introduced by the 2nd difference.  The seasonal differences will get rid of the linear trend also.
+
+`$$\Delta^3_{s} x_t = w_t - 2w_{t-s} + w_{t-2s}-w_{t-s}+2w_{t-2s}-w_{t-3s}=w_t - 3w_{t-s} + 3w_{t-2s}-w_{t-3s}$$`
+
+So our ARIMA model should be ARIMA(0,0,0)(0,3,3).
+
+---
+
+## `auto.arima()` for seasonal ts
+
+`auto.arima()` will recognize that our data has season and fit a seasonal ARIMA model to our data by default.  We will define the training data up to 1998 and use 1999 as the test data.
+
+
+```r
+traindat &lt;- window(chinookts, c(1990,10), c(1998,12))
+testdat &lt;- window(chinookts, c(1999,1), c(1999,12))
+fit &lt;- forecast::auto.arima(traindat)
+fit
+```
+
+```
+## Series: traindat 
+## ARIMA(1,0,0)(0,1,0)[12] with drift 
+## 
+## Coefficients:
+##          ar1    drift
+##       0.3676  -0.0320
+## s.e.  0.1335   0.0127
+## 
+## sigma^2 estimated as 0.8053:  log likelihood=-107.37
+## AIC=220.73   AICc=221.02   BIC=228.13
+```
+
+---
+
+## Forecast using seasonal model
+
+
+```r
+fr &lt;- forecast::forecast(fit, h=12)
+plot(fr)
+points(testdat)
+```
+
+&lt;img src="Forecasting-3-7---ARMA-Seasonal-Models_files/figure-html/unnamed-chunk-13-1.png" style="display: block; margin: auto;" /&gt;
+
+---
+
+## Missing values
+
+Missing values are ok when fitting a seasonal ARIMA model
+
+&lt;img src="Forecasting-3-7---ARMA-Seasonal-Models_files/figure-html/unnamed-chunk-14-1.png" style="display: block; margin: auto;" /&gt;
+
+---
+
+## Summary
+
+Basic steps for identifying a seasonal model.  **forecast** automates most of this.
+
+* Check that you have specified your season correctly in your ts object.
+
+* Plot your data.  Look for trend, seasonality and random walks.
+
+---
+
+## Summary
+
+* Use differencing to remove season and trend.
+
+    * Season and no trend.  Take a difference of lag = season
+    * No seasonality but a trend.  Try a first difference
+    * Both. Do both types of differences
+    * Neither. No differencing.
+    * Random walk. First difference.
+    * Parametric looking curve. Tranform.
+    
+---
+
+## Summary
+
+* Examine the ACF and PACF of the differenced data.
+    * Look for patterns (spikes) at seasonal lags
+
+* Estimate likely models and compare with model selection criteria (or cross-validation). Use `TRACE=TRUE`
+
+* Do residual checks.
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"highlightLines": true
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

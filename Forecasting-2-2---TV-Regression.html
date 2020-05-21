@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Forecasting-2-2---TV-Regression.utf8</title>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="my-theme.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+
+
+layout: true
+
+.hheader[&lt;a href="index.html"&gt;&lt;svg style="height:0.8em;top:.04em;position:relative;fill:steelblue;" viewBox="0 0 576 512"&gt;&lt;path d="M280.37 148.26L96 300.11V464a16 16 0 0 0 16 16l112.06-.29a16 16 0 0 0 15.92-16V368a16 16 0 0 1 16-16h64a16 16 0 0 1 16 16v95.64a16 16 0 0 0 16 16.05L464 480a16 16 0 0 0 16-16V300L295.67 148.26a12.19 12.19 0 0 0-15.3 0zM571.6 251.47L488 182.56V44.05a12 12 0 0 0-12-12h-56a12 12 0 0 0-12 12v72.61L318.47 43a48 48 0 0 0-61 0L4.34 251.47a12 12 0 0 0-1.6 16.9l25.5 31A12 12 0 0 0 45.15 301l235.22-193.74a12.19 12.19 0 0 1 15.3 0L530.9 301a12 12 0 0 0 16.9-1.6l25.5-31a12 12 0 0 0-1.7-16.93z"/&gt;&lt;/svg&gt;&lt;/a&gt;]
+
+---
+
+
+
+class: center, middle, inverse
+# Forecasting Time Series
+## Time-varying Regression: Forecasting
+
+.futnote[Eli Holmes, UW SAFS]
+
+.citation[eeholmes@uw.edu]
+
+---
+
+
+
+Forecasting is easy in R once you have a fitted model.  
+
+Let's say for the anchovy, we fit the model
+
+`$$C_t = \alpha + \beta t + e_t$$`
+where `\(t\)` starts at 0 (so 1964 is `\(t=0\)` ).  To predict, predict the catch in year t, we use
+
+`$$C_t = \alpha + \beta t + e_t$$`
+---
+
+Model fit:
+
+
+```r
+model &lt;- lm(log.metric.tons ~ t, data=anchovy)
+coef(model)
+```
+
+```
+## (Intercept)           t 
+##  8.41962028  0.05818942
+```
+
+For anchovy, the estimated `\(\alpha\)` (Intercept) is 8.4196203 and `\(\beta\)` is 0.0581894.  We want to use these estimates to forecast 1988 ( `\(t=24\)` ).
+
+So the 1988 forecast is 8.4196203 + 0.0581894 `\(\times\)` 24 :
+
+
+```r
+coef(model)[1]+coef(model)[2]*24
+```
+
+```
+## (Intercept) 
+##    9.816166
+```
+
+log metric tons.
+
+---
+
+# The forecast package
+
+The forecast package in R makes it easy to create forecasts with fitted models and to plot (some of) those forecasts.
+
+For a TV Regression model, our `forecast()` call looks like
+
+
+```r
+library(forecast)
+fr &lt;- forecast(model, newdata = data.frame(t=24:28))
+```
+
+---
+
+The dark grey bands are the 80% prediction intervals and the light grey are the 95% prediction intervals.
+
+
+```r
+plot(fr)
+```
+
+&lt;img src="Forecasting-2-2---TV-Regression_files/figure-html/plot.TVreg.forecast-1.png" style="display: block; margin: auto;" /&gt;
+
+---
+
+Sardine forecasts from a higher order polynomial can similarly be made.  Let's fit a 4-th order polynomial.
+
+
+`$$C_t = \alpha + \beta_1 t + \beta_2 t^2 + \beta_3 t^3 + \beta_4 t^4 + e_t$$`
+
+To forecast with this model, we fit the model to estimate the `\(\beta\)`'s and then replace `\(t\)` with `\(24\)`:
+
+`$$C_{1988} = \alpha + \beta_1 24 + \beta_2 24^2 + \beta_3 24^3 + \beta_4 24^4 + e_t$$`
+
+---
+
+This is how to do that in R:
+
+
+```r
+model &lt;- lm(log.metric.tons ~ t + I(t^2) + I(t^3) + I(t^4), data=anchovy)
+fr &lt;- forecast(model, newdata = data.frame(t=24:28))
+fr
+```
+
+```
+##   Point Forecast    Lo 80    Hi 80    Lo 95    Hi 95
+## 1       10.18017 9.856576 10.50377 9.670058 10.69028
+## 2       10.30288 9.849849 10.75591 9.588723 11.01704
+## 3       10.41391 9.770926 11.05689 9.400315 11.42750
+## 4       10.50839 9.609866 11.40691 9.091963 11.92482
+## 5       10.58101 9.354533 11.80748 8.647599 12.51442
+```
+
+---
+
+Unfortunately, forecast does not recognize that there is only one predictor `\(t\)` and we cannot use forecast's plot function.
+
+If you do this in R, it throws an error.
+
+```r
+try(plot(fr))
+```
+
+```
+## Error in plotlmforecast(x, PI = PI, shaded = shaded, shadecols = shadecols,  : 
+##   Forecast plot for regression models only available for a single predictor
+```
+
+```
+Error in plotlmforecast(x, PI = PI, shaded = shaded, shadecols = shadecols, : Forecast plot for regression models only available for a single predictor
+```
+
+---
+
+
+
+I created a function that you can use to plot time-varying regressions with polynomial `\(t\)`.  You will use this function in the lab.
+
+
+```r
+plotforecasttv(model, ylims=c(8,17))
+```
+
+&lt;img src="Forecasting-2-2---TV-Regression_files/figure-html/plot.TVreg.forecast2-1.png" style="display: block; margin: auto;" /&gt;
+
+---
+
+A feature of a time-varying regression with many polynomials is that it fits the data well, but the forecast quickly becomes uncertain due to uncertainty regarding the polynomial fit.  A simpler model can give forecasts that do not become rapidly uncertain.
+
+The flip-side is that the simpler model may not capture the short-term trends very well and may suffer from autocorrelated residuals.
+
+
+
+
+```r
+model &lt;- lm(log.metric.tons ~ t + I(t^2), data=sardine)
+```
+
+---
+
+
+```r
+plotforecasttv(model, ylims=c(8,17))
+```
+
+&lt;img src="Forecasting-2-2---TV-Regression_files/figure-html/plot.TVreg.lm1-1.png" style="display: block; margin: auto;" /&gt;
+
+---
+
+# Summary
+
+* Time-varying regression is a simple approach to forecasting that allows a non-linear trend.
+* The uncertainty in your forecast is determined by how much error there is between the fit an the data.
+* Fit must be balanced against prediction uncertainty.
+* R allows you to quickly fit models and compute the prediction intervals.
+
+Careful thought must be given to selecting the polynomial order.
+
+* Standard methods are available in R for order selection
+* Using different orders for different data sets has prediction consequences
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"highlightLines": true
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Forecasting-3-1---ARMA-Intro.utf8</title>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="my-theme.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+
+
+layout: true
+
+.hheader[&lt;a href="index.html"&gt;&lt;svg style="height:0.8em;top:.04em;position:relative;fill:steelblue;" viewBox="0 0 576 512"&gt;&lt;path d="M280.37 148.26L96 300.11V464a16 16 0 0 0 16 16l112.06-.29a16 16 0 0 0 15.92-16V368a16 16 0 0 1 16-16h64a16 16 0 0 1 16 16v95.64a16 16 0 0 0 16 16.05L464 480a16 16 0 0 0 16-16V300L295.67 148.26a12.19 12.19 0 0 0-15.3 0zM571.6 251.47L488 182.56V44.05a12 12 0 0 0-12-12h-56a12 12 0 0 0-12 12v72.61L318.47 43a48 48 0 0 0-61 0L4.34 251.47a12 12 0 0 0-1.6 16.9l25.5 31A12 12 0 0 0 45.15 301l235.22-193.74a12.19 12.19 0 0 1 15.3 0L530.9 301a12 12 0 0 0 16.9-1.6l25.5-31a12 12 0 0 0-1.7-16.93z"/&gt;&lt;/svg&gt;&lt;/a&gt;]
+
+---
+
+
+
+class: center, middle, inverse
+# Forecasting Time Series
+## ARIMA Models
+
+.futnote[Eli Holmes, UW SAFS]
+
+.citation[eeholmes@uw.edu]
+
+---
+
+
+
+## Basic idea
+
+Past values in the time series have information about the current state.  An ARMA model models the current state as a linear function of past values:
+
+`$$x_t = \phi_1 x_{t-1} + \phi_2 x_{t-2} + ... + \phi_p x_{t-p} + e_t$$`
+
+.center[
+
+![Species Plot](./figs/SpeciesPlot.jpeg)
+
+]
+
+---
+
+## ARIMA models (Box-Jenkins models)
+
+You will commonly see ARIMA models referred to as *Box-Jenkins* models.  This model has 3 components (p, d, q):
+
+- **AR autoregressive**  `\(y_t\)` depends on past values. The AR level is maximum lag `\(p\)`.
+
+`$$x_t = \phi_1 x_{t-1} + \phi_2 x_{t-2} + ... + \phi_p x_{t-p} + e_t$$`
+
+- **I differencing** `\(x_t\)` may be a difference of the observed time series.  The number of differences is denoted `\(d\)`. First difference is `\(d=1\)`:
+
+`$$x_t = y_t - y_{t-1}$$`
+
+- **MA moving average**  The error `\(e_t\)` can be a sum of a time series of independent random errors.  The maximum lag is denoted `\(q\)`.
+
+`$$e_t = \eta_t + \theta_1 \eta_{t-1} + \theta_2 \eta_{t-2} + ... + \theta_q \eta_{t-q},\quad \eta_t \sim N(0, \sigma)$$`
+
+---
+
+## Create some data from an AR(2) Model
+
+`$$x_t = 0.5 x_{t-1} + 0.3 x_{t-2} + e_t$$`
+
+
+```r
+dat = arima.sim(n=1000, model=list(ar=c(.5,.3)))
+plot(dat)
+abline(h=0, col="red")
+```
+
+&lt;img src="Forecasting-3-1---ARMA-Intro_files/figure-html/arima.sim-1.png" style="display: block; margin: auto;" /&gt;
+
+---
+
+&lt;img src="Forecasting-3-1---ARMA-Intro_files/figure-html/arimavsrn-1.png" style="display: block; margin: auto;" /&gt;
+
+---
+
+## AR(2) is auto-correlated
+
+Plot the data at time `\(t\)` against the data at time `\(t-1\)`
+
+&lt;img src="Forecasting-3-1---ARMA-Intro_files/figure-html/arimavsrncorr-1.png" style="display: block; margin: auto;" /&gt;
+
+---
+
+## Auto-correlation function
+
+The auto-correlation function is the correlation between the data at time `\(t\)` and `\(t+1\)`.  This is one of the basic diagnostic plots for time series data.
+
+
+```r
+acf(dat[1:50])
+```
+
+&lt;img src="Forecasting-3-1---ARMA-Intro_files/figure-html/acf-1.png" style="display: block; margin: auto;" /&gt;
+
+---
+
+`cor()` is the correlation function.
+
+
+```r
+cor(dat[2:TT], dat[1:(TT-1)])
+```
+
+```
+## [1] 0.7401032
+```
+
+```r
+cor(dat[11:TT], dat[1:(TT-10)])
+```
+
+```
+## [1] 0.198833
+```
+
+&lt;img src="Forecasting-3-1---ARMA-Intro_files/figure-html/acf2-1.png" style="display: block; margin: auto;" /&gt;
+
+---
+
+## ACF for independent data
+
+&lt;img src="Forecasting-3-1---ARMA-Intro_files/figure-html/acf.random-1.png" style="display: block; margin: auto;" /&gt;
+
+---
+
+## Partial ACF
+
+`$$x_t = 0.5 x_{t-1} + 0.3 x_{t-2} + e_t$$`
+
+
+```r
+pacf(dat)
+```
+
+&lt;img src="Forecasting-3-1---ARMA-Intro_files/figure-html/pacf.ar2-1.png" style="display: block; margin: auto;" /&gt;
+
+---
+
+## Partial ACF for AR(1)
+
+`$$x_t = 0.5 x_{t-1} + e_t$$`
+
+
+```r
+dat &lt;- arima.sim(TT, model=list(ar=c(.5)))
+pacf(dat)
+```
+
+&lt;img src="Forecasting-3-1---ARMA-Intro_files/figure-html/pacf.ar3-1.png" style="display: block; margin: auto;" /&gt;
+---
+
+## Box-Jenkins Method
+
+This refers to a step-by-step process of selecting a forecasting model.  You need to go through the steps otherwise you could end up fitting a nonsensical model or using fitting a sensible model with an algorithm that will not work on your data.
+
+A. Model form selection
+  1. Evaluate stationarity and seasonality
+  2. Selection of the differencing level (d)
+  3. Selection of the AR level (p)
+  4. Selection of the MA level (q)
+
+B. Parameter estimation
+
+C. Model checking
+
+---
+
+.pull-left.left[
+## Lectures
+
+1. Stationarity
+2. Model Selection
+3. Fitting Models (parameter estimation)
+4. Forecasting
+5. Model Checking
+]
+
+.pull-right.left[
+## Labs
+
+1. Create and plot data from ARMA processes
+2. Test the Greek catch data for stationarity
+3. Fit ARMA models to the Greek catch data
+4. Create forecasts
+5. Test forecast performance
+]
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"highlightLines": true
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

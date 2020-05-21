@@ -27,9 +27,9 @@ require(ggplot2)
 class: center, middle, inverse
 # Forecasting Time Series
 ## Eli Holmes
-.large[_Northwest Fisheries Science Center<br>National Oceanic and Atmospheric Administration<br>Seattle, WA_]
+.large[_University of Washington<br>School of Aquatic and Fisheries Sciences<br>Seattle, WA_]
 
-.futnote[eli.holmes@noaa.gov]
+.futnote[eeholmes@uw.edu]
 
 .citation[http://eeholmes.github.io]
 

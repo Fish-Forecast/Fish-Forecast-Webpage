@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Forecasting-3-3---ARMA-Model-Structure.utf8</title>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="my-theme.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+
+
+layout: true
+
+.hheader[&lt;a href="index.html"&gt;&lt;svg style="height:0.8em;top:.04em;position:relative;fill:steelblue;" viewBox="0 0 576 512"&gt;&lt;path d="M280.37 148.26L96 300.11V464a16 16 0 0 0 16 16l112.06-.29a16 16 0 0 0 15.92-16V368a16 16 0 0 1 16-16h64a16 16 0 0 1 16 16v95.64a16 16 0 0 0 16 16.05L464 480a16 16 0 0 0 16-16V300L295.67 148.26a12.19 12.19 0 0 0-15.3 0zM571.6 251.47L488 182.56V44.05a12 12 0 0 0-12-12h-56a12 12 0 0 0-12 12v72.61L318.47 43a48 48 0 0 0-61 0L4.34 251.47a12 12 0 0 0-1.6 16.9l25.5 31A12 12 0 0 0 45.15 301l235.22-193.74a12.19 12.19 0 0 1 15.3 0L530.9 301a12 12 0 0 0 16.9-1.6l25.5-31a12 12 0 0 0-1.7-16.93z"/&gt;&lt;/svg&gt;&lt;/a&gt;]
+
+---
+
+
+
+class: center, middle, inverse
+# ARIMA Models
+## Model Structure
+
+.futnote[Eli Holmes, UW SAFS]
+
+.citation[eeholmes@uw.edu]
+
+---
+
+
+
+## Model Structure
+
+We are now at step A3 and A4 of the Box-Jenkins Method.  Note we did not address seasonality since we are working with yearly data.
+
+A. Model form selection
+
+  1. Evaluate stationarity and seasonality
+  2. Selection of the differencing level (d)
+  3. **Selection of the AR level (p)**
+  4. **Selection of the MA level (q)**
+    
+B. Parameter estimation
+
+C. Model checking
+
+*Much of this will be automated when we use the forecast package*
+
+---
+
+## Terminology: AR and MA levels
+
+Step A3 is to determine the number of `\(p\)` lags in the AR part of the model:
+
+`$$x_t = \phi_1 x_{t-1} + \phi_2 x_{t-2} + ... + \phi_p x_{t-p} + e_t$$`
+
+Step A4  is to determine the number of `\(q\)` lags in the MA part of the model: 
+
+`$$e_t = \eta_t + \theta_1 \eta_{t-1} + \theta_2 \eta_{t-2} + ... + \theta_q \eta_{t-q},\quad \eta_t \sim N(0, \sigma)$$`
+
+---
+
+## Terminology: model order
+
+For an ARIMA model, the number of AR lags, number of differences, and number of MA lags is called the **model order** or just **order**.
+
+Examples.  Note `\(e_t \sim N(0,\sigma)\)`
+
+- order (0,0,0) white noise 
+
+`$$x_t = e_t$$`
+
+- order (1,0,0) AR-1 process 
+
+`$$x_t = \phi x_{t-1} + e_t$$`
+
+- order (0,0,1) MA-1 process
+
+`$$x_t = e_t + \theta e_{t-1}$$`
+
+- order (1,0,1) AR-1 MA-1 process
+
+`$$x_t = \phi x_{t-1} + e_t + \theta e_{t-1}$$`
+
+---
+
+- order (0,1,0) random walk
+
+`$$x_t - x_{t-1} = e_t$$`
+
+which is the same as
+
+`$$x_t = x_{t-1} + e_t$$`
+
+---
+
+## How to choose the AR and MA levels
+
+### Method #1 use the ACF and PACF functions
+
+The ACF plot shows you how the correlation between `\(x_t\)` and `\(x_{t+p}\)` decrease as `\(p\)` increases.  The PACF plot shows you the same but removes the autocorrelation due to lags less that `\(p\)`.
+
+---
+
+&lt;img src="Forecasting-3-3---ARMA-Model-Structure_files/figure-html/fig.acf.pacf-1.png" style="display: block; margin: auto;" /&gt;
+
+---
+
+If your ACF and PACF look like the top panel, it is AR-p.  The first lag where the PACF is below the dashed lines is the `\(p\)` lag for your model.
+
+&lt;img src="Forecasting-3-3---ARMA-Model-Structure_files/figure-html/fig.acf-1.png" style="display: block; margin: auto;" /&gt;
+
+---
+
+If it looks like the middle panel, it is MA-p.  The first lag where the ACF is below the dashed lines is the `\(q\)` lag for your model.
+
+&lt;img src="Forecasting-3-3---ARMA-Model-Structure_files/figure-html/fig.pacf-1.png" style="display: block; margin: auto;" /&gt;
+
+---
+
+If it looks like the bottom panel, it is ARMA and this approach doesn't work.
+
+&lt;img src="Forecasting-3-3---ARMA-Model-Structure_files/figure-html/fig.pacf.acf.model-1.png" style="display: block; margin: auto;" /&gt;
+
+---
+
+## How to choose the AR and MA levels
+
+### Method #2 Use formal model selection
+
+This weighs how well the model fits against how many parameters your model has.  We will use this approach. 
+
+The `auto.arima()` function in the forecast package in R allows you to easily estimate the `\(p\)` and `\(q\)` for your ARMA model.
+
+We will use the first difference of the anchovy data since our stationarity diagnostics indicated that a first difference makes our time series stationary.
+
+
+```r
+require(forecast)
+anchovy.diff1 = diff(anchovy)
+auto.arima(anchovy.diff1)
+```
+
+---
+
+
+```r
+require(forecast)
+anchovy.diff1 = diff(anchovy)
+auto.arima(anchovy.diff1)
+```
+
+```
+## Series: anchovy.diff1 
+## ARIMA(0,0,1) with non-zero mean 
+## 
+## Coefficients:
+##           ma1    mean
+##       -0.5731  0.0641
+## s.e.   0.1610  0.0173
+## 
+## sigma^2 estimated as 0.03583:  log likelihood=6.5
+## AIC=-6.99   AICc=-5.73   BIC=-3.58
+```
+
+The output indicates that the 'best' model is a MA-1 with a non-zero mean.  "non-zero mean" means that the mean of our data (`anchovy.diff1`) is not zero.
+
+---
+
+`auto.arima()` will also estimate the amount of differencing needed.
+
+
+```r
+auto.arima(anchovy)
+```
+
+```
+## Series: anchovy 
+## ARIMA(0,1,1) with drift 
+## 
+## Coefficients:
+##           ma1   drift
+##       -0.5731  0.0641
+## s.e.   0.1610  0.0173
+## 
+## sigma^2 estimated as 0.03583:  log likelihood=6.5
+## AIC=-6.99   AICc=-5.73   BIC=-3.58
+```
+
+The output indicates that the 'best' model is a MA-1 with first difference.  "with drift" means that the mean of our data (`anchovy`) is not zero.  This is the same model but the jargon regarding the mean is different.
+
+---
+
+## More fitting examples
+
+Let's try fitting to some simulated data.  We will simulate with `arima.sim()`.  We will specify no differencing.
+
+
+```r
+set.seed(100)
+a1 = arima.sim(n=100, model=list(ar=c(.8,.1)))
+auto.arima(a1, seasonal=FALSE, max.d=0)
+```
+
+```
+## Series: a1 
+## ARIMA(1,0,0) with non-zero mean 
+## 
+## Coefficients:
+##          ar1     mean
+##       0.6928  -0.5343
+## s.e.  0.0732   0.2774
+## 
+## sigma^2 estimated as 0.7703:  log likelihood=-128.16
+## AIC=262.33   AICc=262.58   BIC=270.14
+```
+
+The 'best-fit' model is simpler than the model used to simulate the data. 
+
+---
+
+## Let's fit 100 and see how often the 'true' model is chosen
+
+By far the correct type of model is selected, AR-p, but usually a simpler model of AR-1 is chosen over AR-2 (correct) most of the time.
+
+
+```r
+save.fits = rep(NA,100)
+for(i in 1:100){
+  a1 = arima.sim(n=100, model=list(ar=c(.8,.1)))
+  fit = auto.arima(a1, seasonal=FALSE, max.d=0, max.q=0)
+  save.fits[i] = paste0(fit$arma[1], "-", fit$arma[2])
+}
+table(save.fits)
+```
+
+```
+## save.fits
+## 1-0 2-0 3-0 4-0 
+##  74  20   5   1
+```
+
+---
+
+## Trace = TRUE
+
+You can see what models that `auto.arima()` tried using `trace=TRUE`.  The models are selected on AICc by default and the AICc value is shown next to the model.
+
+
+```r
+auto.arima(anchovy, trace=TRUE)
+```
+
+```
+## 
+##  ARIMA(2,1,2) with drift         : 0.9971438
+##  ARIMA(0,1,0) with drift         : -1.582738
+##  ARIMA(1,1,0) with drift         : -3.215851
+##  ARIMA(0,1,1) with drift         : -5.727702
+##  ARIMA(0,1,0)                    : -1.869767
+##  ARIMA(1,1,1) with drift         : -2.907571
+##  ARIMA(0,1,2) with drift         : -3.219136
+##  ARIMA(1,1,2) with drift         : -1.363802
+##  ARIMA(0,1,1)                    : -1.425496
+## 
+##  Best model: ARIMA(0,1,1) with drift
+```
+
+```
+## Series: anchovy 
+## ARIMA(0,1,1) with drift 
+## 
+## Coefficients:
+##           ma1   drift
+##       -0.5731  0.0641
+## s.e.   0.1610  0.0173
+## 
+## sigma^2 estimated as 0.03583:  log likelihood=6.5
+## AIC=-6.99   AICc=-5.73   BIC=-3.58
+```
+
+---
+
+## stepwise=FALSE
+
+By default, step-wise selection is used and an approximation is used for the models tried in the model selection step.  For a final model selection, you should turn these off.
+
+
+```r
+auto.arima(anchovy, stepwise=FALSE, approximation=FALSE)
+```
+
+```
+## Series: anchovy 
+## ARIMA(0,1,1) with drift 
+## 
+## Coefficients:
+##           ma1   drift
+##       -0.5731  0.0641
+## s.e.   0.1610  0.0173
+## 
+## sigma^2 estimated as 0.03583:  log likelihood=6.5
+## AIC=-6.99   AICc=-5.73   BIC=-3.58
+```
+
+---
+## Summary
+
+- Once you have dealt with stationarity, you need to determine the order of the model: the AR part and the MA part.
+
+- Although you could simply use `auto.arima()`, it is best to run `acf()` and `pacf()` on your data to understand it better.
+
+  - Does it look like a pure AR process?
+    
+- Also evaluate if there are reasons to assume a particular structure.  
+
+  - Are you using an established model form, from say another paper?
+  - Are you fitting to a process that is fundamentally AR only or AR + MA?
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"highlightLines": true
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

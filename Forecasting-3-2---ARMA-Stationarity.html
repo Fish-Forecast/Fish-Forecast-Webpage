@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Forecasting-3-2---ARMA-Stationarity.utf8</title>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="my-theme.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+
+
+layout: true
+
+.hheader[&lt;a href="index.html"&gt;&lt;svg style="height:0.8em;top:.04em;position:relative;fill:steelblue;" viewBox="0 0 576 512"&gt;&lt;path d="M280.37 148.26L96 300.11V464a16 16 0 0 0 16 16l112.06-.29a16 16 0 0 0 15.92-16V368a16 16 0 0 1 16-16h64a16 16 0 0 1 16 16v95.64a16 16 0 0 0 16 16.05L464 480a16 16 0 0 0 16-16V300L295.67 148.26a12.19 12.19 0 0 0-15.3 0zM571.6 251.47L488 182.56V44.05a12 12 0 0 0-12-12h-56a12 12 0 0 0-12 12v72.61L318.47 43a48 48 0 0 0-61 0L4.34 251.47a12 12 0 0 0-1.6 16.9l25.5 31A12 12 0 0 0 45.15 301l235.22-193.74a12.19 12.19 0 0 1 15.3 0L530.9 301a12 12 0 0 0 16.9-1.6l25.5-31a12 12 0 0 0-1.7-16.93z"/&gt;&lt;/svg&gt;&lt;/a&gt;]
+
+---
+
+
+
+class: center, middle, inverse
+# ARIMA Models
+## Stationarity
+
+.futnote[Eli Holmes, UW SAFS]
+
+.citation[eeholmes@uw.edu]
+
+---
+
+
+
+
+
+
+## Stationarity
+
+#### Box-Jenkins Method
+
+A. Model form selection
+
+  1. **Evaluate stationarity and seasonality**
+  2. **Selection of the differencing level (d)**
+  3. Selection of the AR level (p)
+  4. Selection of the MA level (q)
+
+B. Parameter estimation
+
+C. Model checking
+
+---
+
+## Stationarity
+
+Stationarity means 'not changing in time' in the context of time-series models.  Typically we test the trend and variance, however more generally all statistical properties of a time-series is time-constant if the time series is 'stationary'.
+
+Many ARMA models exhibit stationarity.  White noise is one type:
+`$$x_t = e_t, e_t \sim N(0,\sigma)$$`
+
+&lt;img src="Forecasting-3-2---ARMA-Stationarity_files/figure-html/fig.stationarity-1.png" style="display: block; margin: auto;" /&gt;
+
+---
+
+An AR-1 process with `\(b&lt;1\)`
+`$$x_t = b x_{t-1} + e_t$$`
+is also stationary.
+
+&lt;img src="Forecasting-3-2---ARMA-Stationarity_files/figure-html/fig.stationarity2-1.png" style="display: block; margin: auto;" /&gt;
+
+---
+
+The processes shown have mean 0 and a flat level.  We can also have stationarity around an non-zero level or stationarity around an linear trend. If `\(b=0\)`, we have white noise and if `\(b&lt;1\)` we have AR-1.
+
+1. Non-zero mean: `\(x_t = \mu + b x_{t-1} + e_t\)`
+
+2. Linear trend: `\(x_t = \mu + at + b x_{t-1} + e_t\)`
+
+&lt;img src="Forecasting-3-2---ARMA-Stationarity_files/figure-html/fig.stationarity3-1.png" style="display: block; margin: auto;" /&gt;
+
+---
+
+## Non-stationarity
+
+One of the most common forms of non-stationarity that is tested for is 'unit root', which means that the process is a random walk:
+`$$x_t = x_{t-1} + e_t$$` .
+
+&lt;img src="Forecasting-3-2---ARMA-Stationarity_files/figure-html/fig.nonstationarity-1.png" style="display: block; margin: auto;" /&gt;
+
+---
+
+Similar to the way we added an intecept and linear trend to the stationarity processes, we can do the same to the random walk.
+
+1. Non-zero mean or intercept: `\(x_t = \mu + x_{t-1} + e_t\)`
+
+2. Linear trend: `\(x_t = \mu + at + x_{t-1} + e_t\)`
+
+The effects are fundamentally different however.  The addition of `\(\mu\)` leads to a upward mean linear trend while the addition of `\(at\)` leads to exponential growth.
+
+&lt;img src="Forecasting-3-2---ARMA-Stationarity_files/figure-html/fig.stationarity4-1.png" style="display: block; margin: auto;" /&gt;
+
+---
+
+## Detecting stationarity
+
+Why is evaluating stationarity important? 
+
+- Many AR models have a flat level or trend and time-constant variance.  If your data do not have those properties, you are fitting a model that is fundamentally inconsistent with your data.
+- Many standard algorithms for fitting ARIMA models assume stationarity.  Note, you can fit ARIMA models without making this assumption, but you need to use the appropriate algorithm.
+
+We will discuss three common approaches to evaluating stationarity:
+
+- Visual test
+- (Augmented) Dickey-Fuller test
+- KPSS test
+
+---
+
+## Visual test
+
+The visual test is simply looking at a plot of the data versus time.  Look for
+
+- Change in the level over time.  Is the time series increasing or decreasing?  Does it appear to cycle?
+- Change in the variance over time.  Do deviations away from the mean change over time, increase or decrease?
+
+
+---
+
+Here is a plot of the anchovy and sardine in Greek waters from 1965 to 1989.  The anchovies have an obvious non-stationary trend during this period.  The mean level is going up.  The sardines have a roughly stationary trend.  The variance (deviations away from the mean) appear to be roughly stationary, neither increasing or decreasing in time.
+
+&lt;img src="Forecasting-3-2---ARMA-Stationarity_files/figure-html/fig.vis-1.png" style="display: block; margin: auto;" /&gt;
+
+Although the logged anchovy time series is increasing, it appears to have an linear trend.
+
+---
+
+## Dickey-Fuller test
+
+The Dickey=Fuller test (and Augmented Dickey-Fuller test) look for evidence that the time series has a unit root.  
+
+The null hypothesis is that the time series has a unit root, that is, it has a random walk component.  
+
+The alternative hypothesis is some variation of stationarity.  The test has three main verisons. 
+
+---
+
+Visually, the null and alternative hypotheses for the three Dickey-Fuller tests are the following.  It is hard to see but in the panels on the left, the variance around the trend is increasing and on the right, it is not.
+
+&lt;img src="Forecasting-3-2---ARMA-Stationarity_files/figure-html/fig.df-1.png" style="display: block; margin: auto;" /&gt;
+
+---
+
+In math, here are the null and alternative hypotheses.  In each, we are testing if `\(\delta=0\)`.
+
+1. Null is a random walk with no drift
+`\(x_t = x_{t-1}+e_t\)`
+
+Alternative is a mean-reverting (stationary) process with zero mean.
+`\(x_t = \delta x_{t-1}+e_t\)`
+
+2. Null is a random walk with drift (linear STOCHASTIC trend)
+`\(x_t = \mu + x_{t-1} + e_t\)`
+
+Alternative is a mean-reverting (stationary) process with non-zero mean and no trend.
+`\(x_t = \mu + \delta x_{t-1} + e_t\)`
+
+3. Null is a random walk with exponential trend
+`\(x_t = \mu + at + x_{t-1} + e_t\)`
+
+Alternative is a mean-reverting (stationary) process with non-zero mean and linear DETERMINISTIC trend.
+`\(x_t = \mu + at + \delta x_{t-1} + e_t\)`
+
+---
+
+
+
+## Example: Dickey-Fuller tests on the anchovy time series
+
+`adf.test()` in the tseries package will apply the Augemented Dickey-Fuller and report the p-value.  We want to reject the Dickey=Fuller null hypothesis of non-stationarity.  We will set `k=0` to apply the Dickey-Fuller test which tests for AR(1) stationarity.  The Augmented Dickey-Fuller tests for more general lag-p stationarity.
+
+```
+adf.test(x, alternative = c("stationary", "explosive"),
+         k = trunc((length(x)-1)^(1/3)))
+```
+
+Here is how to apply this test to the anchovy data
+
+
+```r
+adf.test(anchovy, k=0)
+```
+
+```
+## 
+## 	Augmented Dickey-Fuller Test
+## 
+## data:  anchovy
+## Dickey-Fuller = -3.4558, Lag order = 0, p-value = 0.07003
+## alternative hypothesis: stationary
+```
+
+The null hypothesis is not rejected.  That is not what we want.
+
+---
+
+The `urca` R package can also be used to apply the Dickey-Fuller tests.  Use `lags=0` for Dickey-Fuller which tests for AR(1) stationarity.  We will set `type="trend"` to deal with the trend seen in the anchovy data.  Note, `adf.test()` uses this type by default.
+
+```
+ur.df(y, type = c("none", "drift", "trend"), lags = 0)
+```
+
+
+```r
+require(urca)
+test = ur.df(anchovy, type="trend", lags=0)
+test
+```
+
+```
+## 
+## ############################################################### 
+## # Augmented Dickey-Fuller Test Unit Root / Cointegration Test # 
+## ############################################################### 
+## 
+## The value of the test statistic is: -3.4558 4.3568 5.9805
+```
+
+---
+
+`ur.df()` will report the test statistic.  You can look up the values of the test statistic for different `\(\alpha\)` levels using `summary(test)` or `attr(test, "cval")`.  If the test statistic is less than the critical value for `\(\alpha\)`=0.05 ('5pct' in cval), it means the null hypothesis of non-stationarity is rejected.  For the Dickey-Fuller test, you do want to reject the null hypothesis.
+
+The test statistic is 
+
+```r
+attr(test, "teststat")
+```
+
+```
+##                tau3     phi2     phi3
+## statistic -3.455795 4.356764 5.980506
+```
+and the critical value at `\(\alpha = 0.05\)` is 
+
+```r
+attr(test,"cval")
+```
+
+```
+##       1pct  5pct 10pct
+## tau3 -4.15 -3.50 -3.18
+## phi2  7.02  5.13  4.31
+## phi3  9.31  6.73  5.61
+```
+The statistic is larger than the critical value and thus the null hypothesis of non-stationarity is not rejected. That's not what we want.
+
+---
+
+## Augmented Dickey-Fuller test
+
+The Dickey-Fuller test assumes that the stationary process is AR(1) (autoregressive lag-1).  The Augmented Dickey-Fuller test allows a general stationary process.  The idea of the test however is the same.
+
+We can apply the Augmented Dickey-Fuller test with the `ur.df()` function or the `adf.test()` function in the `tseries` package.
+
+```
+adf.test(x, alternative = c("stationary", "explosive"),
+         k = trunc((length(x)-1)^(1/3)))
+```
+
+The alternative is either stationary like `\(x_t = \delta x_{t-1} + \eta_t\)` with `\(\delta&lt;1\)` or 'explosive' with `\(\delta&gt;1\)`.  `k` is the number of lags which determines the number of time lags allowed in the autoregression.  `k` is generally determined by the length of your time series.
+
+---
+
+## Example: Augmented Dickey-Fuller tests with adf.test()
+
+With the `tseries` package, we apply the Augmented Dickey-Fuller test with `adf.test()`.  This function uses the test where the alternative model is stationary around a linear trend: `\(x_t = \mu + at + \delta x_{t-1} + e_t\)`.
+
+
+```r
+require(tseries)
+adf.test(anchovy)
+```
+
+```
+## 
+## 	Augmented Dickey-Fuller Test
+## 
+## data:  anchovy
+## Dickey-Fuller = -1.6851, Lag order = 2, p-value = 0.6923
+## alternative hypothesis: stationary
+```
+
+In both cases, we do not reject the null hypothesis that the data have a random walk.  Thus there is not support for these time series being stationary.
+
+---
+
+## Example: Augmented Dickey-Fuller tests with ur.df()
+
+With the `urca` package, we apply the Augmented Dickey-Fuller test with `ur.df()`.  The defaults for `ur.df()` are different than for `adf.test()`.  
+
+`ur.df()` allows you to specify which of the 3 alternative hypotheses you want: none (stationary around 0), drift (stationary around a non-zero intercept), trend (stationary around a linear trend).
+
+Another difference is that by default, `ur.df()` uses a fixed lag of 1 while by default `adf.test()` selects the lag based on the length of the time series.
+
+---
+
+We will specify "trend" to make the test similar to `adf.test()`.  We will set the lags like `adf.test()` does also.
+
+
+```r
+require(urca)
+k = trunc((length(anchovy)-1)^(1/3))
+test = ur.df(anchovy, type="trend", lags=k)
+test
+```
+
+```
+## 
+## ############################################################### 
+## # Augmented Dickey-Fuller Test Unit Root / Cointegration Test # 
+## ############################################################### 
+## 
+## The value of the test statistic is: -1.6851 2.6616 1.421
+```
+
+The test statistic values are the same, but we need to look up the critical values with `summary(test)`.
+
+---
+
+## KPSS test
+
+In the Dickey-Fuller test, the null hypothesis is the unit root, i.e. random walk.  Often times, there is not enough power to reject the null hypothesis.  A null hypothesis is accepted unless there is strong evidence against it.  
+
+The Kwiatkowski–Phillips–Schmidt–Shin (KPSS) test has as the null hypothesis that a time series is stationary around a level trend (or a linear trend). The alternative hypothesis for the KPSS test is a random walk.
+
+The stationarity assumption is general; it does not assume a specific type of stationarity such as white noise.
+
+If both KPSS and Dickey-Fuller tests support non-stationarity, then the stationarity assumption is not supported.
+
+---
+
+## Example: KPSS tests
+
+
+```r
+require(tseries)
+kpss.test(anchovy, null="Trend")
+```
+
+```
+## 
+## 	KPSS Test for Trend Stationarity
+## 
+## data:  anchovy
+## KPSS Trend = 0.14779, Truncation lag parameter = 2, p-value = 0.04851
+```
+
+Here `null="Trend"` was included to account for the increasing trend in the data.  The null hypothesis of stationarity is rejected.  Thus both the KPSS and Dickey-Fuller tests support the hypothesis that the anchovy time series is non-stationary.  That's not what we want.
+
+---
+
+## Differencing the data to make the mean stationary
+
+Differencing means to create a new time series  `\(z_t = x_t - x_{t-1}\)`.  First order differencing means you do this once (so `\(z_t\)`) and second order differencing means you do this twice (so `\(z_t - z_{t-1}\)`).
+
+The `diff()` function takes the first difference:
+
+
+```r
+x &lt;- diff(c(1,2,4,7,11))
+x
+```
+
+```
+## [1] 1 2 3 4
+```
+
+The second difference is the first difference of the first difference.
+
+
+```r
+diff(x)
+```
+
+```
+## [1] 1 1 1
+```
+
+---
+
+Here is a plot of the anchovy data and its first difference.
+
+
+```r
+par(mfrow=c(1,2))
+plot(anchovy, type="l")
+title("Anchovy")
+plot(diff(anchovy), type="l")
+title("Anchovy first difference")
+```
+
+&lt;img src="Forecasting-3-2---ARMA-Stationarity_files/figure-html/diff1.plot-1.png" style="display: block; margin: auto;" /&gt;
+
+
+---
+
+Let's test the anchovy data with one difference using the KPSS test.
+
+
+```r
+diff.anchovy = diff(anchovy)
+kpss.test(diff.anchovy)
+```
+
+```
+## Warning in kpss.test(diff.anchovy): p-value greater than printed p-value
+```
+
+```
+## 
+## 	KPSS Test for Level Stationarity
+## 
+## data:  diff.anchovy
+## KPSS Level = 0.089671, Truncation lag parameter = 2, p-value = 0.1
+```
+
+The null hypothesis of stationairity is not rejected. That is good.
+
+---
+
+Let's test the first difference of the anchovy data using the Augmented Dickey-Fuller test.  We do the default test and allow it to chose the number of lags.
+
+
+```r
+adf.test(diff.anchovy)
+```
+
+```
+## 
+## 	Augmented Dickey-Fuller Test
+## 
+## data:  diff.anchovy
+## Dickey-Fuller = -3.2718, Lag order = 2, p-value = 0.09558
+## alternative hypothesis: stationary
+```
+
+The null hypothesis of non-stationarity is not rejected.  That is not what we want.  However, we differenced which removed the trend thus we are testing against a more general model than we need.  Let's test with an alternative hypothesis that has a non-zero mean.  We can do this with `ur.df()` and `type='drift'`.
+
+
+```r
+test &lt;- ur.df(diff.anchovy, type="drift", lags=2)
+```
+
+---
+
+The null hypothesis of NON-stationairity IS rejected. That is good.
+
+The test statistic is 
+
+```r
+attr(test, "teststat")
+```
+
+```
+##                tau2     phi1
+## statistic -3.339142 5.847969
+```
+
+and the critical value at `\(\alpha = 0.05\)` is 
+
+```r
+attr(test,"cval")
+```
+
+```
+##       1pct  5pct 10pct
+## tau2 -3.75 -3.00 -2.63
+## phi1  7.88  5.18  4.12
+```
+
+---
+
+## Summary
+
+Test stationarity before you fit a ARMA model.
+
+- Visual test: is the time series flutuating about a level or a linear trend?
+
+Yes or maybe?  Apply a "unit root" test.
+
+- (Augmented) Dickey-Fuller test
+- KPSS test
+
+No or fails the unit root test.
+
+- Apply differencing again and re-test.
+
+Still not passing?
+
+- Try a second difference.
+
+Still not passing?
+
+- ARMA model might not be the best choice. Or you may need to an adhoc detrend.
+
+---
+
+## Good news
+
+Much of this will be automated with the forecast package functions.
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"highlightLines": true
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

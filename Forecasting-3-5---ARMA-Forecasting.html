@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Forecasting-3-5---ARMA-Forecasting.utf8</title>
+    <meta charset="utf-8" />
+    <link rel="stylesheet" href="my-theme.css" type="text/css" />
+  </head>
+  <body>
+    <textarea id="source">
+
+
+layout: true
+
+.hheader[&lt;a href="index.html"&gt;&lt;svg style="height:0.8em;top:.04em;position:relative;fill:steelblue;" viewBox="0 0 576 512"&gt;&lt;path d="M280.37 148.26L96 300.11V464a16 16 0 0 0 16 16l112.06-.29a16 16 0 0 0 15.92-16V368a16 16 0 0 1 16-16h64a16 16 0 0 1 16 16v95.64a16 16 0 0 0 16 16.05L464 480a16 16 0 0 0 16-16V300L295.67 148.26a12.19 12.19 0 0 0-15.3 0zM571.6 251.47L488 182.56V44.05a12 12 0 0 0-12-12h-56a12 12 0 0 0-12 12v72.61L318.47 43a48 48 0 0 0-61 0L4.34 251.47a12 12 0 0 0-1.6 16.9l25.5 31A12 12 0 0 0 45.15 301l235.22-193.74a12.19 12.19 0 0 1 15.3 0L530.9 301a12 12 0 0 0 16.9-1.6l25.5-31a12 12 0 0 0-1.7-16.93z"/&gt;&lt;/svg&gt;&lt;/a&gt;]
+
+---
+
+
+
+class: center, middle, inverse
+# ARIMA Models
+## Forecasting
+
+.futnote[Eli Holmes, UW SAFS]
+
+.citation[eeholmes@uw.edu]
+
+---
+
+
+
+
+
+## Forecasting
+
+The basic idea of forecasting with an ARIMA model is the same as forecasting with a time-varying regressiion model.
+
+We estimate a model and the parameters for that model.  For example, let's say we want to forecast with ARIMA(2,1,0) model:
+`$$y_t = \beta_1 y_{t-1} + \beta_2 y_{t-2} + e_t$$`
+where `\(y_t\)` is the first difference of our anchovy data.
+
+---
+
+Let's estimate the `\(\beta\)`'s:
+
+
+```r
+fit &lt;- Arima(anchovy, order=c(2,1,0))
+coef(fit)
+```
+
+```
+##        ar1        ar2 
+## -0.3347994 -0.1453928
+```
+
+So we will forecast with this model:
+
+`$$y_t = -0.3348 y_{t-1} - 0.1454 y_{t-2} + e_t$$`
+
+So to get our forecast for 1988, we do this
+
+`$$(y_{1988}-y_{1987}) = -0.3348 (y_{1987}-y_{1986}) - 0.1454 (y_{1986}-y_{1985})$$`
+
+`$$y_{1988} = y_{1987}-0.3348 (y_{1987}-y_{1986}) - 0.1454 (y_{1986}-y_{1985})$$`
+
+---
+
+`$$y_{1988} = y_{1987}-0.3348 (y_{1987}-y_{1986}) - 0.1454 (y_{1986}-y_{1985})$$`
+
+Here is R code to do that:
+
+
+```r
+anchovy[24]+coef(fit)[1]*(anchovy[24]-anchovy[23])+
+  coef(fit)[2]*(anchovy[23]-anchovy[22])
+```
+
+```
+##      ar1 
+## 10.00938
+```
+
+Thankfully, `forecast()` automates this calculation for us.
+
+
+```r
+forecast(fit, h=1)
+```
+
+```
+##    Point Forecast    Lo 80    Hi 80   Lo 95    Hi 95
+## 25       10.00938 9.727733 10.29102 9.57864 10.44011
+```
+
+---
+
+## Forecasting
+
+We can forecast from a fit in R using the `forecast()` function.  `h` is the number of time steps forward to forecast.  The upper and lower prediction intervals are shown.
+
+
+```r
+fit &lt;- auto.arima(sardine, test="adf")
+fr &lt;- forecast(fit, h=5)
+fr
+```
+
+```
+##    Point Forecast    Lo 80    Hi 80    Lo 95    Hi 95
+## 25       9.178334 9.015992 9.340675 8.930053 9.426614
+## 26       9.178334 8.948748 9.407919 8.827212 9.529455
+## 27       9.178334 8.897150 9.459518 8.748300 9.608367
+## 28       9.178334 8.853650 9.503017 8.681773 9.674894
+## 29       9.178334 8.815327 9.541341 8.623162 9.733505
+```
+
+---
+
+We can plot our forecast with prediction intervals.  Here is the sardine forecast:
+
+
+```r
+plot(fr, xlab="Year")
+```
+
+&lt;img src="Forecasting-3-5---ARMA-Forecasting_files/figure-html/unnamed-chunk-5-1.png" style="display: block; margin: auto;" /&gt;
+
+---
+
+# Repeat for anchovy
+
+
+```r
+fit &lt;- auto.arima(anchovy)
+fr &lt;- forecast(fit, h=5)
+plot(fr)
+```
+
+&lt;img src="Forecasting-3-5---ARMA-Forecasting_files/figure-html/unnamed-chunk-6-1.png" style="display: block; margin: auto;" /&gt;
+
+---
+
+# What happens if I have missing values?
+
+
+```r
+anchovy.miss &lt;- anchovy
+anchovy.miss[10:14] &lt;- NA
+fit &lt;- auto.arima(anchovy.miss)
+fr &lt;- forecast(fit, h=5)
+plot(fr)
+```
+
+&lt;img src="Forecasting-3-5---ARMA-Forecasting_files/figure-html/unnamed-chunk-7-1.png" style="display: block; margin: auto;" /&gt;
+
+---
+
+# Repeat for Chub Mackerel
+
+
+```r
+dat &lt;- subset(landings, Species=="Chub.mackerel")$log.metric.tons
+fit &lt;- auto.arima(dat)
+fr &lt;- forecast(fit, h=5)
+plot(fr, ylim=c(6,10))
+```
+
+&lt;img src="Forecasting-3-5---ARMA-Forecasting_files/figure-html/unnamed-chunk-8-1.png" style="display: block; margin: auto;" /&gt;
+
+
+---
+
+## The "Naive" forecast
+
+The "naive" forecast is simply the last value observed.  If we want to prediction landings in 2019, the naive forecast would be the landings in 2018.  This is a difficult forecast to beat!  It has the advantage of having no parameters.
+
+In forecast, we can fit this model with the `naive()` function.  Note this is the same as the `rwf()` function.
+
+---
+
+
+```r
+fit.naive &lt;- naive(anchovy)
+fr.naive &lt;- forecast(fit.naive, h=5)
+plot(fr.naive)
+```
+
+&lt;img src="Forecasting-3-5---ARMA-Forecasting_files/figure-html/unnamed-chunk-9-1.png" style="display: block; margin: auto;" /&gt;
+
+---
+
+## The "Naive" forecast with drift
+
+The "naive" forecast is equivalent to a random walk with no drift.  So this
+`$$x_t = x_{t-1} + e_t$$`
+As you saw with the anchovy fit, it doesn't allow an upward trend.  Let's make it a little more flexible by add `drift`.  This means we estimate one term, the trend.
+
+`$$x_t = \mu + x_{t-1} + e_t$$`
+
+---
+
+
+```r
+fit.rwf &lt;- rwf(anchovy, drift=TRUE)
+fr.rwf &lt;- forecast(fit.rwf, h=5)
+plot(fr.rwf)
+```
+
+&lt;img src="Forecasting-3-5---ARMA-Forecasting_files/figure-html/unnamed-chunk-10-1.png" style="display: block; margin: auto;" /&gt;
+
+---
+
+## The "mean" forecast
+
+The "mean" forecast is simply the mean of the data.  If we want to prediction landings in 2019, the mean forecast would be the average of all our data.  This is a poor forecast typically.  It uses no information about the most recent values.
+
+In forecast, we can fit this model with the `Arima()` function and `order=c(0,0,0)`.  This will fit this model:
+`$$x_t = e_t$$`
+where `\(e_t \sim N(\mu, \sigma)\)`.
+
+---
+
+
+```r
+fit.mean &lt;- Arima(anchovy, order=c(0,0,0))
+fr.mean &lt;- forecast(fit.mean, h=5)
+plot(fr.mean)
+```
+
+&lt;img src="Forecasting-3-5---ARMA-Forecasting_files/figure-html/unnamed-chunk-11-1.png" style="display: block; margin: auto;" /&gt;
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"highlightLines": true
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

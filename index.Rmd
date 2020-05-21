@@ -22,7 +22,7 @@ This course will teach a number of standard approaches for forecasting from catc
 
 # e-Text and other courses
 
-An online book of the material is [Fisheries Catch Forecasting](https://fish-forecast.github.io/Fish-Forecast-Bookdown/).  Links to our other workshops and courses on similar material can be found at the [NWFSC Applied Time Series Analysis](https://nwfsc-timeseries.github.io/) website.
+An online book of the material is [Fisheries Catch Forecasting](https://fish-forecast.github.io/Fish-Forecast-Bookdown/).  Links to our other workshops and courses on similar material can be found at the [Applied Time Series Analysis](https://nwfsc-timeseries.github.io/) website.
 
 # References
 
@@ -32,5 +32,5 @@ You can download the reference papers [here](https://github.com/Fish-Forecast/Fi
 
 
 <div style="text-align: center">
-<i class="fas fa-cubes"></i> NOAA Fisheries - NW Fisheries Science Center <i class="fas fa-cubes"></i>
+<i class="fas fa-cubes"></i> ---------------------------------------- <i class="fas fa-cubes"></i>
 </div>
